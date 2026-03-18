@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>VEDDEMÅL</title>
+<meta name="theme-color" content="#00ff88">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Veddemål">
+<meta name="description" content="P2P veddemål — ingen dommer, ingen server, bare deg og motparten.">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06060b;--surf:#0d0d16;--surf2:#13131f;--b:#1e1e2e;--b2:#2a2a3e;
+  --tx:#f0f0fa;--dim:#7a7a9a;--muted:#9a9ab8;
+  --g:#00ff88;--gd:#071a10;--gb:#0f3a20;
+  --a:#ffaa00;--ad:#1a1100;--ab:#3a2800;
+  --bl:#4499ff;--bld:#08142a;--blb:#1a3a6a;
+  --r:#ff4466;--rd:#1a0612;--rb:#3a1030;
+  --pu:#9966ff;--pud:#0f0a1a;--pub:#2a1a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;color:var(--tx);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:84px}
+.scr{padding:20px 18px 20px;animation:fi .15s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+button{cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:none;color:inherit}
+input,textarea,select{font-family:'DM Sans',sans-serif;outline:none;-webkit-appearance:none;background:none}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+::-webkit-scrollbar{width:0}
+
+/* NAV */
+#nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+  background:var(--surf);border-top:1px solid var(--b);display:flex;z-index:200;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+.nb{flex:1;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;
+  gap:3px;font-size:9px;color:var(--dim);font-weight:600;letter-spacing:.7px;text-transform:uppercase;
+  transition:color .15s;position:relative}
+.nb.act{color:var(--g)}
+.nb-ico{font-size:20px;line-height:1}
+.nb-badge{position:absolute;top:5px;right:calc(50% - 18px);background:var(--r);color:#fff;
+  font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:0 3px}
+.nb-plus{flex:1;padding:6px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nb-plus-ico{width:44px;height:44px;background:var(--g);border-radius:22px;display:flex;
+  align-items:center;justify-content:center;font-size:26px;color:#000;margin-top:-12px;
+  box-shadow:0 0 28px rgba(0,255,136,.4);transition:transform .12s;font-weight:700}
+.nb-plus-ico:active{transform:scale(.9)}
+.nb-plus-lbl{font-size:9px;font-weight:600;color:var(--dim);letter-spacing:.7px}
+
+/* NOTIF AREA */
+#notif-area{position:fixed;top:env(safe-area-inset-top,0);left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;z-index:300;pointer-events:none;padding:8px 14px 0}
+.notif-banner{background:var(--surf2);border:1px solid var(--b2);border-radius:12px;
+  padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;
+  pointer-events:all;cursor:pointer;animation:slideDown .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.notif-banner.fade-out{animation:slideUp .2s ease forwards}
+@keyframes slideUp{to{opacity:0;transform:translateY(-20px)}}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;line-height:1}
+.logo em{color:var(--g);font-style:normal}
+.conn-pill{font-size:11px;padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;font-weight:500}
+.conn-on{background:var(--gd);border:1px solid var(--gb);color:var(--g)}
+.conn-off{background:var(--surf2);border:1px solid var(--b);color:var(--dim)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pu 1.8s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
+/* TOP BAR */
+.tbar{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.back-btn{display:flex;align-items:center;gap:5px;color:var(--tx);font-size:14px;font-weight:600;
+  padding:10px 14px;background:var(--surf2);border:1px solid var(--b2);border-radius:10px;
+  white-space:nowrap;transition:border-color .12s;flex-shrink:0}
+.back-btn::before{content:'←';font-size:16px}
+.back-btn:active{border-color:var(--b)}
+.pg-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pg-hint{font-size:11px;color:var(--dim);letter-spacing:.5px;flex-shrink:0}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px}
+.stat{background:var(--surf);border:1px solid var(--b);border-radius:12px;padding:12px 8px;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1.1}
+.stat-l{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.sg .stat-n{color:var(--g)}.sa .stat-n{color:var(--a)}.sb .stat-n{color:var(--bl)}
+
+/* TICKER */
+.ticker{background:var(--surf);border:1px solid var(--b);border-radius:10px;
+  padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.tick-dot{width:8px;height:8px;border-radius:50%;background:var(--g);animation:pu 1.4s infinite;flex-shrink:0}
+.tick-tx{font-size:12px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tick-t{font-size:10px;color:var(--g);font-weight:600;flex-shrink:0}
+
+/* CHIPS */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;-webkit-overflow-scrolling:touch}
+.chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;
+  border:1px solid var(--b);color:var(--muted);background:var(--surf);transition:all .15s;flex-shrink:0}
+.chip.act{background:var(--gd);border-color:var(--gb);color:var(--g)}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--b);border-radius:14px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.cj::before{background:linear-gradient(90deg,var(--a),transparent)}
+.ch::before{background:linear-gradient(90deg,var(--g),transparent)}
+.cp::before{background:linear-gradient(90deg,var(--bl),transparent)}
+.cl::before{background:linear-gradient(90deg,var(--pu),transparent)}
+.card-tap{cursor:pointer;transition:border-color .12s}
+.card-tap:active{border-color:var(--b2)}
+.card-desc{font-size:14px;font-weight:500;color:var(--tx);line-height:1.5;margin-bottom:12px}
+.pool-bar{background:var(--surf2);border-radius:20px;height:8px;margin:10px 0 6px;overflow:hidden}
+.pool-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--bl));border-radius:20px}
+.pool-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:500}
+
+/* BADGES */
+.badge{font-size:10px;padding:4px 9px;border-radius:20px;white-space:nowrap;font-weight:700}
+.b-blue{background:var(--bld);border:1px solid var(--blb);color:var(--bl)}
+.b-green{background:var(--gd);border:1px solid var(--gb);color:var(--g)}
+.b-orange{background:var(--ad);border:1px solid var(--ab);color:var(--a)}
+.b-red{background:var(--rd);border:1px solid var(--rb);color:var(--r)}
+.b-gray{background:var(--surf2);border:1px solid var(--b2);color:var(--muted)}
+.b-purple{background:var(--pud);border:1px solid var(--pub);color:var(--pu)}
+.b-lock{background:#1a0a2a;border:1px solid #4a1a7a;color:#cc88ff}
+
+/* ALERT ROWS */
+.alert{border-radius:11px;padding:12px 16px;margin-bottom:10px;display:flex;
+  justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:600}
+.alert-g{background:var(--gd);border:1px solid var(--gb);color:var(--g)}
+.alert-a{background:var(--ad);border:1px solid var(--ab);color:var(--a)}
+.alert-b{background:var(--bld);border:1px solid var(--blb);color:var(--bl)}
+.alert-r{background:var(--rd);border:1px solid var(--rb);color:var(--r)}
+
+/* FORM */
+.field{margin-bottom:18px}
+.flbl{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block;font-weight:600}
+.fi{width:100%;background:var(--surf2);border:1px solid var(--b2);border-radius:11px;
+  color:var(--tx);font-size:15px;padding:13px 15px;display:block;transition:border-color .15s}
+.fi:focus{border-color:var(--g)}
+textarea.fi{resize:none;line-height:1.6}
+select.fi{cursor:pointer}
+.fi-row{display:flex;gap:7px;flex-wrap:wrap}
+.fi-chip{flex:1;min-width:60px;padding:11px 6px;background:var(--surf2);border:1px solid var(--b2);
+  border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);text-align:center;cursor:pointer;transition:all .15s}
+.fi-chip.act{background:var(--gd);border-color:var(--gb);color:var(--g)}
+.fee-row{display:flex;justify-content:space-between;background:var(--bg);border:1px solid var(--b);
+  border-radius:9px;padding:10px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+.fee-row span:last-child{color:var(--a);font-weight:600}
+
+/* TYPE GRID */
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.type-card{background:var(--surf2);border:1px solid var(--b2);border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.type-card.act{border-color:var(--gb);background:var(--gd)}
+.type-ico{font-size:24px;margin-bottom:6px}
+.type-name{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.type-card.act .type-name{color:var(--g)}
+.type-desc{font-size:10px;color:var(--dim);margin-top:4px;line-height:1.4}
+
+/* VIS MODE CARDS */
+.vis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.vis-card{background:var(--surf2);border:2px solid var(--b2);border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .15s}
+.vis-card.act{border-color:var(--gb);background:var(--gd)}
+.vis-card.act-lock{border-color:#4a1a7a;background:#1a0a2a}
+.vis-ico{font-size:32px;margin-bottom:10px}
+.vis-name{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.vis-card.act .vis-name{color:var(--g)}
+.vis-card.act-lock .vis-name{color:#cc88ff}
+.vis-desc{font-size:11px;color:var(--dim);line-height:1.5}
+
+/* STEPS */
+.steps-bar{display:flex;gap:5px;margin-bottom:24px}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--b2)}
+.step-dot.act{background:var(--g)}
+
+/* BUTTONS */
+.btn{padding:14px 18px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:.2px;
+  transition:all .12s;display:block;text-align:center}
+.btn-full{width:100%;margin-top:10px}
+.btn-prim{background:var(--g);color:#000}
+.btn-prim:disabled{opacity:.25;cursor:not-allowed}
+.btn-prim:active:not(:disabled){opacity:.85}
+.btn-sec{background:var(--surf2);border:1px solid var(--b2);color:var(--tx)}
+.btn-sec:active{opacity:.75}
+.btn-acc{background:var(--gd);border:1px solid var(--gb);color:var(--g);flex:1}
+.btn-acc:active{opacity:.75}
+.btn-dec{background:var(--rd);border:1px solid var(--rb);color:var(--r);flex:1}
+.btn-dec:active{opacity:.75}
+.btn-ghost{width:100%;border:1px solid var(--b2);color:var(--muted);margin-top:8px}
+.btn-ghost:hover{border-color:var(--muted);color:var(--tx)}
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.btn-danger{background:var(--rd);border:1px solid var(--rb);color:var(--r)}
+.btn-danger:active{opacity:.75}
+
+/* INFO BOXES */
+.info-box{font-size:12px;color:var(--muted);line-height:1.8;background:var(--surf);border:1px solid var(--b);border-radius:11px;padding:14px 16px;margin-bottom:16px}
+.info-box strong{color:var(--tx)}
+.warn-box{font-size:12px;color:var(--a);line-height:1.8;background:var(--ad);border:1px solid var(--ab);border-radius:11px;padding:14px 16px;margin-bottom:16px}
+.tip-box{font-size:12px;color:var(--bl);line-height:1.8;background:var(--bld);border:1px solid var(--blb);border-radius:11px;padding:14px 16px;margin-bottom:16px}
+.divider{height:1px;background:var(--b);margin:14px 0}
+
+/* DATA ROWS */
+.drow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b);font-size:13px;color:var(--muted)}
+.drow:last-child{border-bottom:none}
+.drow .dval{color:var(--tx);font-weight:500;text-align:right;max-width:60%}
+.dval-g{color:var(--g)!important}
+.dval-a{color:var(--a)!important}
+.dval-r{color:var(--r)!important}
+
+/* AVATAR */
+.av{width:40px;height:40px;border-radius:20px;background:var(--surf2);display:flex;align-items:center;
+  justify-content:center;font-size:15px;font-weight:700;color:var(--tx);flex-shrink:0;
+  text-transform:uppercase;border:1px solid var(--b)}
+.av-g{background:var(--gd);color:var(--g);border-color:var(--gb)}
+.av-a{background:var(--ad);color:var(--a);border-color:var(--ab)}
+.av-pu{background:var(--pud);color:var(--pu);border-color:var(--pub)}
+
+/* PERSON ROW */
+.prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b);cursor:pointer}
+.prow:last-child{border-bottom:none}
+.prow-info{flex:1;min-width:0}
+.prow-name{font-size:14px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow-sub{font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* VIPPS */
+.vipps-box{background:#0d0800;border:1px solid #3a2000;border-radius:12px;padding:16px;margin-bottom:14px}
+.vipps-amt{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#ff6b00;letter-spacing:2px}
+.vipps-to{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* STARS */
+.stars{display:flex;gap:8px;margin:10px 0}
+.star-btn{font-size:32px;color:var(--b2);background:none;border:none;cursor:pointer;transition:color .1s,transform .1s}
+.star-btn.act{color:var(--a)}
+.star-btn:active{transform:scale(1.2)}
+/* RATING CARD */
+.rating-item{background:var(--surf2);border:1px solid var(--b);border-radius:10px;padding:13px;margin-bottom:8px}
+.rating-stars{font-size:15px;color:var(--a);margin-bottom:5px}
+.rating-comment{font-size:13px;color:var(--tx);line-height:1.5;margin-bottom:6px}
+.rating-meta{font-size:11px;color:var(--dim)}
+
+/* PROFILE */
+.profile-card{background:var(--surf);border:1px solid var(--b);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center}
+.profile-av{width:68px;height:68px;border-radius:34px;background:var(--gd);display:flex;align-items:center;
+  justify-content:center;font-size:28px;font-weight:700;color:var(--g);margin:0 auto 14px;border:2px solid var(--gb)}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px}
+.profile-id{font-size:11px;color:var(--dim);letter-spacing:1px;font-family:monospace;margin-top:4px}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.ps{background:var(--surf2);border-radius:10px;padding:12px 8px;text-align:center}
+.ps-n{font-family:'Bebas Neue',sans-serif;font-size:22px}
+.ps-l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;font-weight:600}
+
+/* LEADERBOARD */
+.lb-row{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--b);border-radius:12px;padding:13px 15px;margin-bottom:8px;cursor:pointer}
+.lb-row.act{border-color:var(--gb);background:var(--gd)}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--dim);width:28px;text-align:center}
+.r1{color:#ffd700}.r2{color:#c0c0c0}.r3{color:#cd7f32}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:300px}
+.chat-msgs{flex:1;overflow-y:auto;padding:4px 0;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:82%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.msg-me{background:var(--gd);border:1px solid var(--gb);color:var(--g);align-self:flex-end;border-bottom-right-radius:4px}
+.msg-other{background:var(--surf2);border:1px solid var(--b);color:var(--tx);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-sys{background:none;border:1px dashed var(--b2);color:var(--muted);align-self:center;font-size:11px;text-align:center;max-width:90%;padding:8px 14px}
+.msg-name{font-size:10px;font-weight:700;margin-bottom:3px;color:var(--dim)}
+.msg-time{font-size:10px;color:var(--dim);margin-top:3px;text-align:right}
+.chat-input-row{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--b);margin-top:auto}
+.chat-in{flex:1;background:var(--surf2);border:1px solid var(--b2);border-radius:22px;
+  color:var(--tx);font-size:14px;padding:11px 16px}
+.chat-in:focus{border-color:var(--g)}
+.chat-send{width:44px;height:44px;border-radius:22px;background:var(--g);color:#000;
+  font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-send:active{opacity:.8}
+
+/* INVITE SELECT */
+.invite-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surf2);
+  border:1px solid var(--b);border-radius:11px;margin-bottom:8px;cursor:pointer;transition:border-color .12s}
+.invite-item.sel{border-color:var(--gb);background:var(--gd)}
+.invite-check{width:22px;height:22px;border-radius:11px;border:2px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:all .12s}
+.invite-item.sel .invite-check{background:var(--g);border-color:var(--g);color:#000}
+
+/* MISC */
+.section-label{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;font-weight:700;margin-bottom:10px;display:block}
+.id-display{background:var(--surf2);border:1px solid var(--b2);border-radius:11px;padding:14px;font-family:monospace;font-size:12px;color:var(--g);letter-spacing:1px;word-break:break-all;text-align:center;margin-bottom:10px}
+.streak-pill{display:inline-flex;align-items:center;gap:7px;background:var(--ad);border:1px solid var(--ab);border-radius:20px;padding:7px 16px;font-size:13px;color:var(--a);font-weight:700;margin-bottom:16px}
+.verdict-result{text-align:center;padding:28px 0}
+.verdict-ico{font-size:56px;margin-bottom:12px;animation:fi .3s ease}
+.verdict-n{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:3px}
+.verdict-s{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+.never-paid{background:#1a0800;border:2px solid var(--r);border-radius:10px;padding:8px 14px;font-size:11px;color:var(--r);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.timer-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--a)}
+.ob-wrap{padding:40px 24px 30px}
+.ob-logo{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:6px;text-align:center;line-height:1;margin-bottom:6px}
+.ob-sub{font-size:10px;letter-spacing:3px;color:var(--dim);text-align:center;margin-bottom:44px;font-weight:600}
+.ob-feat{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.ob-feat-ico{font-size:22px;flex-shrink:0;margin-top:1px}
+.ob-feat-t{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.ob-feat-d{font-size:12px;color:var(--muted);line-height:1.6}
+.empty{text-align:center;padding:32px 20px}
+.empty-ico{font-size:36px;margin-bottom:12px}
+.empty-tx{font-size:14px;color:var(--muted);line-height:1.8}
+
+/* DONATE */
+.donate-box{background:linear-gradient(135deg,#0a1a10,#0d1520);border:1px solid var(--gb);border-radius:14px;padding:20px;margin-top:16px;text-align:center}
+.donate-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--g);margin-bottom:6px}
+.donate-msg{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.donate-amts{display:flex;gap:6px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.donate-amt{padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid var(--b2);
+  color:var(--muted);background:var(--surf2);cursor:pointer;transition:all .15s}
+.donate-amt.act{border-color:var(--gb);color:var(--g);background:var(--gd)}
+.donate-methods{display:flex;gap:8px;justify-content:center}
+.donate-btn{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.donate-btn:active{transform:scale(.96)}
+.donate-vipps{background:#ff5b24;color:#fff;border:none}
+.donate-ln{background:#f7931a22;border:1px solid #f7931a55;color:#f7931a}
+</style>
+</head>
+<body>
+<div id="notif-area"></div>
+<div id="app"></div>
+<div id="nav-bar" style="display:none">
+  <button class="nb" id="nb-feed" onclick="go('feed')"><span class="nb-ico">🔥</span>Feed<span class="nb-badge" id="bdg-feed" style="display:none"></span></button>
+  <button class="nb" id="nb-mine" onclick="go('mine')"><span class="nb-ico">💰</span>Mine<span class="nb-badge" id="bdg-mine" style="display:none"></span></button>
+  <div class="nb-plus" onclick="go('create',{step:1})"><div class="nb-plus-ico">+</div><span class="nb-plus-lbl">Post</span></div>
+  <button class="nb" id="nb-chat" onclick="go('chatHub')"><span class="nb-ico">💬</span>Chat<span class="nb-badge" id="bdg-chat" style="display:none"></span></button>
+  <button class="nb" id="nb-prof" onclick="go('profile')"><span class="nb-ico">👤</span>Profil</button>
+</div>
+<script>
+// ════════════════════════════════════════════════
+// TRANSLATIONS
+// ════════════════════════════════════════════════
+const T={no:{back:'Tilbake',cancel:'Avbryt',next:'NESTE →',save:'LAGRE',publish:'PUBLISER →',app_tag:'PRIVAT · P2P · KRYPTERT',ob_btn:'KOM I GANG →',ob1t:'Kryptografisk identitet',ob1d:'Ingen konto. Ingen epost. Din ID er et nøkkelpar lokalt. Privat nøkkel forlater aldri telefonen.',ob2t:'Ingen server',ob2d:'Appen lever på telefonene til alle brukere. Info spres fra venn til venn. Ingen kan slå den av.',ob3t:'To typer veddemål',ob3d:'1 mot 1 eller gruppe. Veddemål kun med vennene dine.',ob4t:'Rykte er alt',ob4d:'Nullstiller du mister du all historikk og rating. Straffen for å rømme fra dårlig rykte.',iphone_tip:'📱 iPhone: Legg til på hjemskjerm (Safari → Del → Legg til) for beste opplevelse.',setup_t:'OPPRETT IDENTITET',name_lbl:'VISNINGSNAVN',pay_lbl2:'VIPPS / BETALINGSINFORMASJON',lang_lbl:'SPRÅK',name_ph:'F.eks. Ola N.',pay_ph2:'98765432',setup_info:'Et ECDSA P-256 nøkkelpar genereres automatisk. Din ID kan ikke endres.',setup_btn:'GENERER NØKLER OG START →',setup_loading:'Genererer...',online_s:'venner online',connecting_s:'Kobler til...',no_friends_t:'Velkommen!',no_friends_d:'Veddemål er privat. Du ser kun bets fra venner.\nDel din ID med venner så de kan legge deg til.',copy_invite:'📋 Kopier min ID',invite_copied:'✅ Kopiert!',no_bets_feed:'Ingen åpne bets fra vennene dine.\nPost det første!',type_honor:'1 MOT 1',type_pool:'GRUPPE',type_honor_d:'Veddemål mellom to. Begge bekrefter resultatet.',type_pool_d:'Flere deltakere, to sider. Velg din side.',type_honor_info:'🤝 Begge bekrefter hvem som vant. Enige = ferdig. Uenige = diskuter i chatten.',type_pool_info:'👥 Du definerer to sider. Alle stemmer på hvem som vant. Flertall avgjør. Vinnersiden deler potten.',create_t:'NYTT VEDDEMÅL',step_type:'TYPE',step_desc:'BESKRIV',step_amt:'INNSATS',step_pub:'PUBLISERING',step_conf:'BEKREFT',desc_lbl:'VEDDEMÅLET',desc_ph:'Beskriv tydelig. Vær konkret.',sideA_lbl:'UTFALL 1',sideA_ph:'F.eks. Norge vinner',sideB_lbl:'UTFALL 2',sideB_ph:'F.eks. Sverige vinner',cat_lbl:'KATEGORI',amt_lbl:'INNSATS PER DELTAKER (maks 500kr)',amt_ph:'Eller skriv beløp...',expiry_lbl:'UTLØPSDATO',exp0:'1 dag',exp1:'3 dager',exp2:'7 dager',exp3:'14 dager',pay_lbl:'OPPGJØRSMETODE',pay_ph:'F.eks. Gjøres opp via Vipps.',pub_info:'Velg hvem som skal se bettet. Sendes direkte — aldri til fremmede.',pub_all:'ALLE VENNER',pub_all_d:'Sendes direkte til alle i vennelisten. Kun de kan se det.',pub_sel:'VALGTE VENNER',pub_sel_d:'Velg hvem du vil invitere fra vennelisten.',no_friends_warn:'Du har ingen venner ennå. Legg til via Søk eller del din ID.',sel_who:'VELG HVEM SOM SKAL INVITERES',conf_type:'Type',conf_amt:'Innsats',conf_sideA:'Utfall 1',conf_sideB:'Utfall 2',conf_expires:'Utløper',conf_sends:'Sendes til',conf_pay:'Oppgjør',not_changed:'Kan ikke endres etter publisering.',mine_t:'MINE BETS',lost_lbl:'Tapt',active_lbl:'AKTIVE',done_lbl:'AVSLUTTET',win_rate:'Win rate',no_bets_mine:'Ingen veddemål ennå.\nPost et bet eller bli med på et åpent.',s_open:'Åpent',s_pending:'Venter',s_active:'● Aktivt',s_won:'🏆 Vant',s_lost:'Tapt',s_declined:'Avslått',s_dispute:'⚠️ Tvist',s_awpay_win:'Venter betaling ↓',s_awpay_lose:'Betal nå →',s_np:'💀 Aldri betalt',s_cancelled:'Kansellert',remove_hist:'🗑 Fjern fra historikk',remove_hist_q:'Fjerne fra historikk?',join_t:'BLI MED',join_btn:'MELD INTERESSE →',choose_side:'VELG DITT UTFALL',bet_detail_t:'VEDDEMÅL',row_type:'Type',row_opponent:'Motpart',row_visibility:'Synlighet',row_expires:'Utløper',row_cat:'Kategori',challenger_d:'vil ta bettet ditt',cancel_bet:'🗑 Kanseller veddemål',cancel_q:'Kansellere?',vipps_info:'<strong>Slik fungerer det:</strong> 1) Vinneren sender betalingsinfo i chatten. 2) Taperen betaler. 3) Bekreft mottak.',honor_hdr:'HVEM VANT?',honor_info:'Begge bekrefter. Enige = ferdig. Uenige = diskuter i chatten.',i_won:'Jeg vant',they_won:'Motpart vant',pool_vote_hdr:'STEM PÅ RESULTATET',pool_vote_info:'Alle stemmer. Flertall avgjør.',you_voted_pre:'✅ Du stemte:',you_voted_suf:'Venter på motpartens bekreftelse.',dispute_info:'⚠️ Uenighet — Diskuter i bet-chatten.',won_share:'Du vant! Send betalingsinfo til motparten i bet-chatten.',share_vipps:'📱 Send betalingsinfo',conf_payment:'✅ Bekreft mottatt betaling',never_paid_btn:'💀 Betalte aldri',never_paid_q:'Markere som aldri betalt?',congrats:'Gratulerer!',better_luck:'Bedre lykke neste gang.',rate_comment:'Kommentar (valgfri)...',rate_btn:'SEND VURDERING ✓',rate_done:'✓ Vurdering sendt',rate_missing:'Gi en vurdering av taperen',never_paid_tag:'💀 ALDRI BETALT — synlig for hele nettverket',open_chat:'💬 Åpne bet-chat',interests_t:'INTERESSERTE',interests_info:'Trykk for å se rykteprofil. Velg hvem du vil ta inn. Andre avslås automatisk.',no_rating_hist:'Ingen ratinghistorikk',row_from:'Fra',rep_t:'RYKTE',chat_t:'CHAT',bet_chats_sec:'BET-CHATTER',groups_sec:'GRUPPESAMTALER',dms_sec:'DIREKTEMELDINGER',no_chats:'Ingen samtaler ennå.\nStart en via Kontakter.',write_ph:'Skriv...',bet_chat_t:'BET-CHAT',bet_chat_info:'Kun de involverte kan lese. Sendes direkte P2P.',del_req_msg:'⚠️ Motpart vil slette chatten. Trykk for å godkjenne.',req_del:'🗑 Be om å slette chat',req_del_q:'Be om sletting?',dm_info:'Ende-til-ende kryptert. Kun dere to kan lese.',no_msgs:'Ingen meldinger ennå.',contacts_t:'KONTAKTER',no_contacts:'Ingen venner ennå',search_t:'SØK',search_ph:'Søk på visningsnavn...',search_info:'Søker blant tilkoblede brukere. Bekreft identitet ved å sammenligne ID muntlig.',write_name:'Skriv et navn',no_results:'Ingen treff',add_btn:'+ Legg til',net_lbl:'NETTVERKET',connections_lbl:'Tilkoblinger',peers_lbl:'Kjente peers',id_lbl:'Kryptografisk ID',invite_lbl:'DEL DIN ID',invite_info:'Del din ID med venner. De legger den til i søkefeltet for å koble seg til.',copy_btn:'📋 Kopier min ID',lb_t:'TOPPLISTE',settings_t:'INNSTILLINGER',prof_sec:'PROFIL',notif_sec:'VARSLER',notif_info:'📱 iPhone: Legg til på hjemskjerm for beste varselopplevelse.',notif_btn:'🔔 Be om varslingstillatelse',notif_ok:'✅ Varsler aktivert',notif_no:'❌ Varsler blokkert',danger_sec:'FARLIG SONE',reset_warn:'Nullstill sletter din kryptografiske identitet, all historikk og alle data. KAN IKKE angres.',reset_btn:'⚠️ Nullstill alt',reset_q:'SISTE SJANSE: Alt slettes for alltid?',blocked_t:'BLOKKERTE',blocked_info:'Blokkerte ser du ikke i feed, chat eller invitasjoner.',no_blocked:'Ingen blokkerte brukere',unblock:'Opphev',my_rep:'⭐ Se min fulle rykteprofil',streak_s:'på rad',day_s:'dag(er)',in_s:'inne',id_conflict_title:'ID-konflikt',id_conflict_msg:'Noen bruker din ID. Prøver igjen automatisk...',enc_fail_warn:'Kryptering feilet. Sende uten kryptering?',enc_mitm_warn:'Advarsel: Mottakerens krypteringsnøkkel kunne ikke verifiseres. Sende likevel?',decrypt_fail:'Kunne ikke dekryptere',stat_open:'Åpne bets',stat_friends:'Venner',stat_active:'Aktive',interest_wait:'interesse i dine bets',bet_not_found:'Fant ikke bettet',np_warn_pre:'Denne brukeren har',np_warn_suf:'"aldri betalt"-merke. Vær forsiktig.',np_times:'× aldri betalt',stake_lbl:'Innsats',potential_win:'Mulig gevinst',settlement:'Oppgjør',view_rep_of:'Se rykteprofil til',anon_info_pre:'Du er anonym —',anon_info_suf:'ser kun visningsnavnet ditt. Du velges inn av eieren etter at du melder interesse.',select_min_one:'Velg minst én person å invitere, eller bytt til "Alle venner".',bet_sent_to:'Bet sendt til',you_posted:'Du la ut:',sel_friends_n:'valgte venn(er)',chosen_friends:'Valgte venner',bet_sends_all_pre:'Bettet sendes til alle',bet_sends_all_suf:'venner i listen din.',bet_sends_priv_pre:'Bettet sendes direkte til',bet_sends_priv_suf:'valgte venner.',bet_sends_all_info:'Bettet sendes direkte til alle vennene dine. Ingen fremmede kan se det.',interested_n:'interesserte',interested_choose:'velg hvem du tar inn',no_msgs_yet:'Ingen meldinger ennå.',won_side:'vant',participants:'deltakere',encrypted_p2p:'Kryptert P2P.',new_chat_btn:'+ Ny chat',contact_alias_info:'Lagre en bruker med et kallenavn kun du ser. Kallenavnet erstatter ID i alle lister.',find_contact:'Finn ny kontakt',new_group:'Ny gruppesamtale',remove_contact_q:'Fjerne kontakt?',select_tip:'Tips: Trykk på sirkelen til venstre for å velge flere og lage en gruppesamtale.',selected_n:'valgt. Trykk "Ny gruppe" ovenfor.',rep_btn:'Rykte',as_player_s:'som spiller',no_player_rating:'Ingen spiller-rating',won_s:'Vunnet',leave_bet_q:'Forlate dette veddemålet?',delete_chat:'Slett samtale',delete_chat_q:'Slette denne samtalen?',group_name_prompt:'Gi gruppesamtalen et navn:',visibility_s:'Synlighet',open_s:'Offentlig',closed_s:'Lukket',waiting_payment:'VENTER PÅ BETALING',payment_deadline:'Betalingsfrist',sys_interested:'er interessert i bettet ditt!',choose_your_side:'HVA TROR DU?',your_side:'Du tror',opponent_side:'Motparten tror',sides_info:'Skriv de to mulige utfallene av veddemålet',creator_chose:'valgte',donate_title:'Liker du appen?',donate_msg:'VEDDEMÅL er gratis og uten reklame. Hvis du har lyst, støtt utviklingen med et lite beløp.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Takk for støtten! 🙏',claims:'hevder',they_claim_won:'at de vant',they_claim_lost:'at du vant',honor_claim:'Resultat påstått!',n_bet_accepted:'Bet akseptert!',n_your_side_won:'Din side vant!',n_your_side_lost:'Din side tapte',n_encrypted_msg:'[Kryptert melding]',n_new_group_chat:'Ny gruppesamtale',n_blocked:'Blokkert',n_rating_sent:'Vurdering sendt!',add_by_id:'LEGG TIL MED ID',add_id_ph:'Lim inn vennens ID (vXXX...)',add_id_btn:'Koble til',add_id_ok:'Koblet til!',add_id_err:'Ugyldig ID. Må starte med v.',share_modal_title:'Del VEDDEMÅL',share_modal_sub:'Velg hvordan du vil dele appen',share_link_btn:'Kopier lenke til denne siden',share_link_sub:'Kopier lenken til denne siden',share_file_btn:'Del Veddemål-app',share_file_sub:'Send appen direkte til en venn',share_copied:'Lenke kopiert!',share_downloaded:'Fil lastet ned!',share_err:'Kunne ikke dele fil',share_file_msg:'🎯 Send denne filen til venner!',share_link_msg:'🎯 Sjekk ut VEDDEMÅL – appen for å vedde med venner!',err_enter_name:'Skriv et visningsnavn for å fortsette.',err_enter_desc:'Beskriv veddemålet for å fortsette.',err_enter_outcomes:'Fyll inn begge utfall for å fortsette.',err_choose_side:'Velg din side for å fortsette.',err_enter_amount:'Velg eller skriv inn innsatsen.',pending_detail:'Venter på at betteieren godkjenner deg inn i veddemålet.',vs_no_opponent:'ingen motpart ennå',lb_info:'Basert på nettverksinfo. Trykk for å se rykteprofil.',lb_you:'(deg)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Vurderinger',rep_never_paid_hdr:'ALDRI BETALT',rep_as_player_hdr:'SOM SPILLER',rep_no_ratings:'Ingen vurderinger ennå',rep_send_dm:'Send DM',rep_block:'Blokker',save_ok:'Lagret!',interests_none:'Ingen har meldt interesse ennå.',accept_btn:'✓ Ta inn',pool_loser_await:'Vinnersiden sender betalingsinfo i bet-chatten. Sjekk der for å se hvem du skal betale.',share_app_btn:'Del appen med venner',no_sel_for_group:'Velg minst én kontakt.',ob_inviter_banner:'delte VEDDEMÅL med deg!',auto_friend_notify:'Du er nå venn med {name}!',install_ios_hint:'Legg til på Hjem-skjerm for beste opplevelse',install_ios_guide:"Trykk Del-knappen (□↑) i Safari → 'Legg til på Hjem-skjerm'",install_android_btn:'Installer Veddemål',install_android_sub:'For beste opplevelse, installer appen'},en:{back:'Back',cancel:'Cancel',next:'NEXT →',save:'SAVE',publish:'PUBLISH →',app_tag:'PRIVATE · P2P · ENCRYPTED',ob_btn:'GET STARTED →',ob1t:'Cryptographic identity',ob1d:'No account. No email. Your ID is a key pair generated locally. The private key never leaves your device.',ob2t:'No server',ob2d:'The app lives on all users phones. Info spreads friend to friend. No one can shut it down.',ob3t:'Two bet types',ob3d:'1 vs 1 or group. Bets only with your friends.',ob4t:'Reputation is everything',ob4d:'Reset and you lose all history and ratings. The punishment for escaping a bad reputation.',iphone_tip:'📱 iPhone: Add to home screen (Safari → Share → Add to Home Screen) for best experience.',setup_t:'CREATE IDENTITY',name_lbl:'DISPLAY NAME',pay_lbl2:'PAYMENT INFO',lang_lbl:'LANGUAGE',name_ph:'E.g. John D.',pay_ph2:'Your Venmo / PayPal / etc',setup_info:'An ECDSA P-256 key pair is automatically generated. Your ID cannot be changed.',setup_btn:'GENERATE KEYS AND START →',setup_loading:'Generating...',online_s:'friends online',connecting_s:'Connecting...',no_friends_t:'Welcome!',no_friends_d:'Wagers is private. You only see bets from friends.\nShare your ID with friends so they can add you.',copy_invite:'📋 Copy my ID',invite_copied:'✅ Copied!',no_bets_feed:'No open bets from your friends.\nPost the first one!',type_honor:'1 VS 1',type_pool:'GROUP',type_honor_d:'Bet between two people. Both confirm the result.',type_pool_d:'Multiple participants, two sides. Pick yours.',type_honor_info:'🤝 Both confirm who won. Agree = done. Disagree = discuss in chat.',type_pool_info:'👥 You define two sides. Everyone votes on who won. Majority decides. Winners split the pot.',create_t:'NEW WAGER',step_type:'TYPE',step_desc:'DESCRIBE',step_amt:'STAKE',step_pub:'PUBLISHING',step_conf:'CONFIRM',desc_lbl:'THE WAGER',desc_ph:'Describe clearly. Be specific.',sideA_lbl:'OUTCOME 1',sideA_ph:'E.g. Norway wins',sideB_lbl:'OUTCOME 2',sideB_ph:'E.g. Sweden wins',cat_lbl:'CATEGORY',amt_lbl:'STAKE PER PARTICIPANT (max 500)',amt_ph:'Or type amount...',expiry_lbl:'EXPIRY',exp0:'1 day',exp1:'3 days',exp2:'7 days',exp3:'14 days',pay_lbl:'PAYMENT METHOD',pay_ph:'E.g. Settle via Venmo.',pub_info:'Choose who sees the bet. Sent directly — never to strangers.',pub_all:'ALL FRIENDS',pub_all_d:'Sent directly to everyone in your friend list. Only they can see it.',pub_sel:'SELECTED FRIENDS',pub_sel_d:'Choose specifically who to invite from your friend list.',no_friends_warn:'You have no friends yet. Add via Search or share your ID.',sel_who:'SELECT FRIENDS TO INVITE',conf_type:'Type',conf_amt:'Stake',conf_sideA:'Outcome 1',conf_sideB:'Outcome 2',conf_expires:'Expires',conf_sends:'Sent to',conf_pay:'Payment',not_changed:'Cannot be changed after publishing.',mine_t:'MY BETS',lost_lbl:'Lost',active_lbl:'ACTIVE',done_lbl:'FINISHED',win_rate:'Win rate',no_bets_mine:'No wagers yet.\nPost a bet or join an open one.',s_open:'Open',s_pending:'Pending',s_active:'● Active',s_won:'🏆 Won',s_lost:'Lost',s_declined:'Declined',s_dispute:'⚠️ Dispute',s_awpay_win:'Awaiting payment ↓',s_awpay_lose:'Pay now →',s_np:'💀 Never paid',s_cancelled:'Cancelled',remove_hist:'🗑 Remove from history',remove_hist_q:'Remove from history?',join_t:'JOIN',join_btn:'SHOW INTEREST →',choose_side:'PICK YOUR OUTCOME',bet_detail_t:'WAGER',row_type:'Type',row_opponent:'Opponent',row_visibility:'Visibility',row_expires:'Expires',row_cat:'Category',challenger_d:'wants to take your bet',cancel_bet:'🗑 Cancel wager',cancel_q:'Cancel?',vipps_info:'<strong>How it works:</strong> 1) Winner sends payment info in chat. 2) Loser pays. 3) Confirm payment.',honor_hdr:'WHO WON?',honor_info:'Both confirm. Agree = done. Disagree = discuss in chat.',i_won:'I won',they_won:'Opponent won',pool_vote_hdr:'VOTE ON RESULT',pool_vote_info:'All participants vote. Majority decides.',you_voted_pre:'✅ You voted:',you_voted_suf:"Waiting for opponent's confirmation.",dispute_info:'⚠️ Disagreement — Discuss in the bet chat.',won_share:'You won! Send your payment info to your opponent in the bet chat.',share_vipps:'📱 Send payment info',conf_payment:'✅ Confirm payment received',never_paid_btn:'💀 Never paid',never_paid_q:'Mark as never paid?',congrats:'Congratulations!',better_luck:'Better luck next time.',rate_comment:'Comment (optional)...',rate_btn:'SUBMIT RATING ✓',rate_done:'✓ Rating submitted',rate_missing:'Rate the loser first',never_paid_tag:'💀 NEVER PAID — visible to your whole network',open_chat:'💬 Open bet chat',interests_t:'INTERESTED',interests_info:'Tap to see reputation. Choose who to let in. Others are automatically declined.',no_rating_hist:'No rating history',row_from:'From',leave_bet_q:'Leave this bet?',delete_chat:'Delete chat',delete_chat_q:'Delete this chat?',group_name_prompt:'Name your group chat:',rep_t:'REPUTATION',chat_t:'CHAT',bet_chats_sec:'BET CHATS',groups_sec:'GROUP CHATS',dms_sec:'DIRECT MESSAGES',no_chats:'No conversations yet.\nStart one via Contacts.',write_ph:'Write...',bet_chat_t:'BET CHAT',bet_chat_info:'Only the involved parties can read. Sent directly P2P.',del_req_msg:'⚠️ Other party wants to delete chat. Tap to approve.',req_del:'🗑 Request chat deletion',req_del_q:'Request deletion?',dm_info:'End-to-end encrypted. Only you two can read.',no_msgs:'No messages yet.',contacts_t:'FRIENDS',no_contacts:'No friends yet',search_t:'SEARCH',search_ph:'Search by display name...',search_info:'Searches connected users. Confirm identity by comparing the first 8 ID characters verbally.',write_name:'Type a name',no_results:'No results',add_btn:'+ Add',net_lbl:'NETWORK',connections_lbl:'Connections',peers_lbl:'Known peers',id_lbl:'Cryptographic ID',invite_lbl:'SHARE YOUR ID',invite_info:'Share your ID with friends. They add it to the search field to connect.',copy_btn:'📋 Copy my ID',lb_t:'LEADERBOARD',settings_t:'SETTINGS',prof_sec:'PROFILE',notif_sec:'NOTIFICATIONS',notif_info:'📱 iPhone: Add to home screen for best notification experience.',notif_btn:'🔔 Request notification permission',notif_ok:'✅ Notifications enabled',notif_no:'❌ Notifications blocked',danger_sec:'DANGER ZONE',reset_warn:'Reset deletes your cryptographic identity, all history and all data. CANNOT be undone.',reset_btn:'⚠️ Reset everything',reset_q:'LAST CHANCE: Delete everything forever?',blocked_t:'BLOCKED',blocked_info:'Blocked users are hidden from feed, chat and invitations.',no_blocked:'No blocked users',unblock:'Unblock',my_rep:'⭐ View my full reputation',streak_s:'in a row',day_s:'day(s)',in_s:'in',id_conflict_title:'ID conflict',id_conflict_msg:'Someone is using your ID. Retrying automatically...',enc_fail_warn:'Encryption failed. Send without encryption?',enc_mitm_warn:'Warning: Recipient encryption key could not be verified. Send anyway?',decrypt_fail:'Could not decrypt',stat_open:'Open bets',stat_friends:'Friends',stat_active:'Active',interest_wait:'interest in your bets',bet_not_found:'Bet not found',np_warn_pre:'This user has',np_warn_suf:'"never paid" marks. Be careful.',np_times:'× never paid',stake_lbl:'Stake',potential_win:'Potential win',settlement:'Settlement',view_rep_of:'View reputation of',anon_info_pre:'You are anonymous —',anon_info_suf:'only sees your display name. The owner selects who to let in.',select_min_one:'Select at least one person to invite, or switch to "All friends".',bet_sent_to:'Bet sent to',you_posted:'You posted:',sel_friends_n:'selected friend(s)',chosen_friends:'Selected friends',bet_sends_all_pre:'Bet sent to all',bet_sends_all_suf:'friends on your list.',bet_sends_priv_pre:'Bet sent directly to',bet_sends_priv_suf:'selected friends.',bet_sends_all_info:'Bet sent directly to all your friends. No strangers can see it.',interested_n:'interested',interested_choose:'choose who to let in',no_msgs_yet:'No messages yet.',won_side:'won',participants:'participants',encrypted_p2p:'Encrypted P2P.',new_chat_btn:'+ New chat',contact_alias_info:'Save a user with a nickname only you see. The nickname replaces the ID in all lists.',find_contact:'Find new friend',new_group:'New group chat',remove_contact_q:'Remove contact?',select_tip:'Tip: Tap the circle on the left to select multiple and create a group chat.',selected_n:'selected. Tap "New group" above.',rep_btn:'Rep',as_player_s:'as player',no_player_rating:'No player rating',won_s:'Won',visibility_s:'Visibility',open_s:'Public',closed_s:'Private',waiting_payment:'AWAITING PAYMENT',payment_deadline:'Payment deadline',sys_interested:'is interested in your bet!',choose_your_side:'WHAT DO YOU THINK?',your_side:'You believe',opponent_side:"Opponent believes",sides_info:'Write the two possible outcomes of the bet',creator_chose:'chose',donate_title:'Enjoying the app?',donate_msg:'VEDDEMÅL is free and ad-free. If you want to, support development with a small amount.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Thanks for the support! 🙏',claims:'claims',they_claim_won:'that they won',they_claim_lost:'that you won',honor_claim:'Result claimed!',n_bet_accepted:'Bet accepted!',n_your_side_won:'Your side won!',n_your_side_lost:'Your side lost',n_encrypted_msg:'[Encrypted message]',n_new_group_chat:'New group chat',n_blocked:'Blocked',n_rating_sent:'Rating sent!',add_by_id:'ADD BY ID',add_id_ph:"Paste friend's ID (vXXX...)",add_id_btn:'Connect',add_id_ok:'Connected!',add_id_err:'Invalid ID. Must start with v.',share_modal_title:'Share VEDDEMÅL',share_modal_sub:'Choose how to share the app',share_link_btn:'Copy link to this page',share_link_sub:'Copy the link to this page',share_file_btn:'Share Veddemål app',share_file_sub:'Send the app directly to a friend',share_copied:'Link copied!',share_downloaded:'File downloaded!',share_err:'Could not share file',share_file_msg:'🎯 Send this file to friends!',share_link_msg:'🎯 Check out VEDDEMÅL – the private bet app!',err_enter_name:'Enter a display name to continue.',err_enter_desc:'Describe the wager to continue.',err_enter_outcomes:'Fill in both outcomes to continue.',err_choose_side:'Pick your side to continue.',err_enter_amount:'Choose or enter the stake.',pending_detail:'Waiting for the bet owner to approve you.',vs_no_opponent:'no opponent yet',lb_info:'Based on network info. Tap to view reputation.',lb_you:'(you)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Ratings',rep_never_paid_hdr:'NEVER PAID',rep_as_player_hdr:'AS PLAYER',rep_no_ratings:'No ratings yet',rep_send_dm:'Send DM',rep_block:'Block',save_ok:'Saved!',interests_none:'No one has shown interest yet.',accept_btn:'✓ Accept',pool_loser_await:"The winning side will send payment info in the bet chat. Check there to see who and how to pay.",share_app_btn:'Share app with friends',no_sel_for_group:'Select at least one contact.',ob_inviter_banner:'shared VEDDEMÅL with you!',auto_friend_notify:'You are now friends with {name}!',install_ios_hint:'Add to Home Screen for the best experience',install_ios_guide:"Tap the Share button (□↑) in Safari → 'Add to Home Screen'",install_android_btn:'Install Veddemål',install_android_sub:'For the best experience, install the app'}};
+const t=k=>{const v=(T[A?.lang]||T.no)[k];return v!==undefined?v:(T.no[k]||k);};
+
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+const ls=k=>localStorage.getItem(k);
+const ss=(k,v)=>localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));
+const $=id=>document.getElementById(id);
+const uid=()=>'m'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+const now=()=>Date.now();
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ab64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64ab=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer;
+const ago=ts=>{if(!ts||isNaN(ts))return '';const s=Math.floor((now()-ts)/1000);const en=A?.lang==='en';if(s<60)return en?'now':'nå';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+(en?'h':'t');return Math.floor(s/86400)+'d';};
+const countdown=ts=>{if(!ts||isNaN(ts))return '';const ms=ts-now();const en=A?.lang==='en';if(ms<=0)return en?'EXPIRED':'UTLØPT';const h=Math.floor(ms/3600000);const m=Math.floor((ms%3600000)/60000);if(h>24)return Math.ceil(h/24)+(en?' days left':' d igjen');return h+'h '+m+'m '+(en?'left':'igjen');};
+const starStr=(n,max=5)=>'★'.repeat(n)+'☆'.repeat(max-n);
+const cats=()=>A?.lang==='en'?['All','⚽ Sports','🎮 Gaming','🎲 Random','💪 Skills','🌍 World','🔥 Trending']:['Alle','⚽ Sport','🎮 Gaming','🎲 Tilfeldigheter','💪 Ferdigheter','🌍 Verden','🔥 Trendy'];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+const A={
+  myId:'',myName:'',myVipps:'',lang:'en',
+  pubB64:'',privKey:null,pubKey:null,
+  ecdhPriv:null,ecdhPub:null,ecdhPubB64:'',
+  sharedKeys:new Map(),
+  peer:null,ready:false,
+  conns:new Map(),peers:new Map(),seen:new Set(),
+  openBets:new Map(),
+  myBets:[],
+  betChats:{},dms:{},groupChats:[],
+  contacts:[],blocked:new Set(),
+  ratings:{},
+  activity:[],offlineQ:[],
+  wins:0,streak:0,
+  screen:'loading',params:{},
+  filter:'*',nb:{},rated:new Set(),
+  inviteSelected:new Set(),
+  unreadChat:0,
+  _donDismissed:new Set()
+};
+
+function loadState(){
+  const jp=(k,d)=>{try{const v=ls(k);return v?JSON.parse(v):JSON.parse(d);}catch(e){console.warn('[loadState] corrupt key',k,e);return JSON.parse(d);}};
+  A.myName=ls('vName')||'';
+  A.myVipps=ls('vVipps')||'';
+  A.lang=ls('vLang')||'en';
+  A.myBets=jp('vBets','[]');
+  A.betChats=jp('vBChat','{}');
+  A.dms=jp('vDM','{}');
+  A.groupChats=jp('vGC','[]');
+  A.contacts=jp('vContacts','[]');
+  A.blocked=new Set(jp('vBlocked','[]'));
+  A.ratings=jp('vRatings','{}');
+  A.activity=jp('vAct','[]');
+  A.offlineQ=jp('vOffQ','[]');
+  A.wins=parseInt(ls('vWins')||'0');
+  A.streak=parseInt(ls('vStreak')||'0');
+  A.rated=new Set(jp('vRated','[]'));
+  A._donDismissed=new Set(jp('vDon','[]'));
+  A.filter='*';
+}
+
+function persist(){
+  try{
+    ss('vBets',JSON.stringify(A.myBets));
+    ss('vBChat',JSON.stringify(A.betChats));
+    ss('vDM',JSON.stringify(A.dms));
+    ss('vGC',JSON.stringify(A.groupChats));
+    ss('vContacts',JSON.stringify(A.contacts));
+    ss('vBlocked',JSON.stringify([...A.blocked]));
+    ss('vRatings',JSON.stringify(A.ratings));
+    ss('vAct',JSON.stringify(A.activity.slice(0,50)));
+    ss('vOffQ',JSON.stringify(A.offlineQ.slice(0,100)));
+    ss('vDon',JSON.stringify([...A._donDismissed]));
+  }catch(e){console.error('[persist]',e);}
+}
+
+function addAct(text,ico){A.activity.unshift({text,ico:ico||'📌',ts:now()});if(A.activity.length>50)A.activity.pop();}
+function addBetMsg(bid,msg){if(!A.betChats[bid])A.betChats[bid]=[];A.betChats[bid].push(msg);if(A.betChats[bid].length>500)A.betChats[bid].shift();}
+function addDM(pid,msg){if(!A.dms[pid])A.dms[pid]=[];A.dms[pid].push(msg);if(A.dms[pid].length>300)A.dms[pid].shift();}
+function getAlias(id){const c=A.contacts.find(x=>x.id===id);return c?c.alias||c.name:null;}
+function dispName(id,fallback){return getAlias(id)||fallback||(id||'?').substr(0,8);}
+
+// ratings helpers
+function getRatings(uid,isJudge){const r=A.ratings[uid];if(!r?.length)return[];return r.filter(x=>!!x.isJudge===!!isJudge);}
+function avgRating(uid,isJudge){const r=getRatings(uid,isJudge);if(!r.length)return null;return Math.round(r.reduce((s,x)=>s+x.score,0)/r.length*10)/10;}
+function npCount(uid){const r=A.ratings[uid];if(!r)return 0;return r.filter(x=>x.neverPaid).length;}
+
+// ════════════════════════════════════════════════
+// CRYPTO
+// ════════════════════════════════════════════════
+async function initCrypto(){
+  const sp=ls('vPriv'),sb=ls('vPub');
+  if(sp&&sb){
+    try{
+      A.privKey=await crypto.subtle.importKey('pkcs8',b64ab(sp),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+      A.pubKey=await crypto.subtle.importKey('raw',b64ab(sb),{name:'ECDSA',namedCurve:'P-256'},true,['verify']);
+      A.pubB64=sb;
+      const h=await crypto.subtle.digest('SHA-256',b64ab(sb));
+      A.myId='v'+ab64(h).replace(/[^a-zA-Z0-9]/g,'').substr(0,14);
+    }catch(e){await genKeys();}
+  }else{await genKeys();}
+  const ep=ls('vEPriv'),eb=ls('vEPub');
+  if(ep&&eb){
+    try{
+      A.ecdhPriv=await crypto.subtle.importKey('pkcs8',b64ab(ep),{name:'ECDH',namedCurve:'P-256'},false,['deriveKey']);
+      A.ecdhPubB64=eb;
+      // Load or regenerate ECDH signature
+      A.ecdhSig=ls('vESig')||'';
+      if(!A.ecdhSig&&A.privKey){
+        const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},A.privKey,b64ab(eb));
+        A.ecdhSig=ab64(sig);ss('vESig',A.ecdhSig);
+      }
+    }catch(e){await genECDH();}
+  }else{await genECDH();}
+  ss('vId',A.myId);
+}
+async function genKeys(){
+  try{
+    const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+    A.privKey=kp.privateKey;A.pubKey=kp.publicKey;
+    const pr=await crypto.subtle.exportKey('pkcs8',kp.privateKey);
+    const pu=await crypto.subtle.exportKey('raw',kp.publicKey);
+    A.pubB64=ab64(pu);ss('vPriv',ab64(pr));ss('vPub',ab64(pu));
+    const h=await crypto.subtle.digest('SHA-256',pu);
+    A.myId='v'+ab64(h).replace(/[^a-zA-Z0-9]/g,'').substr(0,14);
+  }catch(e){console.error('[genKeys]',e);throw e;}
+}
+async function genECDH(){
+  try{
+    const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveKey']);
+    A.ecdhPriv=kp.privateKey;
+    const pu=await crypto.subtle.exportKey('raw',kp.publicKey);
+    A.ecdhPubB64=ab64(pu);
+    ss('vEPriv',ab64(await crypto.subtle.exportKey('pkcs8',kp.privateKey)));
+    ss('vEPub',A.ecdhPubB64);
+    // SECURITY FIX: Sign ECDH pubkey with ECDSA to bind identity
+    if(A.privKey){
+      const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},A.privKey,pu);
+      A.ecdhSig=ab64(sig);
+      ss('vESig',A.ecdhSig);
+    }
+  }catch(e){console.error('[genECDH]',e);throw e;}
+}
+async function verifyECDHSig(pubB64,epubB64,esig){
+  // Verify that ECDH pubkey was signed by the ECDSA identity key
+  if(!pubB64||!epubB64||!esig)return false;
+  try{
+    const pk=await crypto.subtle.importKey('raw',b64ab(pubB64),{name:'ECDSA',namedCurve:'P-256'},true,['verify']);
+    return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},pk,b64ab(esig),b64ab(epubB64));
+  }catch(e){return false;}
+}
+async function deriveShared(epub){
+  if(A.sharedKeys.has(epub))return A.sharedKeys.get(epub);
+  const pk=await crypto.subtle.importKey('raw',b64ab(epub),{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const sk=await crypto.subtle.deriveKey({name:'ECDH',public:pk},A.ecdhPriv,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  A.sharedKeys.set(epub,sk);return sk;
+}
+async function encryptFor(text,epub){
+  try{const sk=await deriveShared(epub);const iv=crypto.getRandomValues(new Uint8Array(12));const enc=await crypto.subtle.encrypt({name:'AES-GCM',iv},sk,new TextEncoder().encode(text));return ab64(iv.buffer)+'.'+ab64(enc);}catch(e){console.error('[SEC] Encryption failed:',e);return null;}
+}
+async function decryptFrom(cipher,epub){
+  try{
+    if(!cipher||!cipher.includes('.'))return '[⚠️ '+t('decrypt_fail')+']';
+    const[a,b]=cipher.split('.');if(!a||!b)return '[⚠️ '+t('decrypt_fail')+']';
+    const sk=await deriveShared(epub);const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(b64ab(a))},sk,b64ab(b));return new TextDecoder().decode(dec);
+  }catch(e){return '[⚠️ '+t('decrypt_fail')+']';}
+}
+async function signData(data){
+  try{
+    const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},A.privKey,new TextEncoder().encode(JSON.stringify(data)));
+    return ab64(sig);
+  }catch(e){console.error('[SEC] signData failed:',e);return '';}
+}
+async function verifyGossipSig(msg){
+  try{
+    const pk=await crypto.subtle.importKey('raw',b64ab(msg.pub),{name:'ECDSA',namedCurve:'P-256'},true,['verify']);
+    const data=JSON.stringify({id:msg.id,origin:msg.origin,p:msg.p});
+    return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},pk,b64ab(msg.sig),new TextEncoder().encode(data));
+  }catch(e){return false;}
+}
+
+// ════════════════════════════════════════════════
+// PEER / GOSSIP
+// ════════════════════════════════════════════════
+const MAX_CONN=15,TTL=8;
+// SECURITY FIX: Rate limit gossip per peer (max 30 msgs per 10 sec)
+const _gossipRates=new Map();
+function checkGossipRate(peerId){
+  const now_=Date.now();const r=_gossipRates.get(peerId)||{count:0,reset:now_+10000};
+  if(now_>r.reset){r.count=0;r.reset=now_+10000;}
+  r.count++;_gossipRates.set(peerId,r);
+  return r.count<=30;
+}
+function myPresence(){return{id:A.myId,name:A.myName,vipps:A.myVipps,pub:A.pubB64,epub:A.ecdhPubB64,esig:A.ecdhSig||'',wins:A.wins,bets:(A.myBets||[]).length,ts:now(),pr:avgRating(A.myId,false),jr:avgRating(A.myId,true),cids:(A.contacts||[]).map(c=>c.id)};}
+
+function initPeer(){
+  A.peer=new Peer(A.myId,{debug:0});
+  A.peer.on('open',()=>{
+    A.ready=true;schedRender();
+    window.location.hash.replace('#','').split(',').filter(p=>p.startsWith('v')&&p!==A.myId).forEach(tryConn);
+    A.peers.forEach((_,id)=>tryConn(id));
+    flushQ();
+    setInterval(()=>{try{if(A.conns.size)broadcast({t:'HI',...myPresence()});A.contacts.forEach(c=>tryConn(c.id));flushQ();}catch(e){console.error('[HI interval]',e);}},10000);
+  });
+  A.peer.on('error',e=>{
+    if(e.type==='unavailable-id'){
+      // SECURITY FIX: Never delete private key — that destroys identity permanently.
+      // Instead retry with exponential backoff. Someone else may have hijacked our ID temporarily.
+      A._idRetry=(A._idRetry||1)*2;
+      const delay=Math.min(A._idRetry*1000,60000);
+      console.warn(`[SEC] Peer ID taken. Retrying in ${delay}ms. DO NOT regenerate keys.`);
+      notify('⚠️ '+t('id_conflict_title'),t('id_conflict_msg'));
+      setTimeout(()=>{try{A.peer.destroy();}catch(e){}initPeer();},delay);
+      return;
+    }
+    A.ready=false;schedRender();
+    setTimeout(()=>{try{A.peer.reconnect();}catch(e){}},3000);
+  });
+  A.peer.on('connection',c=>setupConn(c));
+  A.peer.on('disconnected',()=>{A.ready=false;schedRender();setTimeout(()=>{try{A.peer.reconnect();}catch(e){}},2000);});
+}
+
+function tryConn(id){
+  if(!A.peer||!A.ready||id===A.myId||A.conns.get(id)?.open||A.conns.size>=MAX_CONN||A.blocked.has(id))return;
+  try{setupConn(A.peer.connect(id,{reliable:true,serialization:'json'}));}catch(e){}
+}
+function setupConn(conn){
+  conn.on('open',()=>{
+    try{
+    A.conns.set(conn.peer,conn);
+    conn.send({t:'HI',...myPresence()});
+    // Only share bets with contacts, not with strangers
+    const isContact=A.contacts.some(c=>c.id===conn.peer);
+    if(isContact){
+      // Send my open bets to this contact
+      A.myBets.filter(b=>b.status==='open'&&!b.isPrivate).forEach(b=>{
+        try{conn.send({t:'INV',bet:{...b,fromContact:true}});}catch(e){}
+      });
+    }
+    // Bet sync: let both sides compare honor-bet state and fix whoever is behind
+    const syncBets=A.myBets
+      .filter(b=>b.opponentId===conn.peer&&b.type==='honor'&&['active','await_payment','done'].includes(b.status))
+      .map(b=>({id:b.id,status:b.status,myConfirm:b.myConfirm,winnerId:b.winnerId,winnerName:b.winnerName,payDeadline:b.payDeadline}));
+    if(syncBets.length)try{conn.send({t:'BS',bets:syncBets});}catch(e){}
+    // Pool sync: creator sends current pool-bet verdict to members who may have missed PFV
+    const poolSyncs=A.myBets
+      .filter(b=>b.type==='pool'&&b.creatorId===A.myId
+        &&['await_payment','done'].includes(b.status)
+        &&b.members?.find(m=>m.id===conn.peer))
+      .map(b=>({id:b.id,status:b.status,winningSide:b.winningSide,payDeadline:b.payDeadline}));
+    if(poolSyncs.length)try{conn.send({t:'PSV',bets:poolSyncs});}catch(e){}
+    // PJ re-send: joiner re-registers with creator if still pending (guards against >24h offline)
+    A.myBets
+      .filter(b=>b.type==='pool'&&b.isChallenger&&b.status==='pending'&&b.opponentId===conn.peer)
+      .forEach(b=>{try{conn.send({t:'PJ',bid:b.id,name:A.myName,side:b.side,amt:b.amount});}catch(e){}});
+    flushQ();schedRender();updateBadges();
+    }catch(e){console.error('[setupConn open]',e);}
+  });
+  conn.on('data',m=>onData(conn.peer,m));
+  conn.on('close',()=>{A.conns.delete(conn.peer);const p=A.peers.get(conn.peer);if(p)p.online=false;schedRender();});
+  conn.on('error',()=>{A.conns.delete(conn.peer);schedRender();});
+}
+function send(id,msg){
+  const c=A.conns.get(id);
+  if(c?.open){try{c.send(msg);}catch(e){console.warn('[send]',id,e);}return;}
+  if(A.offlineQ.length>=100)A.offlineQ.shift(); // dropp eldste hvis full
+  A.offlineQ.push({to:id,msg,ts:now()});persist();
+  tryConn(id);setTimeout(()=>flushQ(),500);setTimeout(()=>flushQ(),2000);setTimeout(()=>flushQ(),5000);
+}
+function broadcast(msg){A.conns.forEach((c,id)=>{if(c.open&&id!==msg.from)try{c.send(msg);}catch(e){console.warn('[broadcast]',id,e);}});}
+function gossip(payload,ttl){
+  const msg={t:'GS',id:uid(),ttl:ttl||TTL,from:A.myId,origin:A.myId,pub:A.pubB64,p:payload};
+  // SECURITY FIX: Sign gossip payload
+  signData({id:msg.id,origin:msg.origin,p:payload}).then(sig=>{
+    msg.sig=sig;
+    A.seen.add(msg.id);applyGossip(payload);broadcast(msg);
+  }).catch(e=>console.error('[gossip]',e));
+}
+function flushQ(){
+  try{
+    const keep=[];
+    A.offlineQ.forEach(item=>{
+      if(now()-item.ts>604800000)return; // 7 dager TTL
+      const c=A.conns.get(item.to);
+      if(c?.open){try{c.send(item.msg);}catch(e){keep.push(item);}}else{keep.push(item);tryConn(item.to);}
+    });
+    A.offlineQ=keep;persist();
+  }catch(e){console.error('[flushQ]',e);}
+}
+
+function onData(from,m){
+  try{
+  if(!m||A.blocked.has(from))return;
+  if(m.t==='HI'){
+    const ex=A.peers.get(from)||{};
+    // SECURITY FIX: Verify ECDH pubkey signature before trusting epub
+    let verifiedEpub=m.epub;
+    if(m.epub&&m.pub&&m.esig){
+      verifyECDHSig(m.pub,m.epub,m.esig).then(valid=>{
+        const p=A.peers.get(from);
+        if(p){
+          p.epubVerified=valid;
+          if(!valid){console.warn(`[SEC] Peer ${from}: ECDH signature INVALID — possible MITM`);p.epub=null;}
+        }
+      });
+    }
+    const changed=!ex.name||ex.online!==true||ex.wins!==m.wins;
+    A.peers.set(from,{...ex,id:from,name:m.name,vipps:m.vipps,pub:m.pub,epub:m.epub,esig:m.esig,wins:m.wins||0,bets:m.bets||0,online:true,ts:m.ts,pr:m.pr,jr:m.jr,epubVerified:ex.epubVerified});
+    // AUTO-ADD: if they have me in their contacts, add them to mine
+    if(m.cids&&m.cids.includes(A.myId)&&!A.contacts.find(c=>c.id===from)){
+      A.contacts.push({id:from,name:m.name||from.substr(0,12),alias:m.name||from.substr(0,12)});
+      // Share my open bets with this new contact immediately
+      const conn=A.conns.get(from);
+      if(conn?.open){
+        A.myBets.filter(b=>b.status==='open'&&!b.isPrivate).forEach(b=>{
+          try{conn.send({t:'INV',bet:{...b,fromContact:true}});}catch(e){console.warn('[HI auto-add INV]',e);}
+        });
+      }
+      persist();
+    }
+    if(!ex.name){
+      try{A.conns.get(from)?.send({t:'HI',...myPresence()});}catch(e){console.warn('[HI reply]',e);}
+      // First HI from this peer: share open bets if they're a contact
+      if(A.contacts.find(c=>c.id===from)){
+        const conn=A.conns.get(from);
+        if(conn?.open){
+          A.myBets.filter(b=>b.status==='open'&&!b.isPrivate).forEach(b=>{
+            try{conn.send({t:'INV',bet:{...b,fromContact:true}});}catch(e){console.warn('[HI first INV]',e);}
+          });
+        }
+      }
+    }
+    flushQ();if(changed)schedRender();return;
+  }
+  if(m.t==='GS'){
+    if(A.seen.has(m.id))return;
+    // SECURITY FIX: Rate limit gossip per peer
+    if(!checkGossipRate(from)){console.warn(`[SEC] Gossip rate limit hit for ${from}`);return;}
+    A.seen.add(m.id);
+    if(A.seen.size>3000){const it=A.seen.values();for(let i=0;i<300;i++)A.seen.delete(it.next().value);}
+    // SECURITY FIX: Verify gossip signature if available
+    if(m.sig&&m.pub&&m.origin){
+      verifyGossipSig(m).then(valid=>{
+        if(valid){applyGossip(m.p);}
+        else{console.warn(`[SEC] Invalid gossip signature from origin ${m.origin}`);}
+      });
+    } else {
+      // Legacy unsigned gossip — accept but log
+      applyGossip(m.p);
+    }
+    if(m.ttl>0){const f={...m,ttl:m.ttl-1};A.conns.forEach((c,id)=>{if(c.open&&id!==from)try{c.send(f);}catch(e){console.warn('[gossip relay]',id,e);}});}
+    return;
+  }
+  handleDirect(from,m);
+  }catch(e){console.error('[onData]',m?.t,e);}
+}
+
+function applyGossip(p){
+  if(!p)return;
+  // BET intentionally NOT processed from gossip — bets only come via direct INV to contacts
+  if(p.t==='TAKE'||p.t==='CANCEL'){A.openBets.delete(p.betId);schedRender();}
+  if(p.t==='ACT'){addAct(p.text,p.ico);schedRender();}
+  if(p.t==='RAT'&&p.uid&&p.ratings){
+    if(!A.ratings[p.uid])A.ratings[p.uid]=[];
+    p.ratings.forEach(r=>{if(!A.ratings[p.uid].find(x=>x.betId===r.betId&&x.ts===r.ts))A.ratings[p.uid].push(r);});
+    persist();
+  }
+}
+
+function handleDirect(from,m){
+  switch(m.t){
+    // PRIVATE BET INVITE
+    case 'INV':{
+      if(m.bet&&!A.myBets.find(b=>b.id===m.bet.id)&&!A.openBets.has(m.bet.id)){
+        if(!A.blocked.has(m.bet.creatorId)){
+          if(!m.bet.expiresAt||m.bet.expiresAt>now()){
+            A.openBets.set(m.bet.id,{...m.bet,isFromContact:true});
+            if(!A.contacts.find(c=>c.id===m.bet.creatorId)){
+              A.contacts.push({id:m.bet.creatorId,name:m.bet.creatorName||m.bet.creatorId.substr(0,12),alias:m.bet.creatorName||m.bet.creatorId.substr(0,12)});
+            }
+            notify('📩 '+m.bet.creatorName,m.bet.desc?.substr(0,50),()=>go('joinBet',{betId:m.bet.id}));
+            A.unreadChat++;updateBadges();schedRender(); // kun render ved nytt bet
+          }
+        }
+      }break;
+    }
+    // JOIN REQUEST
+    case 'JR':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b&&['open','accepting'].includes(b.status)){
+        if(!b.interests)b.interests=[];
+        if(!b.interests.find(x=>x.id===from))b.interests.push({id:from,name:m.name,vipps:m.vipps,side:m.side||null,ts:now()});
+        b.status='accepting';
+        addAct(`${m.name} ${t('sys_interested')}`,'⚡');
+        notify('⚡ Ny interesse!',`${m.name} ${t('challenger_d')}`,()=>go('betDetail',{betId:m.bid}));
+        A.unreadChat++;persist();
+      }else if(b&&!['open','accepting'].includes(b.status)){
+        // Bet er tatt/avsluttet — informer senderen med JN, med mindre de allerede er member
+        const alreadyMember=b.members?.find(x=>x.id===from);
+        if(!alreadyMember)send(from,{t:'JN',bid:m.bid});
+      }
+      schedRender();break;
+    }
+    // JOIN YES
+    case 'JY':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b){b.opponentId=from;b.opponentName=m.name;b.opponentVipps=m.vipps;b.status='active';notify('✅ '+t('n_bet_accepted'),m.name,()=>go('betDetail',{betId:m.bid}));persist();}schedRender();break;
+    }
+    case 'JN':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b&&b.isChallenger)b.status='declined';
+      persist();schedRender();break;
+    }
+    case 'HC':{if(!m.bid||!m.wId)break;const b=A.myBets.find(x=>x.id===m.bid);if(b){b.theirConfirm=m.wId;checkHonor(b);notify('🤝 '+t('honor_claim'),esc(b.opponentName||'?'),()=>go('betDetail',{betId:m.bid}));}persist();render(true);break;}
+    case 'PV':{if(!m.bid||!m.side)break;const b=A.myBets.find(x=>x.id===m.bid);if(b){if(!b.votes)b.votes={};b.votes[from]=m.side;checkPoolVotes(b);}persist();schedRender();break;}
+    case 'NP':{
+      const b=A.myBets.find(x=>x.id===m.bid);if(b)b.status='never_paid';
+      if(!A.ratings[from])A.ratings[from]=[];
+      if(!A.ratings[from].find(x=>x.betId===m.bid&&x.neverPaid))
+        A.ratings[from].push({score:1,comment:'Betalte aldri.',betId:m.bid,raterName:A.myName,ts:now(),neverPaid:true,isJudge:false});
+      gossip({t:'RAT',uid:from,ratings:A.ratings[from]});
+      persist();schedRender();break;
+    }
+    // CHAT
+    case 'BM':{
+      if(!m.bid||!m.text)break;
+      addBetMsg(m.bid,{from,name:m.name||'?',text:m.text,ts:m.ts||now()});
+      if(A.screen!=='betChat'||A.params.betId!==m.bid){notify('💬 '+(m.name||'?'),m.text,()=>go('betChat',{betId:m.bid}));A.unreadChat++;}
+      persist();if(A.screen==='betChat'&&A.params.betId===m.bid)schedRender();break;
+    }
+    // PAYMENT CONFIRMED (motpart bekrefter mottatt betaling)
+    case 'PC':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b)b.status='done';
+      persist();schedRender();break;
+    }
+    // POOL JOIN — creator mottar nye members
+    case 'PJ':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b){
+        if(!b.members)b.members=[];
+        if(!b.members.find(x=>x.id===from))
+          b.members.push({id:from,name:m.name,side:m.side,amt:m.amt});
+      }
+      persist();schedRender();break;
+    }
+    // POOL FINAL VERDICT — alle parter varsles om vinnende side
+    case 'PFV':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b){
+        b.status='await_payment';b.winningSide=m.side;b.payDeadline=now()+172800000;
+        const me=b.members?.find(x=>x.id===A.myId);
+        const iWon=me&&me.side===m.side;
+        if(iWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);
+          notify('🏆 '+t('n_your_side_won'),b.desc,()=>go('betDetail',{betId:m.bid}));}
+        else{A.streak=0;ss('vStreak','0');
+          notify('😔 '+t('n_your_side_lost'),b.desc,()=>go('betDetail',{betId:m.bid}));}
+      }
+      persist();schedRender();break;
+    }
+    case 'SDA':{if(m.bid&&A.betChats[m.bid]){delete A.betChats[m.bid];delete A.betChats[m.bid+'_delReq'];}persist();schedRender();break;}
+    // DM — direct message (encrypted)
+    case 'DM':{
+      const text=m.enc?null:m.text;
+      const decrypted=m.enc?decryptFrom(m.text,A.peers.get(from)?.epub):null;
+      if(m.enc){
+        decrypted.then(pt=>{
+          addDM(from,{from,name:m.name,text:pt,ts:m.ts||now()});
+          if(A.screen!=='dm'||A.params.peerId!==from){
+            notify('✉️ '+m.name,pt?.substr?pt.substr(0,40):t('n_encrypted_msg'),()=>go('dm',{peerId:from}));
+            A.unreadChat++;updateBadges();
+          }
+          persist();schedRender();
+        });
+      }else{
+        addDM(from,{from,name:m.name,text:m.text,ts:m.ts||now()});
+        if(A.screen!=='dm'||A.params.peerId!==from){
+          notify('✉️ '+m.name,m.text?.substr?m.text.substr(0,40):'',()=>go('dm',{peerId:from}));
+          A.unreadChat++;updateBadges();
+        }
+        persist();schedRender();
+      }
+      break;
+    }
+    // GROUP CHAT MESSAGE
+    case 'GCM':{
+      if(!m.gcId||!m.text)break;
+      const gc=A.groupChats.find(g=>g.id===m.gcId);
+      if(gc){gc.msgs=gc.msgs||[];gc.msgs.push({from,name:m.name||'?',text:m.text,ts:m.ts||now()});if(gc.msgs.length>300)gc.msgs.shift();A.unreadChat++;notify('💬 '+(m.name||'?'),m.text?.substr(0,40)||'',()=>go('groupChat',{gcId:m.gcId}));}
+      persist();if(A.screen==='groupChat'&&A.params.gcId===m.gcId)schedRender();break;
+    }
+    // GROUP CHAT INVITE
+    case 'GCI':{
+      if(!m.gc?.id)break;
+      if(!A.groupChats.find(g=>g.id===m.gc.id)){A.groupChats.push({...m.gc,msgs:[]});notify('👥 '+t('n_new_group_chat'),m.gc.name,()=>go('groupChat',{gcId:m.gc.id}));persist();schedRender();}
+      break;
+    }
+    // CHAT DELETE REQUEST
+    case 'SD':{if(m.bid){A.betChats[m.bid+'_delReq']=from;}persist();schedRender();break;}
+    // WINNER VIPPS INFO
+    case 'WV':{const b=A.myBets.find(x=>x.id===m.bid);if(b){b.winnerVipps=m.vipps;persist();schedRender();}break;}
+    // BET SYNC — fix stuck bets when one party missed an HC or PC message
+    case 'BS':{
+      const RANK={active:0,await_payment:1,done:2};
+      let changed=false;
+      (m.bets||[]).forEach(rb=>{
+        // Only apply from the actual opponent — ignore if bet not found or peer mismatch
+        const b=A.myBets.find(x=>x.id===rb.id&&x.opponentId===from);
+        if(!b)return;
+        const localRank=RANK[b.status]??-1;
+        const remoteRank=RANK[rb.status]??-1;
+        if(remoteRank<=localRank)return; // already equal or ahead — nothing to do
+        // Apply missing theirConfirm and re-run checkHonor (handles active→await_payment)
+        if(rb.myConfirm&&!b.theirConfirm){b.theirConfirm=rb.myConfirm;checkHonor(b);}
+        // Force-apply if still behind (handles await_payment→done when PC was lost)
+        if((RANK[b.status]??-1)<remoteRank){
+          b.status=rb.status;
+          if(rb.winnerId&&!b.winnerId){b.winnerId=rb.winnerId;b.winnerName=rb.winnerName;}
+          if(rb.payDeadline&&!b.payDeadline)b.payDeadline=rb.payDeadline;
+        }
+        changed=true;
+      });
+      if(changed){persist();render(true);}
+      break;
+    }
+    // POOL STATUS VERIFY — fix pool members who missed PFV (>24h offline or message lost)
+    case 'PSV':{
+      const RANK={active:0,await_payment:1,done:2};
+      let changed=false;
+      (m.bets||[]).forEach(rb=>{
+        // Only apply from the actual creator (opponentId on joiner's copy = creator's id)
+        const b=A.myBets.find(x=>x.id===rb.id&&x.opponentId===from&&x.type==='pool');
+        if(!b)return;
+        const localRank=RANK[b.status]??-1;
+        const remoteRank=RANK[rb.status]??-1;
+        if(remoteRank<=localRank)return;
+        // Apply verdict and update wins/streak if transitioning from active or pending
+        if(['active','pending'].includes(b.status)&&rb.winningSide){
+          const iWon=b.side===rb.winningSide;
+          if(iWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);}
+          else{A.streak=0;ss('vStreak','0');}
+          notify(iWon?'🏆 '+t('n_your_side_won'):'😔 '+t('n_your_side_lost'),b.desc,()=>go('betDetail',{betId:b.id}));
+        }
+        b.status=rb.status;
+        if(rb.winningSide)b.winningSide=rb.winningSide;
+        if(rb.payDeadline&&!b.payDeadline)b.payDeadline=rb.payDeadline;
+        changed=true;
+      });
+      if(changed){persist();render(true);}
+      break;
+    }
+  }
+}
+
+function checkHonor(bet){
+  if(bet.myConfirm&&bet.theirConfirm){
+    if(bet.myConfirm===bet.theirConfirm){
+      bet.status='await_payment';bet.winnerId=bet.myConfirm;
+      bet.winnerName=bet.myConfirm===A.myId?A.myName:bet.opponentName;
+      bet.payDeadline=now()+172800000;
+      const iW=bet.myConfirm===A.myId;
+      if(iW){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);}else{A.streak=0;ss('vStreak','0');}
+    }
+  }
+}
+function checkPoolVotes(bet){
+  if(!bet.members||!bet.votes)return;
+  if(bet.creatorId!==A.myId)return; // only creator tallies — joiners lack full members list
+  // Total participants = members + creator
+  const total=(bet.members.length||0)+1;
+  const aV=Object.values(bet.votes).filter(v=>v==='A').length;
+  const bV=Object.values(bet.votes).filter(v=>v==='B').length;
+  if(aV+bV<total)return; // not all voted yet
+  if(aV>bV){
+    bet.status='await_payment';bet.winningSide='A';bet.payDeadline=now()+172800000;
+    bet.members.forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PFV',bid:bet.id,side:'A'});});
+    gossip({t:'ACT',text:`Pool-veddemål avgjort — Side A (${esc(bet.sideA||'A')}) vant! 🎯`,ico:'🎯'});
+  } else if(bV>aV){
+    bet.status='await_payment';bet.winningSide='B';bet.payDeadline=now()+172800000;
+    bet.members.forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PFV',bid:bet.id,side:'B'});});
+    gossip({t:'ACT',text:`Pool-veddemål avgjort — Side B (${esc(bet.sideB||'B')}) vant! 🎯`,ico:'🎯'});
+  } else {
+    // Tie — stay active, discuss in chat
+  }
+}
+
+// ════════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════════
+function notify(title,body,onClick){
+  const area=$('notif-area');if(!area)return;
+  const div=document.createElement('div');
+  div.className='notif-banner';
+  div.innerHTML=`<div style="font-size:22px;flex-shrink:0">🔔</div><div><div style="font-size:13px;font-weight:600;color:var(--tx)">${esc(title)}</div>${body?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(body)}</div>`:''}</div>`;
+  div.onclick=()=>{if(onClick)onClick();div.classList.add('fade-out');setTimeout(()=>div.remove(),200);};
+  area.appendChild(div);
+  setTimeout(()=>{if(div.parentNode){div.classList.add('fade-out');setTimeout(()=>div.remove(),200);}},5000);
+  updateBadges();
+}
+function updateBadges(){
+  const chC=(A.myBets||[]).filter(b=>b.status==='accepting').length;
+  const mineN=chC;
+  const mb=$('bdg-mine');if(mb){mb.style.display=mineN?'flex':'none';mb.textContent=mineN;}
+  const cb=$('bdg-chat');if(cb){cb.style.display=A.unreadChat?'flex':'none';cb.textContent=A.unreadChat;}
+}
+
+// ════════════════════════════════════════════════
+// ROUTER
+// ════════════════════════════════════════════════
+window.go=(s,p)=>{
+  A.prevScreen=A.screen;
+  A.screen=s;A.params=p||{};
+  const nav=$('nav-bar');
+  const noNav=['setup','onboarding','create','betChat','dm','groupChat'];
+  if(nav)nav.style.display=noNav.includes(s)?'none':'flex';
+  ['feed','mine','chat','prof'].forEach(k=>{
+    const el=$('nb-'+k);if(!el)return;
+    const act=(s==='feed'&&k==='feed')||(s==='mine'&&k==='mine')||(['chatHub','betChat','dm','groupChat'].includes(s)&&k==='chat')||(s==='profile'&&k==='prof');
+    el.className='nb'+(act?' act':'');
+  });
+  if(['chatHub'].includes(s))A.unreadChat=0;
+  render(true);window.scrollTo(0,0);
+};
+function render(force){
+  const el=$('app');if(!el)return;
+  const chatScreens=['betChat','dm','groupChat'];
+  if(!force){
+    const ae=document.activeElement;
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT')){
+      if(!chatScreens.includes(A.screen))return;
+      var _cid=ae.id,_cv=ae.value;
+    }
+  }
+  const map={onboarding:pOB,setup:pSetup,feed:pFeed,create:pCreate,mine:pMine,
+    joinBet:pJoinBet,betDetail:pBetDetail,interests:pInterests,
+    chatHub:pChatHub,betChat:pBetChat,dm:pDM,groupChat:pGrpChat,
+    contacts:pContacts,search:pSearch,repProfile:pRepProfile,
+    profile:pProfile,leaderboard:pLB,settings:pSettings,blocked:pBlocked};
+  try{el.innerHTML=(map[A.screen]||pFeed)();}
+  catch(e){console.error('[render]',A.screen,e);el.innerHTML='<div class="scr"><div class="tbar"><button class="back-btn" onclick="go(\'feed\')">← Back</button></div><div class="empty"><div class="empty-ico">⚠️</div><div class="empty-tx">Something went wrong. Tap back to continue.</div></div></div>';}
+  updateBadges();
+  if(chatScreens.includes(A.screen))
+    setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},60);
+  if(_cid){const r=$(_cid);if(r){r.value=_cv;r.focus();}}
+}
+let _renderTimer=null;
+function schedRender(){if(!_renderTimer)_renderTimer=setTimeout(()=>{_renderTimer=null;
+  const ae=document.activeElement;
+  const _sid=ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')?ae.id:null;
+  const _sv=_sid?ae.value:null;
+  const _ss=_sid?ae.selectionStart:null;
+  render(true);
+  if(_sid){const r=$(_sid);if(r){r.value=_sv;r.focus();if(_ss!==null)try{r.setSelectionRange(_ss,_ss);}catch(e){}}}
+},150);}
+
+// ════════════════════════════════════════════════
+// ONBOARDING
+// ════════════════════════════════════════════════
+function pOB(){
+  const invBanner=A._pendingInviter?`<div class="tip-box" style="text-align:center;margin-bottom:20px"><strong>${esc(A._pendingInviter.name)}</strong> ${t('ob_inviter_banner')}</div>`:'';
+  return`<div class="ob-wrap">
+  <div class="ob-logo">VEDDE<em style="color:var(--g);font-style:normal">MÅL</em></div>
+  <div class="ob-sub">${t('app_tag')}</div>
+  ${invBanner}
+  <div class="ob-feat"><div class="ob-feat-ico">🔐</div><div><div class="ob-feat-t">${t('ob1t')}</div><div class="ob-feat-d">${t('ob1d')}</div></div></div>
+  <div class="ob-feat"><div class="ob-feat-ico">🌐</div><div><div class="ob-feat-t">${t('ob2t')}</div><div class="ob-feat-d">${t('ob2d')}</div></div></div>
+  <div class="ob-feat"><div class="ob-feat-ico">🎲</div><div><div class="ob-feat-t">${t('ob3t')}</div><div class="ob-feat-d">${t('ob3d')}</div></div></div>
+  <div class="ob-feat"><div class="ob-feat-ico">⭐</div><div><div class="ob-feat-t">${t('ob4t')}</div><div class="ob-feat-d">${t('ob4d')}</div></div></div>
+  <div class="tip-box">${t('iphone_tip')}</div>
+  <button class="btn btn-prim btn-full" style="margin-top:20px" onclick="go('setup')">${t('ob_btn')}</button>
+</div>`;}
+
+// ════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════
+function pSetup(){return`<div class="ob-wrap">
+  <div class="ob-logo" style="font-size:40px">VEDDE<em style="color:var(--g);font-style:normal">MÅL</em></div>
+  <div class="ob-sub" style="margin-bottom:28px">${t('setup_t')}</div>
+  <div class="field"><label class="flbl">${t('name_lbl')}</label><input class="fi" id="sn" placeholder="${t('name_ph')}" value="${esc(A.myName)}" maxlength="24" autofocus oninput="A.myName=this.value"></div>
+  <div class="field"><label class="flbl">${t('pay_lbl2')}</label><input class="fi" id="sv" placeholder="${t('pay_ph2')}" value="${esc(A.myVipps)}" maxlength="30" oninput="A.myVipps=this.value"></div>
+  <div class="field"><label class="flbl">${t('lang_lbl')}</label>
+    <select class="fi" id="sl" onchange="A.lang=this.value;ss('vLang',this.value);render(true)">
+      <option value="no" ${A.lang==='no'?'selected':''}>🇳🇴 Norsk</option>
+      <option value="en" ${A.lang==='en'?'selected':''}>🇬🇧 English</option>
+    </select>
+  </div>
+  <div class="info-box">${t('setup_info')}</div>
+  <button class="btn btn-prim btn-full" id="sbtn" onclick="doSetup()">${t('setup_btn')}</button>
+</div>`;}
+window.doSetup=async()=>{
+  const n=($('sn')||{}).value?.trim(),v=($('sv')||{}).value?.trim();
+  if(!n){alert(t('err_enter_name'));return;}
+  const btn=$('sbtn');if(btn){btn.textContent=t('setup_loading');btn.disabled=true;}
+  A.myName=n;A.myVipps=v||'';A.lang=($('sl')||{}).value||'en';
+  ss('vName',n);ss('vVipps',v||'');ss('vLang',A.lang);
+  await initCrypto();initPeer();
+  const nav=$('nav-bar');if(nav)nav.style.display='flex';
+  go('feed');
+  if(Notification?.permission==='default')Notification.requestPermission();
+  // Auto-friend the person who shared the file
+  if(A._pendingInviter){
+    const{id,name}=A._pendingInviter;
+    if(!A.contacts.find(c=>c.id===id)){A.contacts.push({id,name,alias:name});persist();}
+    tryConn(id);
+    notify('👋 '+t('auto_friend_notify').replace('{name}',name));
+    A._pendingInviter=null;
+  }
+  // Show install hint after first setup
+  showInstallHint();
+};
+
+// ════════════════════════════════════════════════
+// FEED
+// ════════════════════════════════════════════════
+function pFeed(){
+  const online=A.conns.size;
+  const chC=A.myBets.filter(b=>b.status==='accepting').length;
+  const contactIds=new Set(A.contacts.map(c=>c.id));
+  const bets=[...A.openBets.values()].filter(b=>{
+    if(b.expiresAt&&b.expiresAt<now())return false;
+    // Only show bets from contacts
+    if(!contactIds.has(b.creatorId)&&!b.isFromContact)return false;
+    return A.filter==='*'||b.category===A.filter;
+  }).sort((a,b)=>b.ts-a.ts);
+  const onlineContacts=A.contacts.filter(c=>A.conns.get(c.id)?.open).length;
+  const act=A.activity[0];
+  const noContacts=A.contacts.length===0;
+  return`<div class="scr">
+    <div class="hdr">
+      <div><div class="logo">VEDDE<em>MÅL</em></div><div style="font-size:10px;color:var(--dim);letter-spacing:2px;font-weight:600;margin-top:2px">${t('app_tag')}</div></div>
+      <div class="${A.ready?'conn-pill conn-on':'conn-pill conn-off'}">${A.ready?`<div class="pulse"></div>${onlineContacts} ${t('online_s')}`:`○ ${t('connecting_s')}`}</div>
+    </div>
+    <div class="stats">
+      <div class="stat sb"><div class="stat-n">${bets.length}</div><div class="stat-l">${t('stat_open')}</div></div>
+      <div class="stat sg"><div class="stat-n">${A.contacts.length}</div><div class="stat-l">${t('stat_friends')}</div></div>
+      <div class="stat sa"><div class="stat-n">${A.myBets.filter(b=>b.status==='active').length}</div><div class="stat-l">${t('stat_active')}</div></div>
+    </div>
+            ${chC?`<div class="alert alert-g" onclick="go('mine')">⚡ ${chC} ${t('interest_wait')}<span>→</span></div>`:''}
+    ${act?`<div class="ticker"><div class="tick-dot"></div><div class="tick-tx">${esc(act.text)}</div><div class="tick-t">${ago(act.ts)}</div></div>`:''}
+    ${noContacts?`<div class="card" style="border-color:var(--gb);background:var(--gd);margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;color:var(--g);margin-bottom:8px">👋 ${t('no_friends_t')}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:12px">${t('no_friends_d').replace('\\n','<br>')}</div>
+      <div class="section-label">${t('copy_invite')}</div>
+      <div class="id-display" style="font-size:11px">${A.myId}</div>
+      <button class="btn btn-sec btn-full" style="margin-top:6px" onclick="copyId()">${t('copy_invite')}</button>
+      <div class="divider" style="margin:14px 0"></div>
+      <div class="section-label">${t('add_by_id')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="fi" id="add-id-input" placeholder="${t('add_id_ph')}" autocomplete="off" style="flex:1;padding:11px 13px;font-size:13px">
+        <button class="btn btn-prim" style="padding:11px 16px;white-space:nowrap" onclick="connectById()">${t('add_id_btn')}</button>
+      </div>
+    </div>`:''}
+    <div class="chips">${cats().map((c,i)=>{const fv=i===0?'*':c;return`<button class="chip${A.filter===fv?' act':''}" onclick="setFilter('${fv}')">${c}</button>`;}).join('')}</div>
+    ${!bets.length&&!noContacts?`<div class="empty"><div class="empty-ico">👀</div><div class="empty-tx">${t('no_bets_feed').replace('\\n','<br>')}</div></div>`:''}
+    ${bets.map(feedCard).join('')}
+  </div>`;}
+window.setFilter=f=>{A.filter=f;render(true);};
+
+function feedCard(b){
+  const isPool=b.type==='pool';
+  const mbrs=b.members||[];
+  const aT=mbrs.filter(m=>m.side==='A').reduce((s,m)=>s+(m.amt||0),0);
+  const bT=mbrs.filter(m=>m.side==='B').reduce((s,m)=>s+(m.amt||0),0);
+  const tot=aT+bT;const ap=tot?Math.round(aT/tot*100):50;
+  const np=npCount(b.creatorId);
+  const pr=avgRating(b.creatorId,false);
+  return`<div class="card card-tap c${b.isPrivate?'l':b.type==='pool'?'p':b.type==='honor'?'h':'j'}" onclick="go('joinBet',{betId:'${b.id}'})">
+    ${np?`<div style="font-size:10px;color:var(--r);font-weight:700;margin-bottom:6px">⚠️ ${np}${t('np_times')}</div>`:''}
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px">
+      <div style="flex:1"><div class="card-desc" style="margin-bottom:0">${esc(b.desc)}</div></div>
+      ${b.isPrivate?`<span class="badge b-lock">🔒 ${t('chosen_friends')}</span>`:''}
+    </div>
+    ${isPool?`<div class="pool-bar"><div class="pool-fill" style="width:${ap}%"></div></div><div class="pool-lbl"><span>🅰 ${esc(b.sideA||'A')} ${aT}kr</span><span>${esc(b.sideB||'B')} ${bT}kr 🅱</span></div>`
+    :b.sideA&&b.sideB?`<div style="display:flex;gap:6px;margin-top:6px;margin-bottom:4px"><span style="font-size:11px;padding:4px 8px;border-radius:8px;background:var(--gd);border:1px solid var(--gb);color:var(--g)">🅰 ${esc(b.sideA)}${b.creatorSide==='A'?' ✓':''}</span><span style="font-size:11px;padding:4px 8px;border-radius:8px;background:var(--bld);border:1px solid var(--blb);color:var(--bl)">🅱 ${esc(b.sideB)}${b.creatorSide==='B'?' ✓':''}</span></div>`:''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:${isPool?'8px':'0'}">
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:22px;color:var(--g);letter-spacing:1px">${b.amount||0}kr</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(b.creatorName)}${pr?` · ⭐${pr}`:''} · ${ago(b.ts)}</div>
+        ${b.payMethod?`<div style="font-size:11px;color:var(--a);margin-top:2px">💳 ${esc(b.payMethod)}</div>`:''}
+      </div>
+      <span class="badge ${b.type==='pool'?'b-blue':'b-green'}">${isPool?mbrs.length+' '+t('in_s'):t('type_honor')}</span>
+    </div>
+  </div>`;}
+
+// ════════════════════════════════════════════════
+// CREATE BET — 5 steps
+// ════════════════════════════════════════════════
+function pCreate(){
+  const step=A.params.step||1;
+  const steps=5;
+  const bar=`<div class="steps-bar">${Array.from({length:steps},(_,i)=>`<div class="step-dot${i+1<=step?' act':''}"></div>`).join('')}</div>`;
+  const stepNames=[t('step_type'),t('step_desc'),t('step_amt'),t('step_pub'),t('step_conf')];
+  const info=`<div style="font-size:10px;color:var(--dim);letter-spacing:2px;font-weight:700;margin-bottom:16px">${stepNames[step-1]} · ${step}/${steps}</div>`;
+
+  if(step===1)return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('feed')">${t('cancel')}</button><div class="pg-title">${t('create_t')}</div></div>
+    ${bar}${info}
+    <div class="type-grid">
+      <div class="type-card${A.nb.type==='honor'?' act':''}" onclick="selType('honor')"><div class="type-ico">🤝</div><div class="type-name">${t('type_honor')}</div><div class="type-desc">${t('type_honor_d')}</div></div>
+      <div class="type-card${A.nb.type==='pool'?' act':''}" onclick="selType('pool')"><div class="type-ico">👥</div><div class="type-name">${t('type_pool')}</div><div class="type-desc">${t('type_pool_d')}</div></div>
+    </div>
+    ${A.nb.type==='honor'?`<div class="info-box">${t('type_honor_info')}</div>`:''}
+    ${A.nb.type==='pool'?`<div class="info-box">${t('type_pool_info')}</div>`:''}
+    <button class="btn btn-prim btn-full" ${!A.nb.type?'disabled':''} onclick="go('create',{step:2})">${t('next')}</button>
+  </div>`;
+
+  if(step===2)return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('create',{step:1})">${t('back')}</button><div class="pg-title">${t('step_desc')}</div></div>
+    ${bar}${info}
+    <div class="field"><label class="flbl">${t('desc_lbl')}</label><textarea class="fi" id="cd" rows="3" placeholder="${t('desc_ph')}" oninput="A.nb.desc=this.value">${esc(A.nb.desc||'')}</textarea></div>
+    <div class="info-box" style="margin-bottom:12px">${t('sides_info')}</div>
+    <div class="field"><label class="flbl">${t('sideA_lbl')}</label><input class="fi" id="csA" placeholder="${t('sideA_ph')}" value="${esc(A.nb.sideA||'')}" oninput="A.nb.sideA=this.value;clearTimeout(A._sideT);A._sideT=setTimeout(()=>render(true),300)"></div>
+    <div class="field"><label class="flbl">${t('sideB_lbl')}</label><input class="fi" id="csB" placeholder="${t('sideB_ph')}" value="${esc(A.nb.sideB||'')}" oninput="A.nb.sideB=this.value;clearTimeout(A._sideT);A._sideT=setTimeout(()=>render(true),300)"></div>
+    ${A.nb.sideA||A.nb.sideB?`<div class="field"><label class="flbl">${t('choose_your_side')}</label>
+      <div style="display:flex;gap:8px">
+        <button style="flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid ${A.nb.creatorSide==='A'?'var(--gb)':'var(--b2)'};background:${A.nb.creatorSide==='A'?'var(--gd)':'var(--surf2)'};color:${A.nb.creatorSide==='A'?'var(--g)':'var(--muted)'}" onclick="A.nb.creatorSide='A';render(true)">🅰 ${esc(A.nb.sideA||'Side A')}</button>
+        <button style="flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid ${A.nb.creatorSide==='B'?'var(--blb)':'var(--b2)'};background:${A.nb.creatorSide==='B'?'var(--bld)':'var(--surf2)'};color:${A.nb.creatorSide==='B'?'var(--bl)':'var(--muted)'}" onclick="A.nb.creatorSide='B';render(true)">🅱 ${esc(A.nb.sideB||'Side B')}</button>
+      </div>
+    </div>`:''}
+    <div class="field"><label class="flbl">${t('cat_lbl')}</label><div class="chips" style="flex-wrap:wrap">${cats().slice(1).map(c=>`<button class="chip${A.nb.cat===c?' act':''}" onclick="selCat('${c}')">${c}</button>`).join('')}</div></div>
+    <button class="btn btn-prim btn-full" onclick="cs2()">${t('next')}</button>
+  </div>`;
+
+  if(step===3){
+    return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('create',{step:2})">${t('back')}</button><div class="pg-title">${t('step_amt')}</div></div>
+    ${bar}${info}
+    <div class="field"><label class="flbl">${t('amt_lbl')}</label>
+      <div class="fi-row">${[50,100,200,500].map(a=>`<button class="fi-chip${A.nb.amount==a?' act':''}" onclick="selAmt(${a})">${a}</button>`).join('')}</div>
+      <input class="fi" id="ca" type="number" max="500" min="1" placeholder="${t('amt_ph')}" value="${A.nb.amount||''}" style="margin-top:8px" oninput="A.nb.amount=Math.min(500,parseInt(this.value)||0)">
+    </div>
+    <div class="field"><label class="flbl">${t('expiry_lbl')}</label>
+      <div class="fi-row">${[[1,t('exp0')],[3,t('exp1')],[7,t('exp2')],[14,t('exp3')]].map(([d,l])=>`<button class="fi-chip${A.nb.expiry==d?' act':''}" onclick="selExp(${d})">${l}</button>`).join('')}</div>
+    </div>
+    <div class="field"><label class="flbl">${t('pay_lbl')}</label>
+      <input class="fi" id="cp" placeholder="${t('pay_ph')}" value="${esc(A.nb.payMethod||'')}" oninput="A.nb.payMethod=this.value">
+    </div>
+    <button class="btn btn-prim btn-full" onclick="cs3()">${t('next')}</button>
+  </div>`;}
+
+  if(step===4){
+    const myContacts=A.contacts;
+    return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('create',{step:3})">${t('back')}</button><div class="pg-title">${t('step_pub')}</div></div>
+    ${bar}${info}
+    <div class="info-box">${t('pub_info')}</div>
+    <div class="vis-grid">
+      <div class="vis-card${A.nb.visibility==='public'?' act':''}" onclick="selVis('public')">
+        <div class="vis-ico">👥</div>
+        <div class="vis-name">${t('pub_all')}</div>
+        <div class="vis-desc">${t('pub_all_d')}</div>
+      </div>
+      <div class="vis-card${A.nb.visibility==='private'?' act-lock':''}" onclick="selVis('private')">
+        <div class="vis-ico">🎯</div>
+        <div class="vis-name">${t('pub_sel')}</div>
+        <div class="vis-desc">${t('pub_sel_d')}</div>
+      </div>
+    </div>
+    ${A.nb.visibility==='private'?`
+      <div class="section-label">${t('sel_who')}</div>
+      ${!myContacts.length?`<div class="warn-box">${t('no_friends_warn')}</div>`:''}
+      ${myContacts.map(c=>{const sel=A.inviteSelected.has(c.id);return`<div class="invite-item${sel?' sel':''}" onclick="toggleInvite('${c.id}')">
+        <div class="invite-check">${sel?'✓':''}</div>
+        <div class="av ${A.conns.get(c.id)?.open?'av-g':''}">${(c.alias||c.name||'?')[0].toUpperCase()}</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--tx)">${esc(c.alias||c.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${A.conns.get(c.id)?.open?'● Online':'○ Offline'}</div></div>
+        <button style="font-size:11px;color:var(--bl);padding:10px 12px;border:1px solid var(--blb);border-radius:8px;background:var(--bld)" onclick="event.stopPropagation();go('repProfile',{uid:'${c.id}',name:'${esc(c.alias||c.name)}'})">${t('rep_btn')}</button>
+      </div>`;}).join('')}
+      ${A.inviteSelected.size?`<div class="info-box" style="color:var(--g)">✓ ${A.inviteSelected.size} ${t('sel_friends_n')}</div>`:''}
+    `:A.nb.visibility==='public'?`<div class="info-box" style="color:var(--g)">✓ ${t('bet_sends_all_pre')} ${A.contacts.length} ${t('bet_sends_all_suf')}</div>`:''}
+    <button class="btn btn-prim btn-full" ${!A.nb.visibility?'disabled':''} onclick="go('create',{step:5})">${t('next')}</button>
+  </div>`;}
+
+  if(step===5){
+    const isPrivate=A.nb.visibility==='private';
+    return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('create',{step:4})">${t('back')}</button><div class="pg-title">${t('step_conf')}</div></div>
+    ${bar}${info}
+    <div class="card c${A.nb.type==='pool'?'p':A.nb.type==='honor'?'h':isPrivate?'l':'j'}" style="margin-bottom:16px">
+      <div class="card-desc">${esc(A.nb.desc)}</div>
+      <div class="divider"></div>
+      ${[
+        [t('conf_type'),A.nb.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],
+        [t('conf_amt'),A.nb.amount+'kr'],
+        A.nb.sideA?[t('conf_sideA'),A.nb.sideA]:null,
+        A.nb.sideB?[t('conf_sideB'),A.nb.sideB]:null,
+        A.nb.creatorSide&&A.nb.sideA?[t('your_side'),A.nb.creatorSide==='A'?'🅰 '+A.nb.sideA:'🅱 '+A.nb.sideB]:null,
+        [t('conf_expires'),A.nb.expiry+' '+t('day_s')],
+        [t('conf_sends'),isPrivate?`🎯 ${A.inviteSelected.size} ${t('chosen_friends')}`:`👥 ${A.contacts.length} ${t('stat_friends')}`],
+        A.nb.payMethod?[t('conf_pay'),A.nb.payMethod]:null,
+      ].filter(Boolean).map(([k,v])=>`<div class="drow"><span>${k}</span><span class="dval">${esc(v)}</span></div>`).join('')}
+    </div>
+    <div class="info-box">${isPrivate?`${t('bet_sends_priv_pre')} ${A.inviteSelected.size} ${t('bet_sends_priv_suf')}`:`${t('bet_sends_all_info')}`} ${t('not_changed')}</div>
+    <button class="btn btn-prim btn-full" onclick="doPost()">${t('publish')}</button>
+    <button class="btn btn-ghost" onclick="go('feed')">${t('cancel')}</button>
+  </div>`;}
+}
+window.selType=v=>{A.nb.type=v;render(true);};
+window.selCat=v=>{A.nb.cat=v;render(true);};
+window.selAmt=v=>{A.nb.amount=v;render(true);};
+window.selExp=v=>{A.nb.expiry=v;render(true);};
+window.selVis=v=>{A.nb.visibility=v;if(v==='public')A.inviteSelected.clear();render(true);};
+window.toggleInvite=id=>{if(A.inviteSelected.has(id))A.inviteSelected.delete(id);else A.inviteSelected.add(id);render(true);};
+window.cs2=()=>{
+  const d=($('cd')||{}).value?.trim();if(!d){alert(t('err_enter_desc'));return;}
+  A.nb.desc=d;
+  A.nb.sideA=($('csA')||{}).value?.trim()||'';
+  A.nb.sideB=($('csB')||{}).value?.trim()||'';
+  // Pool requires both sides
+  if(A.nb.type==='pool'&&(!A.nb.sideA||!A.nb.sideB)){alert(t('err_enter_outcomes'));return;}
+  // If sides defined, pool requires side selection; for 1v1 it's optional but nice
+  if(A.nb.type==='pool'&&!A.nb.creatorSide){alert(t('err_choose_side'));return;}
+  go('create',{step:3});
+};
+window.cs3=()=>{
+  A.nb.amount=Math.min(500,parseInt(($('ca')||{}).value||A.nb.amount||0));
+  if(!A.nb.amount){alert(t('err_enter_amount'));return;}
+  if(!A.nb.expiry)A.nb.expiry=7;
+  A.nb.payMethod=($('cp')||{}).value?.trim()||'';
+  go('create',{step:4});
+};
+window.doPost=()=>{
+  if(A.nb.visibility==='private'&&A.inviteSelected.size===0){alert(t('select_min_one'));return;}
+  const bet={
+    id:'b'+now().toString(36)+Math.random().toString(36).substr(2,4),
+    desc:A.nb.desc,amount:A.nb.amount,type:A.nb.type,
+    category:A.nb.cat||cats()[1],
+    sideA:A.nb.sideA,sideB:A.nb.sideB,
+    creatorSide:A.nb.creatorSide||null,
+    creatorId:A.myId,creatorName:A.myName,creatorVipps:A.myVipps,
+    payMethod:A.nb.payMethod,
+    isPrivate:A.nb.visibility==='private',
+    ts:now(),expiresAt:now()+A.nb.expiry*86400000,
+    status:'open',members:[],interests:[]
+  };
+  A.myBets.push({...bet});
+
+  if(A.nb.visibility==='private'){
+    // Send kun til valgte venner
+    [...A.inviteSelected].forEach(id=>send(id,{t:'INV',bet:{...bet,fromContact:true}}));
+    addAct(`${t('bet_sent_to')} ${A.inviteSelected.size} ${t('sel_friends_n')}`,'🔒');
+  }else{
+    // Send til ALLE kontakter — ikke til fremmede
+    const contactIds=A.contacts.map(c=>c.id);
+    contactIds.forEach(id=>send(id,{t:'INV',bet:{...bet,fromContact:true}}));
+    addAct(`${t('you_posted')} ${bet.desc.substr(0,40)}`,'📋');
+  }
+  persist();A.nb={};A.inviteSelected.clear();go('mine');
+};
+
+// ════════════════════════════════════════════════
+// JOIN BET
+// ════════════════════════════════════════════════
+function pJoinBet(){
+  const bet=A.openBets.get(A.params.betId);
+  if(!bet)return`<div class="scr"><div class="tbar"><button class="back-btn" onclick="go('feed')">${t('back')}</button></div><div class="empty"><div class="empty-ico">❓</div><div class="empty-tx">${t('bet_not_found')}</div></div></div>`;
+  const isPool=bet.type==='pool';const np=npCount(bet.creatorId);const pr=avgRating(bet.creatorId,false);
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('feed')">${t('back')}</button><div class="pg-title">${t('join_t')}</div></div>
+    ${np?`<div class="warn-box">⚠️ ${t('np_warn_pre')} ${np} ${t('np_warn_suf')}</div>`:''}
+    <div class="card c${bet.type==='pool'?'p':bet.type==='honor'?'h':bet.isPrivate?'l':'j'}" style="margin-bottom:16px">
+      <div class="card-desc">${esc(bet.desc)}</div>
+      <div class="divider"></div>
+      ${[[t('row_from'),bet.creatorName+(pr?` · ⭐${pr}`:'')],[t('stake_lbl'),bet.amount+'kr'],[t('row_type'),bet.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],!isPool?[t('potential_win'),(bet.amount*2)+'kr']:null,bet.payMethod?[t('settlement'),bet.payMethod]:null].filter(Boolean).map(([k,v])=>`<div class="drow"><span>${k}</span><span class="dval">${esc(v)}</span></div>`).join('')}
+    </div>
+    <button class="btn btn-sec btn-full" style="margin-bottom:10px" onclick="go('repProfile',{uid:'${bet.creatorId}',name:'${esc(bet.creatorName)}'})">👤 ${t('view_rep_of')} ${esc(bet.creatorName)}</button>
+    <div class="info-box">${t('anon_info_pre')} ${esc(bet.creatorName)} ${t('anon_info_suf')}</div>
+    ${bet.sideA&&bet.sideB?`<div class="section-label" style="margin-bottom:10px">${isPool?t('choose_side'):t('choose_your_side')}</div>
+    ${isPool?`<div style="display:flex;gap:8px;margin-bottom:16px">
+      <button style="flex:1;padding:14px;border-radius:12px;font-size:14px;font-weight:700;border:1px solid ${A.nb.side==='A'?'var(--gb)':'var(--b2)'};background:${A.nb.side==='A'?'var(--gd)':'var(--surf2)'};color:${A.nb.side==='A'?'var(--g)':'var(--muted)'}" onclick="selSide('A')">🅰 ${esc(bet.sideA)}</button>
+      <button style="flex:1;padding:14px;border-radius:12px;font-size:14px;font-weight:700;border:1px solid ${A.nb.side==='B'?'var(--blb)':'var(--b2)'};background:${A.nb.side==='B'?'var(--bld)':'var(--surf2)'};color:${A.nb.side==='B'?'var(--bl)':'var(--muted)'}" onclick="selSide('B')">🅱 ${esc(bet.sideB)}</button>
+    </div>`:`<div style="margin-bottom:16px">
+      <div style="padding:14px;border-radius:12px;font-size:14px;border:1px solid var(--gb);background:var(--gd);color:var(--g);margin-bottom:8px">
+        <div style="font-size:10px;letter-spacing:1px;opacity:0.7;margin-bottom:4px">${esc(bet.creatorName)} ${t('creator_chose')}:</div>
+        <div style="font-weight:700">${bet.creatorSide==='A'?'🅰 '+esc(bet.sideA):'🅱 '+esc(bet.sideB)}</div>
+      </div>
+      <div style="padding:14px;border-radius:12px;font-size:14px;border:1px solid var(--blb);background:var(--bld);color:var(--bl)">
+        <div style="font-size:10px;letter-spacing:1px;opacity:0.7;margin-bottom:4px">${t('your_side')}:</div>
+        <div style="font-weight:700">${bet.creatorSide==='A'?'🅱 '+esc(bet.sideB):'🅰 '+esc(bet.sideA)}</div>
+      </div>
+    </div>`}`:''}
+    <button class="btn btn-prim btn-full" onclick="doJoin('${bet.id}','${bet.creatorId}','${bet.type}')" ${isPool&&!A.nb.side?'disabled':''}>${t('join_btn')}</button>
+    <button class="btn btn-ghost" onclick="go('feed')">${t('cancel')}</button>
+  </div>`;}
+window.selSide=s=>{A.nb.side=s;render(true);};
+window.doJoin=(betId,cId,type)=>{
+  if(type==='pool'&&!A.nb.side){alert(t('choose_side'));return;}
+  const bet=A.openBets.get(betId);
+  // For 1v1 with sides: auto-assign the opposite side
+  let mySide=A.nb.side||null;
+  if(type!=='pool'&&bet?.creatorSide&&bet?.sideA&&bet?.sideB){
+    mySide=bet.creatorSide==='A'?'B':'A';
+  }
+  const myBet={id:betId,desc:bet?.desc,amount:bet?.amount,type,category:bet?.category,
+    sideA:bet?.sideA,sideB:bet?.sideB,payMethod:bet?.payMethod,opponentId:cId,opponentName:bet?.creatorName,
+    status:'pending',isChallenger:true,ts:now(),side:mySide};
+  A.myBets.push(myBet);
+  // For pool: send PJ so creator gets member added, and also JR for interest
+  if(type==='pool'){
+    send(cId,{t:'PJ',bid:betId,name:A.myName,side:mySide,amt:bet?.amount});
+    // Also add self to local copy of bet members if we have it
+    const openBet=A.openBets.get(betId);
+    if(openBet){if(!openBet.members)openBet.members=[];openBet.members.push({id:A.myId,name:A.myName,side:mySide,amt:bet?.amount});}
+  }
+  send(cId,{t:'JR',bid:betId,name:A.myName,vipps:A.myVipps,side:mySide});
+  persist();A.nb={};go('mine');
+};
+
+// ════════════════════════════════════════════════
+// INTERESTS — who wants in
+// ════════════════════════════════════════════════
+function pInterests(){
+  const bet=A.myBets.find(b=>b.id===A.params.betId);
+  if(!bet)return`<div class="scr"><div class="tbar"><button class="back-btn" onclick="go('mine')">${t('back')}</button></div></div>`;
+  const list=bet.interests||[];
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('betDetail',{betId:'${bet.id}'})">${t('back')}</button><div class="pg-title">${t('interests_t')}</div></div>
+    <div class="info-box">${t('interests_info')}</div>
+    ${!list.length?`<div class="empty"><div class="empty-ico">👀</div><div class="empty-tx">${t('interests_none')}</div></div>`:''}
+    ${list.map(p=>{
+      const pr=avgRating(p.id,false);const jr=avgRating(p.id,true);const np=npCount(p.id);
+      return`<div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div class="av av-g">${(p.name||'?')[0].toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--tx)">${esc(p.name)}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">
+              ${pr?`⭐ ${pr} `:''}${np?`<span style="color:var(--r)">💀 ${np}× NP</span>`:''}${!pr&&!np?t('no_rating_hist'):''}
+            </div>
+          </div>
+          ${p.side?`<span class="badge b-blue">${p.side==='A'?'🅰 '+esc(bet.sideA||'A'):'🅱 '+esc(bet.sideB||'B')}</span>`:''}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sec" style="flex:1;padding:10px" onclick="go('repProfile',{uid:'${p.id}',name:'${esc(p.name)}'})">${t('rep_btn')}</button>
+          ${bet.type!=='pool'?`<button class="btn btn-acc" style="padding:10px" onclick="acceptInterest('${bet.id}','${p.id}','${esc(p.name)}','${esc(p.vipps||'')}')">${t('accept_btn')}</button>`:''}
+          <button class="btn btn-dec" style="padding:10px" onclick="declineInterest('${bet.id}','${p.id}')">✗</button>
+        </div>
+      </div>`;}).join('')}
+  </div>`;}
+window.acceptInterest=(bid,pid,name,vipps)=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  if(b.type==='pool'){b.interests=(b.interests||[]).filter(x=>x.id!==pid);persist();render(true);return;}
+  b.opponentId=pid;b.opponentName=name;b.opponentVipps=vipps;
+  b.status='active';
+  gossip({t:'TAKE',betId:bid});
+  send(pid,{t:'JY',bid,name:A.myName,vipps:A.myVipps});
+  // Decline all others
+  (b.interests||[]).filter(x=>x.id!==pid).forEach(x=>send(x.id,{t:'JN',bid}));
+  b.interests=[];persist();go('betDetail',{betId:bid});
+};
+window.declineInterest=(bid,pid)=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.interests=(b.interests||[]).filter(x=>x.id!==pid);
+  send(pid,{t:'JN',bid});persist();render(true);
+};
+
+// ════════════════════════════════════════════════
+// MY BETS
+// ════════════════════════════════════════════════
+function pMine(){
+  const active=A.myBets.filter(b=>!['done','declined','never_paid','cancelled'].includes(b.status));
+  const done=A.myBets.filter(b=>['done','declined','never_paid','cancelled'].includes(b.status));
+  const lost=done.filter(b=>b.winnerId&&b.winnerId!==A.myId).length;
+  return`<div class="scr">
+    <div class="hdr"><div><div class="logo" style="font-size:26px">${t('mine_t')}</div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span style="font-family:'Bebas Neue';font-size:24px;color:var(--g)">${A.wins}W</span><span style="font-family:'Bebas Neue';font-size:24px;color:var(--dim)">${lost}T</span></div>
+    </div>
+    ${A.streak>1?`<div class="streak-pill">${A.streak>1?`🔥 ${A.streak} ${t('streak_s')}!`:''}</div>`:''}
+    ${active.length?`<span class="section-label">${t('active_lbl')} (${active.length})</span>${active.map(myCard).join('')}`:''}
+    ${done.length?`<span class="section-label" style="margin-top:18px;display:block">${t('done_lbl')} (${done.length})</span>${done.map(myCard).join('')}`:''}
+    ${!A.myBets.length?`<div class="empty"><div class="empty-ico">💰</div><div class="empty-tx">${t('no_bets_mine').replace('\\n','<br>')}</div></div>`:''}
+  </div>`;}
+function myCard(b){
+  const iW=b.winnerId===A.myId||(b.winningSide&&(b.members?.find(m=>m.id===A.myId&&m.side===b.winningSide)||b.side===b.winningSide||(b.creatorId===A.myId&&b.creatorSide===b.winningSide)));
+  const cols={open:'b-blue',pending:'b-orange',accepting:'b-green',active:'b-blue',done:iW?'b-green':'b-red',declined:'b-gray',dispute:'b-orange',await_payment:iW?'b-green':'b-orange',never_paid:'b-red',cancelled:'b-gray'};
+  const lbls={open:t('s_open'),pending:t('s_pending'),accepting:`⚡ ${(b.interests||[]).length} ${t('interested_n')}`,active:t('s_active'),done:iW?t('s_won'):t('s_lost'),declined:t('s_declined'),dispute:t('s_dispute'),await_payment:iW?t('s_awpay_win'):t('s_awpay_lose'),never_paid:t('s_np'),cancelled:t('s_cancelled')};
+  const isDone=['done','declined','never_paid','cancelled'].includes(b.status);
+  return`<div class="card card-tap" onclick="go('betDetail',{betId:'${b.id}'})">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500;color:var(--tx);flex:1;line-height:1.4">${esc(b.desc||'—')}</span>
+      <span class="badge ${cols[b.status]||'b-gray'}">${lbls[b.status]||b.status}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:'Bebas Neue';font-size:18px;color:${b.status==='done'?(iW?'var(--g)':'var(--r)'):b.status==='await_payment'?(iW?'var(--g)':'var(--a)'):'var(--g)'}">
+        ${['done','await_payment'].includes(b.status)?(iW?'+':'-'):''}${b.amount||0}kr
+      </span>
+      <span style="font-size:11px;color:var(--muted)">vs ${esc(b.opponentName||t('vs_no_opponent'))} ${b.type==='pool'?'👥':'🤝'}</span>
+    </div>
+    ${isDone?`<button class="btn btn-ghost" style="margin-top:8px;padding:8px;font-size:12px;color:var(--r);border-color:var(--rb)" onclick="event.stopPropagation();deleteBet('${b.id}')">${t('remove_hist')}</button>`:''}
+  </div>`;}
+window.deleteBet=id=>{if(confirm(t('remove_hist_q'))){A.myBets=A.myBets.filter(b=>b.id!==id);persist();render(true);}};
+
+// ════════════════════════════════════════════════
+// BET DETAIL
+// ════════════════════════════════════════════════
+function pBetDetail(){
+  const bet=A.myBets.find(b=>b.id===A.params.betId);
+  if(!bet)return`<div class="scr"><div class="tbar"><button class="back-btn" onclick="go('mine')">${t('back')}</button></div><div class="empty"><div class="empty-ico">❓</div><div class="empty-tx">${t('bet_not_found')}</div></div></div>`;
+  const iW=bet.winnerId===A.myId||(bet.winningSide&&(bet.members?.find(m=>m.id===A.myId&&m.side===bet.winningSide)||bet.side===bet.winningSide||(bet.creatorId===A.myId&&bet.creatorSide===bet.winningSide)));
+  const isPool=bet.type==='pool';const rated=A.rated.has(bet.id);
+  const interests=bet.interests||[];
+  const chatBtn=`<button class="btn btn-sec btn-full" style="margin-top:8px" onclick="go('betChat',{betId:'${bet.id}'})">${t('open_chat')}</button>`;
+  let body='';
+
+  // ── FULL INFO ──
+  body+=`<div class="card c${bet.isPrivate?'l':isPool?'p':bet.type==='honor'?'h':'j'}" style="margin-bottom:16px">
+    <div style="font-size:16px;font-weight:600;color:var(--tx);line-height:1.5;margin-bottom:12px">${esc(bet.desc||'—')}</div>
+    <div class="divider"></div>
+    ${[
+      [t('row_type'),bet.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],
+      [t('stake_lbl'),bet.amount+'kr'],
+      [t('row_opponent'),bet.opponentName||'—'],
+      bet.sideA&&bet.sideB?[t('your_side'),bet.side?(bet.side==='A'?'🅰 '+bet.sideA:'🅱 '+bet.sideB):(bet.creatorSide?(bet.creatorSide==='A'?'🅰 '+bet.sideA:'🅱 '+bet.sideB):'—')]:null,
+      bet.sideA&&bet.sideB?[t('opponent_side'),bet.side?(bet.side==='A'?'🅱 '+bet.sideB:'🅰 '+bet.sideA):(bet.creatorSide?(bet.creatorSide==='A'?'🅱 '+bet.sideB:'🅰 '+bet.sideA):'—')]:null,
+      bet.isPrivate?[t('row_visibility'),'🔒 '+t('closed_s')]:[t('visibility_s'),'🌐 '+t('open_s')],
+      bet.payMethod?[t('settlement'),bet.payMethod]:null,
+      bet.expiresAt?[t('row_expires'),new Date(bet.expiresAt).toLocaleDateString()]:null,
+      bet.category?[t('row_cat'),bet.category]:null,
+    ].filter(Boolean).map(([k,v])=>`<div class="drow"><span>${k}</span><span class="dval">${esc(v)}</span></div>`).join('')}
+  </div>`;
+
+  // ── INTERESTS ──
+  if(bet.status==='accepting'&&interests.length){
+    body+=`<div class="alert alert-g" onclick="go('interests',{betId:'${bet.id}'})">⚡ ${interests.length} ${t('interested_n')} — ${t('interested_choose')} →</div>`;}
+
+  // ── OPEN (can cancel) ──
+  if(['open','accepting'].includes(bet.status)&&bet.creatorId===A.myId){
+    body+=`<button class="btn btn-ghost btn-full" style="border-color:var(--rb);color:var(--r);margin-bottom:10px" onclick="cancelBet('${bet.id}')">${t('cancel_bet')}</button>`;}
+
+
+  // ── PENDING (waiting for bet owner to accept) ──
+  if(bet.status==='pending'&&bet.isChallenger){
+    body+=`<div class="info-box">${t('pending_detail')}</div>${chatBtn}`;}
+
+  // ── ACTIVE (honor) ──
+  if(bet.status==='active'&&bet.type==='honor'){
+    body+=`<div class="card" style="margin-bottom:14px"><div class="section-label">${t('honor_hdr')}</div>
+      <div class="info-box">${t('honor_info')}</div>
+      ${bet.theirConfirm&&!bet.myConfirm?`<div class="warn-box">⚠️ ${esc(bet.opponentName||'?')} ${t('claims')} ${bet.theirConfirm===bet.opponentId?t('they_claim_won'):t('they_claim_lost')}</div>`:''}
+      ${bet.myConfirm?`<div class="info-box" style="color:var(--g);text-align:center">✅ ${t('you_voted_pre')} ${bet.myConfirm===A.myId?t('i_won'):t('they_won')}. ${bet.theirConfirm?'':t('you_voted_suf')}</div>`
+      :`<div class="btn-row"><button class="btn btn-acc" onclick="hConf('${bet.id}','${A.myId}')">${t('i_won')}</button><button class="btn btn-dec" onclick="hConf('${bet.id}','${bet.opponentId}')">${t('they_won')}</button></div>`}
+    </div>${chatBtn}`;}
+
+  // ── ACTIVE (pool) ──
+  if(bet.status==='active'&&isPool){
+    const myV=bet.votes?.[A.myId];
+    body+=`<div class="card" style="margin-bottom:14px"><div class="section-label">${t('pool_vote_hdr')}</div>
+      <div class="info-box">${t('pool_vote_info')}</div>
+      ${!myV?`<div class="btn-row"><button class="btn" style="flex:1;background:var(--gd);border:1px solid var(--gb);color:var(--g);padding:13px;font-weight:700" onclick="poolVote('${bet.id}','A')">🅰 ${esc(bet.sideA||'A')} ${t('won_side')}</button><button class="btn" style="flex:1;background:var(--bld);border:1px solid var(--blb);color:var(--bl);padding:13px;font-weight:700" onclick="poolVote('${bet.id}','B')">🅱 ${esc(bet.sideB||'B')} ${t('won_side')}</button></div>`:
+      `<div class="info-box" style="color:var(--g)">${t('you_voted_pre')} ${myV==='A'?esc(bet.sideA||'A'):esc(bet.sideB||'B')}. ${t('you_voted_suf')}</div>`}
+    </div>${chatBtn}`;}
+
+  // ── DISPUTE ──
+  if(bet.status==='dispute')body+=`<div class="warn-box">${t('dispute_info')}</div>${chatBtn}`;
+
+  // ── AWAIT PAYMENT ──
+  if(bet.status==='await_payment'){
+    body+=`<div class="card" style="margin-bottom:14px;border-color:${iW?'var(--gb)':'var(--ab)'}">
+      <div class="section-label">${t('waiting_payment')}</div>
+      ${bet.payDeadline?`<div class="timer-n">${countdown(bet.payDeadline)}</div><div style="font-size:11px;color:var(--muted);margin-bottom:12px;margin-top:2px">${t('payment_deadline')}</div>`:''}
+      ${iW?`<div class="info-box">${t('won_share')}</div>
+        <button class="btn btn-prim btn-full" onclick="shareVipps('${bet.id}')">${t('share_vipps')}</button>
+        <button class="btn btn-prim btn-full" style="margin-top:8px" onclick="confPayment('${bet.id}')">${t('conf_payment')}</button>
+        ${bet.payDeadline&&bet.payDeadline<now()+43200000?`<button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--r);border-color:var(--rb)" onclick="doNeverPaid('${bet.id}')">${t('never_paid_btn')}</button>`:''}`
+      :`<div class="info-box">${isPool?t('pool_loser_await'):t('vipps_info')}</div>
+        ${bet.winnerVipps?`<div class="info-box" style="margin-top:8px">💳 ${esc(bet.winnerVipps)}</div>`:''}
+        <button class="btn btn-sec btn-full" style="margin-top:8px" onclick="go('betChat',{betId:'${bet.id}'})">💬 ${t('open_chat')}</button>`}
+    </div>`;}
+
+  // ── DONE ──
+  if(bet.status==='done'){
+    body+=`<div class="verdict-result"><div class="verdict-ico">${iW?'🏆':'😔'}</div>
+      <div class="verdict-n" style="color:${iW?'var(--g)':'var(--r)'}">${iW?'+':'-'}${bet.amount}KR</div>
+      <div class="verdict-s">${iW?t('congrats'):t('better_luck')}</div>
+    </div>`;
+    // ── DONATION ──
+    if(!A._donDismissed?.has(bet.id))body+=donateBox(bet.id);
+    if(!rated){
+      body+=`<span class="section-label">${esc(bet.opponentName||'?')}</span>
+      <div class="stars">${[1,2,3,4,5].map(n=>`<button class="star-btn${(A.nb.rL||0)>=n?' act':''}" id="sL${n}" onclick="setStar('rL',${n})">★</button>`).join('')}</div>
+      <textarea class="fi" id="rcl" rows="2" placeholder="${t('rate_comment')}" style="margin-top:8px" oninput="A.nb._rcl=this.value"></textarea>
+
+      <button class="btn btn-prim btn-full" onclick="doRate('${bet.id}','${bet.opponentId||''}')">${t('rate_btn')}</button>`;
+    }
+    if(rated)body+=`<div class="info-box" style="color:var(--g);text-align:center">${t('rate_done')}</div>`;
+  }
+
+  // ── NEVER PAID ──
+  if(bet.status==='never_paid')body+=`<div class="never-paid" style="margin-bottom:14px;font-size:14px;display:flex">${t('never_paid_tag')}</div>`;
+
+  body+=chatBtn;
+  // Delete chat button (always). Leave only for finished bets.
+  const isDone=['done','cancelled','never_paid','declined'].includes(bet.status);
+  if(isDone||A.betChats[bet.id]){
+    body+=`<div style="display:flex;gap:8px;margin-top:8px">
+      ${isDone?`<button class="btn btn-ghost" style="flex:1;font-size:12px;color:var(--r);border-color:var(--rb)" onclick="leaveBet('${bet.id}')">${t('remove_hist')}</button>`:''}
+      ${A.betChats[bet.id]?`<button class="btn btn-ghost" style="flex:1;font-size:12px;color:var(--muted)" onclick="deleteBetChat('${bet.id}')">${t('delete_chat')}</button>`:''}
+    </div>`;
+  }
+
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('mine')">${t('back')}</button><div class="pg-title">${t('bet_detail_t')}</div></div>
+    ${body}
+  </div>`;}
+
+window.cancelBet=bid=>{
+  if(!confirm(t('cancel_q')))return;
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.status='cancelled';A.openBets.delete(bid);gossip({t:'CANCEL',betId:bid});
+  persist();render(true);
+};
+window.leaveBet=bid=>{
+  if(!confirm(t('leave_bet_q')))return;
+  A.myBets=A.myBets.filter(x=>x.id!==bid);
+  A.openBets.delete(bid);
+  if(A.betChats[bid])delete A.betChats[bid];
+  persist();go('mine');
+};
+window.deleteBetChat=bid=>{
+  if(!confirm(t('delete_chat_q')))return;
+  if(A.betChats[bid])delete A.betChats[bid];
+  persist();render(true);
+};
+window.deleteDM=pid=>{
+  if(!confirm(t('delete_chat_q')))return;
+  if(A.dms[pid])delete A.dms[pid];
+  persist();render(true);
+};
+window.deleteGroupChat=gcId=>{
+  if(!confirm(t('delete_chat_q')))return;
+  A.groupChats=A.groupChats.filter(g=>g.id!==gcId);
+  persist();render(true);
+};
+window.hConf=(bid,wId)=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.myConfirm=wId;send(b.opponentId,{t:'HC',bid,wId});checkHonor(b);persist();render(true);
+};
+window.poolVote=(bid,side)=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  if(!b.votes)b.votes={};b.votes[A.myId]=side;
+  (b.members||[]).forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PV',bid,side});});
+  if(b.opponentId&&b.opponentId!==A.myId)send(b.opponentId,{t:'PV',bid,side});
+  checkPoolVotes(b);persist();render(true);
+};
+window.shareVipps=bid=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.vippsShared=true;
+  if(b.type==='pool'){
+    const rcpts=b.isChallenger
+      ?(b.opponentId?[b.opponentId]:[])
+      :(b.members||[]).filter(m=>m.side!==b.winningSide).map(m=>m.id);
+    rcpts.forEach(id=>send(id,{t:'WV',bid,vipps:A.myVipps}));
+  }else{
+    if(b.opponentId)send(b.opponentId,{t:'WV',bid,vipps:A.myVipps});
+  }
+  persist();go('betChat',{betId:bid});
+};
+window.confPayment=bid=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.status='done';
+  if(b.type==='pool'){
+    const rcpts=b.isChallenger
+      ?(b.opponentId?[b.opponentId]:[])
+      :(b.members||[]).map(m=>m.id).filter(Boolean);
+    rcpts.forEach(id=>send(id,{t:'PC',bid}));
+  }else{
+    if(b.opponentId)send(b.opponentId,{t:'PC',bid});
+  }
+  persist();render(true);
+};
+window.doNeverPaid=bid=>{
+  if(!confirm(t('never_paid_q')))return;
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.status='never_paid';
+  const loserId=b.opponentId;
+  if(loserId){
+    if(!A.ratings[loserId])A.ratings[loserId]=[];
+    A.ratings[loserId].push({score:1,comment:'Betalte aldri.',betId:bid,raterName:A.myName,ts:now(),neverPaid:true,isJudge:false});
+    gossip({t:'RAT',uid:loserId,ratings:A.ratings[loserId]});
+  }
+  persist();render(true);
+};
+window.setStar=(key,n)=>{
+  A.nb[key]=n;
+  render(true);
+};
+window.doRate=async(bid,loserId)=>{
+  const ls_=A.nb.rL||0;if(!ls_){alert(t('rate_missing'));return;}
+  const lc=A.nb._rcl||($('rcl')||{}).value?.trim()||'';
+  const rateBtn=document.querySelector('[onclick^="doRate"]');
+  if(rateBtn){rateBtn.disabled=true;rateBtn.textContent='...';}
+  const sig=await signData({bid,loserId,score:ls_,ts:now()});
+  if(loserId){
+    if(!A.ratings[loserId])A.ratings[loserId]=[];
+    A.ratings[loserId].push({score:ls_,comment:lc,betId:bid,raterName:A.myName,ts:now(),neverPaid:false,isJudge:false,sig});
+    gossip({t:'RAT',uid:loserId,ratings:A.ratings[loserId]});
+  }
+  try{A.rated.add(bid);ss('vRated',JSON.stringify([...A.rated]));}catch(e){console.error('[doRate persist]',e);}
+  A.nb.rL=0;A.nb._rcl='';notify('⭐ '+t('n_rating_sent'));persist();go('mine');
+};
+
+// ════════════════════════════════════════════════
+// DONATION
+// ════════════════════════════════════════════════
+function donateBox(betId){
+  return`<div class="donate-box">
+    <div class="donate-title">💚 ${t('donate_title')}</div>
+    <div class="donate-msg">${t('donate_msg')}</div>
+    <div class="donate-amts">
+      ${[5,10,20].map(a=>`<button class="donate-amt${A.nb._donAmt==a?' act':''}" onclick="A.nb._donAmt=${a};render(true)">${a}kr</button>`).join('')}
+      <input style="width:60px;padding:8px 10px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid var(--b2);color:var(--tx);background:var(--surf2);text-align:center" type="number" min="1" placeholder="..." id="don-custom" oninput="A.nb._donAmt=parseInt(this.value)||0" value="${A.nb._donAmt&&![5,10,20].includes(A.nb._donAmt)?A.nb._donAmt:''}">
+    </div>
+    <div class="donate-methods">
+      <button class="donate-btn donate-vipps" onclick="doDonate('vipps')">📱 ${t('donate_vipps')}</button>
+      <button class="donate-btn donate-ln" onclick="doDonate('ln')">⚡ ${t('donate_lightning')}</button>
+    </div>
+    <button style="margin-top:12px;font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer" onclick="dismissDonate('${betId}')">✕</button>
+  </div>`;}
+window.doDonate=(method)=>{
+  const amt=A.nb._donAmt||10;
+  if(method==='vipps'){
+    const vippsNr='46500029';
+    const msg='Vipps '+amt+'kr til '+vippsNr;
+    try{navigator.clipboard.writeText(vippsNr).then(()=>notify('✅ '+t('donate_thx'),msg)).catch(()=>prompt(msg,vippsNr));}
+    catch(e){prompt(msg,vippsNr);}
+  }else{
+    const lnAddr='ironneedle25@walletofsatoshi.com';
+    const msg='Lightning: '+lnAddr;
+    try{navigator.clipboard.writeText(lnAddr).then(()=>notify('✅ '+t('donate_thx'),msg)).catch(()=>prompt(msg,lnAddr));}
+    catch(e){prompt(msg,lnAddr);}
+  }
+};
+window.dismissDonate=(betId)=>{A._donDismissed.add(betId);persist();render(true);};
+
+// ════════════════════════════════════════════════
+// REP PROFILE — full reputation screen
+// ════════════════════════════════════════════════
+function pRepProfile(){
+  const uid=A.params.uid;const uname=A.params.name||uid?.substr(0,12)||'?';
+  const isMe=uid===A.myId;
+  const allR=A.ratings[uid]||[];
+  const playerR=allR.filter(x=>!x.isJudge);
+  const np=allR.filter(x=>x.neverPaid);
+  const prAvg=avgRating(uid,false);
+  const peer=A.peers.get(uid)||{};
+  const peerStats=isMe?{wins:A.wins,bets:A.myBets.length}:{wins:peer.wins||0,bets:peer.bets||0};
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go(A.prevScreen||'feed')">${t('back')}</button><div class="pg-title">${t('rep_t')}</div></div>
+    <div class="profile-card">
+      <div class="profile-av">${(uname||'?')[0].toUpperCase()}</div>
+      <div class="profile-name">${esc(uname)}</div>
+      <div class="profile-id">${uid||''}</div>
+      ${np.length?`<div class="never-paid" style="margin:10px auto 0;display:inline-flex">💀 ${np.length}${t('np_times')}</div>`:''}
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+        ${prAvg!==null?`<span class="badge b-orange">⭐ ${prAvg} ${t('as_player_s')}</span>`:`<span class="badge b-gray">${t('no_player_rating')}</span>`}
+      </div>
+      <div class="profile-stats">
+        <div class="ps"><div class="ps-n" style="color:var(--g)">${peerStats.wins}</div><div class="ps-l">${t('won_s')}</div></div>
+        <div class="ps"><div class="ps-n">${peerStats.bets}</div><div class="ps-l">${t('rep_bets_lbl')}</div></div>
+        <div class="ps"><div class="ps-n" style="color:${np.length?'var(--r)':'var(--g)'}">${allR.length}</div><div class="ps-l">${t('rep_ratings_lbl')}</div></div>
+      </div>
+    </div>
+    ${np.length?`<span class="section-label" style="color:var(--r)">⚠️ ${t('rep_never_paid_hdr')} (${np.length})</span>
+    ${np.map(r=>`<div class="rating-item" style="border-color:var(--rb)">
+      <div class="rating-stars" style="color:var(--r)">💀 ${t('rep_never_paid_hdr')}</div>
+      ${r.comment?`<div class="rating-comment">${esc(r.comment)}</div>`:''}
+      <div class="rating-meta">${t('row_from')} ${esc(r.raterName||'?')} · ${new Date(r.ts).toLocaleDateString()}</div>
+    </div>`).join('')}`:''}
+    ${playerR.length?`<span class="section-label" style="margin-top:14px;display:block">⭐ ${t('rep_as_player_hdr')} (${playerR.length})</span>
+    ${playerR.map(r=>`<div class="rating-item">
+      <div class="rating-stars">${starStr(r.score)}</div>
+      ${r.comment?`<div class="rating-comment">${esc(r.comment)}</div>`:''}
+      <div class="rating-meta">${t('row_from')} ${esc(r.raterName||'?')} · ${new Date(r.ts).toLocaleDateString()}</div>
+    </div>`).join('')}`:''}
+    ${!allR.length&&!np.length?`<div class="empty"><div class="empty-ico">👤</div><div class="empty-tx">${t('rep_no_ratings')}</div></div>`:''}
+    ${!isMe?`<div class="divider"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sec" style="flex:1" onclick="go('dm',{peerId:'${uid}'})">✉️ ${t('rep_send_dm')}</button>
+      <button class="btn" style="flex:1;background:var(--rd);border:1px solid var(--rb);color:var(--r)" onclick="blockUser('${uid}');go('feed')">🚫 ${t('rep_block')}</button>
+    </div>`:''}
+  </div>`;}
+
+// ════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════
+// CHAT HUB
+// ════════════════════════════════════════════════
+function pChatHub(){
+  const activeBetChats=A.myBets.filter(b=>A.betChats[b.id]?.length);
+  const grps=A.groupChats;
+  const dmList=Object.keys(A.dms).filter(id=>A.dms[id]?.length);
+  return`<div class="scr">
+    <div class="hdr"><div class="logo" style="font-size:26px">${t('chat_t')}</div><button class="btn btn-sec" style="font-size:12px;padding:8px 12px" onclick="go('contacts')">${t('new_chat_btn')}</button></div>
+    ${activeBetChats.length?`<span class="section-label">${t('bet_chats_sec')}</span>
+    ${activeBetChats.map(b=>{const last=A.betChats[b.id]?.slice(-1)[0];return`<div class="prow" style="position:relative">
+      <div style="flex:1;display:flex;align-items:center;gap:12px" onclick="go('betChat',{betId:'${b.id}'})">
+        <div class="av av-g">${b.type==='pool'?'👥':'🤝'}</div>
+        <div style="flex:1"><div class="prow-name">${esc(b.desc?.substr(0,35)||'Bet')}</div>
+        <div class="prow-sub">${last?esc(last.text?.substr(0,40)||''):t('no_msgs')}</div></div>
+      </div>
+      <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim);background:none;border:none;padding:6px;cursor:pointer" onclick="event.stopPropagation();deleteBetChat('${b.id}')">✕</button>
+    </div>`;}).join('')}`:''}
+    ${grps.length?`<span class="section-label" style="margin-top:14px;display:block">${t('groups_sec')}</span>
+    ${grps.map(g=>{const last=g.msgs?.slice(-1)[0];return`<div class="prow" style="position:relative">
+      <div style="flex:1;display:flex;align-items:center;gap:12px" onclick="go('groupChat',{gcId:'${g.id}'})">
+        <div class="av av-pu">👥</div>
+        <div style="flex:1"><div class="prow-name">${esc(g.name)}</div>
+        <div class="prow-sub">${last?esc(last.name)+': '+esc(last.text?.substr(0,30)||''):t('no_msgs')}</div></div>
+      </div>
+      <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim);background:none;border:none;padding:6px;cursor:pointer" onclick="event.stopPropagation();deleteGroupChat('${g.id}')">✕</button>
+    </div>`;}).join('')}`:''}
+    ${dmList.length?`<span class="section-label" style="margin-top:14px;display:block">${t('dms_sec')}</span>
+    ${dmList.map(id=>{const p=A.peers.get(id)||{};const nm=dispName(id,p.name);const last=A.dms[id]?.slice(-1)[0];return`<div class="prow" style="position:relative">
+      <div style="flex:1;display:flex;align-items:center;gap:12px" onclick="go('dm',{peerId:'${id}'})">
+        <div class="av ${A.conns.get(id)?.open?'av-g':''}">${(nm||'?')[0].toUpperCase()}</div>
+        <div style="flex:1"><div class="prow-name">${esc(nm)}</div><div class="prow-sub">${last?esc(last.text?.substr(0,40)||''):t('no_msgs')}</div></div>
+      </div>
+      <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim);background:none;border:none;padding:6px;cursor:pointer" onclick="event.stopPropagation();deleteDM('${id}')">✕</button>
+    </div>`;}).join('')}`:''}
+    ${!activeBetChats.length&&!grps.length&&!dmList.length?`<div class="empty"><div class="empty-ico">💬</div><div class="empty-tx">${t('no_chats').replace('\\n','<br>')}</div></div>`:''}
+  </div>`;}
+
+// ════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════
+// BET CHAT
+// ════════════════════════════════════════════════
+function pBetChat(){
+  const bid=A.params.betId;const bet=A.myBets.find(b=>b.id===bid);
+  const msgs=A.betChats[bid]||[];const delReq=A.betChats[bid+'_delReq'];
+  const oppId=bet?.opponentId||bet?.creatorId||'';
+  return`<div class="scr" style="padding-bottom:10px">
+    <div class="tbar"><button class="back-btn" onclick="go('betDetail',{betId:'${bid}'})">${t('back')}</button><div class="pg-title">${t('bet_chat_t')}</div></div>
+    <div class="info-box">${t('bet_chat_info')}</div>
+    ${delReq&&delReq!==A.myId?`<div class="alert alert-a" onclick="acceptDel('${bid}')">${t('del_req_msg')}</div>`:''}
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chat-msgs">
+        ${!msgs.length?`<div class="chat-msg msg-sys">${t('no_msgs_yet')}</div>`:''}
+        ${msgs.map(m=>`<div class="chat-msg ${m.from==='sys'?'msg-sys':m.from===A.myId?'msg-me':'msg-other'}">
+          ${m.from!=='sys'&&m.from!==A.myId?`<div class="msg-name">${esc(m.name||'?')}</div>`:''}
+          ${esc(m.text)}<div class="msg-time">${ago(m.ts)}</div>
+        </div>`).join('')}
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-in" id="bc-in" placeholder="${t('write_ph')}" maxlength="500" onkeydown="if(event.key==='Enter')bcSend('${bid}','${oppId}')">
+        <button class="chat-send" onclick="bcSend('${bid}','${oppId}')">➤</button>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-full" style="margin-top:10px;color:var(--r);border-color:var(--rb)" onclick="reqDel('${bid}','${oppId}')">${t('req_del')}</button>
+  </div>`;}
+window.bcSend=(bid,oppId)=>{const inp=$('bc-in');if(!inp||!inp.value.trim())return;const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now()};addBetMsg(bid,msg);const b=A.myBets.find(x=>x.id===bid);const rcpts=b?.type==='pool'?[...new Set([b.creatorId,...(b.members||[]).map(m=>m.id)])].filter(id=>id&&id!==A.myId):[oppId].filter(Boolean);rcpts.forEach(id=>send(id,{t:'BM',bid,name:A.myName,text:msg.text,ts:msg.ts}));inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);};
+window.reqDel=(bid,oppId)=>{if(!confirm(t('req_del_q')))return;A.betChats[bid+'_delReq']=A.myId;if(oppId)send(oppId,{t:'SD',bid});persist();render(true);};
+window.acceptDel=bid=>{const r=A.betChats[bid+'_delReq'];if(r)send(r,{t:'SDA',bid});delete A.betChats[bid];delete A.betChats[bid+'_delReq'];persist();render(true);};
+
+// ════════════════════════════════════════════════
+// DM
+// ════════════════════════════════════════════════
+function pDM(){
+  const pid=A.params.peerId;const peer=A.peers.get(pid)||{};const nm=dispName(pid,peer.name);const msgs=A.dms[pid]||[];
+  return`<div class="scr" style="padding-bottom:10px">
+    <div class="tbar"><button class="back-btn" onclick="go('chatHub')">${t('back')}</button><div class="pg-title">${esc(nm)}</div></div>
+    <div class="info-box">${t('dm_info')}</div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chat-msgs">
+        ${!msgs.length?`<div class="chat-msg msg-sys">${t('no_msgs_yet')}</div>`:''}
+        ${msgs.map(m=>`<div class="chat-msg ${m.from===A.myId?'msg-me':'msg-other'}">
+          ${m.from!==A.myId?`<div class="msg-name">${esc(m.name||'?')}</div>`:''}
+          ${esc(m.text)}<div class="msg-time">${ago(m.ts)}</div>
+        </div>`).join('')}
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-in" id="dm-in" placeholder="${t('write_ph')}" maxlength="500" onkeydown="if(event.key==='Enter')dmSend('${pid}')">
+        <button class="chat-send" onclick="dmSend('${pid}')">➤</button>
+      </div>
+    </div>
+  </div>`;}
+window.dmSend=async(pid)=>{
+  const inp=$('dm-in');if(!inp||!inp.value.trim())return;
+  const sendBtn=document.querySelector('.chat-send');
+  if(sendBtn)sendBtn.disabled=true;
+  const raw=inp.value.trim();const peer=A.peers.get(pid);
+  let enc=raw;let isEnc=false;
+  // SECURITY FIX: Only encrypt with verified ECDH keys; warn on cleartext
+  const reEnBtn=()=>{if(sendBtn)sendBtn.disabled=false;};
+  if(peer?.epub&&peer?.epubVerified!==false){
+    try{const result=await encryptFor(raw,peer.epub);if(result){enc=result;isEnc=true;}else{if(!confirm(t('enc_fail_warn'))){reEnBtn();return;}}}
+    catch(e){if(!confirm(t('enc_fail_warn'))){reEnBtn();return;}}
+  } else if(peer?.epub&&peer?.epubVerified===false){
+    if(!confirm(t('enc_mitm_warn'))){reEnBtn();return;}
+  } else {
+    // No ECDH key available — send unencrypted with warning
+  }
+  addDM(pid,{from:A.myId,name:A.myName,text:raw,ts:now()});
+  send(pid,{t:'DM',name:A.myName,text:enc,enc:isEnc,ts:now()});
+  inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);
+};
+
+// ════════════════════════════════════════════════
+// GROUP CHAT
+// ════════════════════════════════════════════════
+function pGrpChat(){
+  const gc=A.groupChats.find(g=>g.id===A.params.gcId);
+  if(!gc)return`<div class="scr"><div class="tbar"><button class="back-btn" onclick="go('chatHub')">${t('back')}</button></div></div>`;
+  const msgs=gc.msgs||[];
+  return`<div class="scr" style="padding-bottom:10px">
+    <div class="tbar"><button class="back-btn" onclick="go('chatHub')">${t('back')}</button><div class="pg-title">${esc(gc.name)}</div></div>
+    <div class="info-box">${gc.members?.length} ${t('participants')}.</div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chat-msgs">
+        ${!msgs.length?`<div class="chat-msg msg-sys">${t('no_msgs_yet')}</div>`:''}
+        ${msgs.map(m=>`<div class="chat-msg ${m.from===A.myId?'msg-me':'msg-other'}">
+          ${m.from!==A.myId?`<div class="msg-name">${esc(m.name||'?')}</div>`:''}
+          ${esc(m.text)}<div class="msg-time">${ago(m.ts)}</div>
+        </div>`).join('')}
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-in" id="grp-in" placeholder="${t('write_ph')}" maxlength="500" onkeydown="if(event.key==='Enter')grpSend('${gc.id}')">
+        <button class="chat-send" onclick="grpSend('${gc.id}')">➤</button>
+      </div>
+    </div>
+  </div>`;}
+window.grpSend=gcId=>{
+  const inp=$('grp-in');if(!inp||!inp.value.trim())return;
+  const gc=A.groupChats.find(g=>g.id===gcId);if(!gc)return;
+  const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now()};
+  gc.msgs=gc.msgs||[];gc.msgs.push(msg);if(gc.msgs.length>300)gc.msgs.shift();
+  (gc.members||[]).filter(id=>id!==A.myId).forEach(id=>send(id,{t:'GCM',gcId,name:A.myName,text:msg.text,ts:msg.ts}));
+  inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);
+};
+window.createGroupChat=()=>{
+  const sel=[...A.inviteSelected];if(!sel.length){alert(t('no_sel_for_group'));return;}
+  const name=prompt(t('group_name_prompt'));if(!name)return;
+  const gc={id:'gc'+now().toString(36),name,members:[A.myId,...sel],msgs:[],ts:now()};
+  A.groupChats.push(gc);
+  sel.forEach(id=>send(id,{t:'GCI',gc:{id:gc.id,name:gc.name,members:gc.members,ts:gc.ts}}));
+  A.inviteSelected.clear();persist();go('groupChat',{gcId:gc.id});
+};
+
+// ════════════════════════════════════════════════
+// CONTACTS
+// ════════════════════════════════════════════════
+function pContacts(){
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('chatHub')">${t('back')}</button><div class="pg-title">${t('contacts_t')}</div></div>
+    <div class="info-box">${t('contact_alias_info')}</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="btn btn-sec" style="flex:1" onclick="go('search')">🔍 ${t('find_contact')}</button>
+      ${A.inviteSelected.size?`<button class="btn btn-prim" style="flex:1" onclick="createGroupChat()">👥 ${t('new_group')} (${A.inviteSelected.size})</button>`:''}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input class="fi" id="add-id-input" placeholder="${t('add_id_ph')}" autocomplete="off" style="flex:1;padding:11px 13px;font-size:13px">
+      <button class="btn btn-prim" style="padding:11px 16px;white-space:nowrap" onclick="connectById()">${t('add_id_btn')}</button>
+    </div>
+    ${!A.contacts.length?`<div class="empty"><div class="empty-ico">👥</div><div class="empty-tx">${t('no_contacts')}</div></div>`:''}
+    ${A.contacts.map(c=>{const sel=A.inviteSelected.has(c.id);return`<div class="prow" onclick="go('dm',{peerId:'${c.id}'})">
+      <div class="invite-check" style="${sel?'background:var(--g);border-color:var(--g);color:#000':'border:2px solid var(--b2)'}" onclick="event.stopPropagation();toggleInvite('${c.id}')">${sel?'✓':''}</div>
+      <div class="av ${A.conns.get(c.id)?.open?'av-g':''}">${(c.alias||c.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1"><div class="prow-name">${esc(c.alias||c.name)}</div><div class="prow-sub">${A.conns.get(c.id)?.open?'● Online':'○ Offline'}</div></div>
+      <div style="display:flex;gap:6px">
+        <button style="font-size:11px;color:var(--bl);padding:10px 12px;border:1px solid var(--blb);border-radius:8px;background:var(--bld)" onclick="event.stopPropagation();go('repProfile',{uid:'${c.id}',name:'${esc(c.alias||c.name)}'})">${t('rep_btn')}</button>
+        <button style="font-size:11px;color:var(--r);padding:10px 12px;border:1px solid var(--rb);border-radius:8px;background:var(--rd)" onclick="event.stopPropagation();if(confirm(t('remove_contact_q'))){A.contacts=A.contacts.filter(x=>x.id!=='${c.id}');persist();render(true);}">✕</button>
+      </div>
+    </div>`;}).join('')}
+    ${A.inviteSelected.size?`<div class="info-box" style="margin-top:14px;color:var(--g)">✓ ${A.inviteSelected.size} ${t('selected_n')}</div>`:`<div class="info-box" style="margin-top:14px">${t('select_tip')}</div>`}
+  </div>`;}
+
+// ════════════════════════════════════════════════
+// SEARCH
+// ════════════════════════════════════════════════
+function pSearch(){
+  const q=(A.nb.sq||'').toLowerCase();
+  const res=q?[...A.peers.values()].filter(p=>p.name?.toLowerCase().includes(q)&&!A.blocked.has(p.id)).slice(0,20):[];
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('contacts')">${t('back')}</button><div class="pg-title">${t('search_t')}</div></div>
+    <div class="info-box">${t('search_info')}</div>
+    <input class="fi" id="sq" placeholder="${t('search_ph')}" value="${esc(A.nb.sq||'')}" oninput="A.nb.sq=this.value;render(true)" autofocus style="margin-bottom:16px">
+    ${!q?`<div class="empty"><div class="empty-ico">🔍</div><div class="empty-tx">${t('write_name')}</div></div>`:''}
+    ${q&&!res.length?`<div class="empty"><div class="empty-ico">🤷</div><div class="empty-tx">${t('no_results')} "${esc(q)}"</div></div>`:''}
+    ${res.map(p=>{const pr=avgRating(p.id,false);const np=npCount(p.id);return`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b)">
+      <div class="av ${A.conns.get(p.id)?.open?'av-g':''}">${(p.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1"><div class="prow-name">${esc(p.name)}</div>
+        <div class="prow-sub">${p.id.substr(0,12)}... · ${pr?'⭐'+pr+' · ':''}${np?`⚠️${np}NP · `:''} ${p.online?'Online':'Offline'}</div></div>
+      <div style="display:flex;gap:6px">
+        <button style="font-size:11px;color:var(--bl);padding:10px 12px;border:1px solid var(--blb);border-radius:8px;background:var(--bld)" onclick="go('repProfile',{uid:'${p.id}',name:'${esc(p.name)}'})">${t('rep_btn')}</button>
+        <button style="font-size:11px;color:var(--g);padding:10px 12px;border:1px solid var(--gb);border-radius:8px;background:var(--gd);font-weight:700" onclick="addContact('${p.id}','${esc(p.name)}')">${t('add_btn')}</button>
+      </div>
+    </div>`;}).join('')}
+  </div>`;}
+window.copyId=()=>{
+  const id=A.myId;
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(id).then(()=>notify('✅ '+t('invite_copied'),id)).catch(()=>{
+        prompt(t('invite_copied'),id);
+      });
+    }else{prompt(t('invite_copied'),id);}
+  }catch(e){prompt(t('invite_copied'),id);}
+};
+window.connectById=()=>{
+  const inp=$('add-id-input');if(!inp)return;
+  const id=inp.value.trim();
+  if(!id||!id.startsWith('v')||id.length<8){alert(t('add_id_err'));return;}
+  if(id===A.myId)return;
+  tryConn(id);
+  const alias=prompt(A.lang==='en'?'Alias for '+id.substr(0,12)+'?':'Kallenavn for '+id.substr(0,12)+'?',id.substr(0,12));
+  if(alias===null)return;
+  if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name:alias||id.substr(0,12),alias:alias||id.substr(0,12)});
+  persist();notify('✅ '+t('add_id_ok'));
+  inp.value='';render(true);
+};
+window.addContact=(id,name)=>{
+  const alias=prompt(A.lang==='en'?`Alias for ${name}?`:`Kallenavn for ${name}?`,name);if(alias===null)return;
+  if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name,alias:alias||name});
+  persist();go('contacts');
+};
+
+// ════════════════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════════════════
+function pProfile(){
+  const done=A.myBets.filter(b=>b.status==='done');
+  const lost=done.filter(b=>b.winnerId&&b.winnerId!==A.myId).length;
+  const wr=done.length?Math.round(A.wins/done.length*100):0;
+  const pr=avgRating(A.myId,false),jr=avgRating(A.myId,true);
+
+  return`<div class="scr">
+    <div class="profile-card">
+      <div class="profile-av">${(A.myName||'?')[0].toUpperCase()}</div>
+      <div class="profile-name">${esc(A.myName)}</div>
+      <div class="profile-id">${A.myId}</div>
+      ${A.streak>1?`<div class="streak-pill" style="margin-top:10px">${A.streak>1?`🔥 ${A.streak} ${t('streak_s')}`:''}</div>`:''}
+      ${npCount(A.myId)?`<div class="never-paid" style="margin:8px auto 0">💀 ${npCount(A.myId)}${t('np_times')}</div>`:''}
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        ${pr?`<span class="badge b-orange">⭐ ${pr} ${t('as_player_s')}</span>`:''}
+      </div>
+      <div class="profile-stats">
+        <div class="ps"><div class="ps-n" style="color:var(--g)">${A.wins}</div><div class="ps-l">${t('won_s')}</div></div>
+        <div class="ps"><div class="ps-n" style="color:var(--r)">${lost}</div><div class="ps-l">${t('lost_lbl')}</div></div>
+        <div class="ps"><div class="ps-n">${wr}%</div><div class="ps-l">${t('win_rate')}</div></div>
+      </div>
+    </div>
+    <button class="btn btn-sec btn-full" style="margin-bottom:8px" onclick="go('repProfile',{uid:'${A.myId}',name:'${esc(A.myName)}'})">${t('my_rep')}</button>
+    <div class="section-label">${t('net_lbl')}</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="drow"><span>${t('connections_lbl')}</span><span class="dval dval-g">${A.conns.size}</span></div>
+      <div class="drow"><span>${t('peers_lbl')}</span><span class="dval">${A.peers.size}</span></div>
+      <div class="drow"><span>${t('id_lbl')}</span><span class="dval" style="font-family:monospace;font-size:11px;color:var(--g)">${A.myId.substr(0,16)}...</span></div>
+    </div>
+    <div class="section-label">${t('invite_lbl')}</div>
+    <div class="info-box">${t('invite_info')}</div>
+    <div class="id-display">${A.myId}</div>
+    <button class="btn btn-sec btn-full" onclick="copyId()">${t('copy_btn')}</button>
+    <div class="divider" style="margin:14px 0"></div>
+    <div class="section-label">${t('add_by_id')}</div>
+    <div style="display:flex;gap:8px;margin-top:8px;margin-bottom:16px">
+      <input class="fi" id="add-id-input" placeholder="${t('add_id_ph')}" autocomplete="off" style="flex:1;padding:11px 13px;font-size:13px">
+      <button class="btn btn-prim" style="padding:11px 16px;white-space:nowrap" onclick="connectById()">${t('add_id_btn')}</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+      <button class="btn btn-sec" onclick="go('contacts')">👥 ${t('contacts_t')}</button>
+      <button class="btn btn-sec" onclick="go('leaderboard')">🏆 ${t('lb_t')}</button>
+      <button class="btn btn-sec" onclick="go('settings')">⚙️ ${t('settings_t')}</button>
+      <button class="btn btn-sec" onclick="go('blocked')">🚫 ${t('blocked_t')}</button>
+    </div>
+    <div class="divider" style="margin:16px 0"></div>
+    <button class="btn btn-prim btn-full" onclick="shareApp()" style="background:linear-gradient(135deg,var(--pu),var(--bl));border:none;font-size:15px;letter-spacing:0.3px">📤 ${t('share_app_btn')}</button>
+  </div>`;}
+
+// ════════════════════════════════════════════════
+// LEADERBOARD
+// ════════════════════════════════════════════════
+function pLB(){
+  const lb=[{name:A.myName,id:A.myId,wins:A.wins,bets:A.myBets.length,streak:A.streak,me:true,pr:avgRating(A.myId,false)},
+    ...[...A.peers.values()].map(p=>({name:p.name,id:p.id,wins:p.wins||0,bets:p.bets||0,streak:0,me:false,pr:avgRating(p.id,false)}))
+  ].sort((a,b)=>b.wins-a.wins||b.bets-a.bets).slice(0,25);
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('profile')">${t('back')}</button><div class="pg-title">${t('lb_t')}</div></div>
+    <div class="info-box">${t('lb_info')}</div>
+    ${lb.map((p,i)=>`<div class="lb-row${p.me?' act':''}" style="${p.me?'border-color:var(--gb);background:var(--gd)':''}" onclick="go('repProfile',{uid:'${p.id}',name:'${esc(p.name||'?')}'})">
+      <div class="lb-rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</div>
+      <div class="av ${p.me?'av-g':''}">${(p.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">${esc(p.name||'?')}${p.me?' '+t('lb_you'):''}</div>
+      <div style="font-size:11px;color:var(--muted)">${p.bets} bets${p.streak>1?' · 🔥'+p.streak+' '+t('streak_s'):''}${p.pr?' · ⭐'+p.pr:''}</div></div>
+      <div style="font-family:'Bebas Neue';font-size:20px;color:var(--g)">${p.wins}W</div>
+    </div>`).join('')}
+  </div>`;}
+
+// ════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════
+function pSettings(){return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('profile')">${t('back')}</button><div class="pg-title">${t('settings_t')}</div></div>
+    <span class="section-label">${t('prof_sec')}</span>
+    <div class="field"><label class="flbl">${t('name_lbl')}</label><input class="fi" id="stn" oninput="A.myName=this.value" value="${esc(A.myName)}" maxlength="24"></div>
+    <div class="field"><label class="flbl">${t('pay_lbl2')}</label><input class="fi" id="stv" oninput="A.myVipps=this.value" value="${esc(A.myVipps)}" maxlength="30"></div>
+    <div class="field"><label class="flbl">${t('lang_lbl')}</label>
+      <select class="fi" id="stl" onchange="A.lang=this.value;ss('vLang',this.value);render(true)"><option value="no" ${A.lang==='no'?'selected':''}>🇳🇴 Norsk</option><option value="en" ${A.lang==='en'?'selected':''}>🇬🇧 English</option></select></div>
+    <button class="btn btn-prim btn-full" onclick="saveSettings()">${t('save')}</button>
+    <div class="divider" style="margin:20px 0"></div>
+    <span class="section-label">${t('notif_sec')}</span>
+    <div class="info-box">${t('notif_info')}</div>
+    <button class="btn btn-sec btn-full" onclick="Notification?.requestPermission().then(p=>notify(p==='granted'?t('notif_ok'):t('notif_no')))">${t('notif_btn')}</button>
+    <div class="divider" style="margin:20px 0"></div>
+    <span class="section-label" style="color:var(--r)">${t('danger_sec')}</span>
+    <div class="warn-box">${t('reset_warn')}</div>
+    <button class="btn btn-danger btn-full" onclick="if(confirm(t('reset_q'))){localStorage.clear();location.reload();}">${t('reset_btn')}</button>
+  </div>`;}
+window.saveSettings=()=>{
+  const n=($('stn')||{}).value?.trim(),v=($('stv')||{}).value?.trim();
+  if(!n){alert(t('err_enter_name'));return;}
+  A.myName=n;A.myVipps=v||'';A.lang=($('stl')||{}).value||'en';
+  ss('vName',n);ss('vVipps',v||'');ss('vLang',A.lang);notify('✅ '+t('save_ok'));go('profile');
+};
+
+// ════════════════════════════════════════════════
+// BLOCKED
+// ════════════════════════════════════════════════
+function pBlocked(){
+  const bl=[...A.blocked].map(id=>({id,name:A.peers.get(id)?.name||getAlias(id)||id.substr(0,12)}));
+  return`<div class="scr">
+    <div class="tbar"><button class="back-btn" onclick="go('profile')">${t('back')}</button><div class="pg-title">${t('blocked_t')}</div></div>
+    <div class="info-box">${t('blocked_info')}</div>
+    ${!bl.length?`<div class="empty"><div class="empty-ico">🚫</div><div class="empty-tx">${t('no_blocked')}</div></div>`:''}
+    ${bl.map(b=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b)">
+      <div class="av">${(b.name||'?')[0].toUpperCase()}</div>
+      <div style="flex:1"><div class="prow-name">${esc(b.name)}</div><div class="prow-sub" style="font-family:monospace">${b.id.substr(0,14)}</div></div>
+      <button style="font-size:12px;color:var(--g);padding:10px 14px;border:1px solid var(--gb);border-radius:8px;background:var(--gd);font-weight:700" onclick="A.blocked.delete('${b.id}');persist();render(true)">${t('unblock')}</button>
+    </div>`).join('')}
+  </div>`;}
+window.blockUser=id=>{A.blocked.add(id);persist();notify('🚫 '+t('n_blocked'));};
+
+// ════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════
+async function boot(){
+  loadState();
+  // Auto-friend: only for brand-new users opening a shared file
+  if(!ls('vPriv')){
+    const invId=document.body.dataset.inviter;
+    const invName=document.body.dataset.inviterName;
+    if(invId&&invId.startsWith('v'))A._pendingInviter={id:invId,name:invName||invId.substr(0,8)};
+  }
+  if(A.myName){
+    try{await initCrypto();}catch(e){console.error('[boot/initCrypto]',e);}
+    initPeer();
+    const nav=$('nav-bar');if(nav)nav.style.display='flex';
+    go('feed');
+  }else{
+    go(ls('vSeen')?'setup':'onboarding');
+    ss('vSeen','1');
+  }
+  setInterval(()=>{
+    try{A.openBets.forEach((b,id)=>{if(b.expiresAt&&b.expiresAt<now())A.openBets.delete(id);});schedRender();}
+    catch(e){console.error('[cleanup interval]',e);}
+  },300000);
+}
+// ════════════════════════════════════════════════
+// SHARE APP
+// ════════════════════════════════════════════════
+window.shareApp = async () => {
+  const modal = document.createElement('div');
+  modal.id = 'share-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:flex-end;justify-content:center;animation:fi .15s ease';
+  modal.innerHTML = `
+    <div style="background:var(--surf2);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:430px;border-top:1px solid var(--b2)">
+      <div style="width:36px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 20px"></div>
+      <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:1px;margin-bottom:6px">📤 ${t('share_modal_title')}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${t('share_modal_sub')}</div>
+      <button onclick="shareLink()" style="width:100%;background:var(--b);border:1px solid var(--b2);border-radius:14px;padding:16px;margin-bottom:10px;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--tx)">
+        <div style="font-size:22px;margin-bottom:4px">🔗</div>
+        <div style="font-weight:600;font-size:15px">${t('share_link_btn')}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${t('share_link_sub')}</div>
+      </button>
+      <button onclick="shareFile()" style="width:100%;background:var(--b);border:1px solid var(--b2);border-radius:14px;padding:16px;margin-bottom:10px;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--tx)">
+        <div style="font-size:22px;margin-bottom:4px">📁</div>
+        <div style="font-weight:600;font-size:15px">${t('share_file_btn')}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${t('share_file_sub')}</div>
+      </button>
+      <button onclick="document.getElementById('share-modal').remove()" style="width:100%;background:none;border:1px solid var(--b2);border-radius:14px;padding:14px;margin-top:4px;font-family:'DM Sans',sans-serif;color:var(--muted);font-size:14px;cursor:pointer">${t('cancel')}</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+};
+window.shareLink = async () => {
+  document.getElementById('share-modal')?.remove();
+  const url = location.href;
+  const shareData = { title:'VEDDEMÅL', text:t('share_link_msg'), url };
+  if(navigator.share && navigator.canShare?.(shareData)){
+    try{ await navigator.share(shareData); return; }catch(e){ if(e.name==='AbortError') return; }
+  }
+  try{ await navigator.clipboard.writeText(url); notify('🔗 '+t('share_copied')); }
+  catch(e){ prompt('Kopier denne lenken:', url); }
+};
+window.shareFile = async () => {
+  document.getElementById('share-modal')?.remove();
+  try{
+    // Build HTML from live DOM — no fetch needed, works on file:// too
+    let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    // Bake in inviter ID so recipient gets auto-friended (new users only)
+    html = html.replace(/(<body\b)/, `$1 data-inviter="${A.myId}" data-inviter-name="${esc(A.myName||'')}"`);
+    const blob = new Blob([html],{type:'text/html'});
+    const file = new File([blob],'veddemal.html',{type:'text/html'});
+    if(navigator.share && navigator.canShare?.({files:[file]})){
+      await navigator.share({title:'VEDDEMÅL',text:t('share_file_msg'),files:[file]});
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'veddemal.html';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    notify('📁 '+t('share_downloaded'));
+  }catch(e){ if(e.name!=='AbortError') notify('❌ '+t('share_err')); }
+};
+
+// ════════════════════════════════════════════════
+// INSTALL HINT (iOS + Android)
+// ════════════════════════════════════════════════
+window._bip=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._bip=e;});
+function showInstallHint(){
+  if(ls('vInstDismissed'))return;
+  const isStandalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(isStandalone)return;
+  const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(!isIOS&&!window._bip)return;
+  const el=document.createElement('div');
+  el.id='install-banner';
+  el.style.cssText='position:fixed;bottom:80px;left:0;right:0;z-index:998;padding:0 12px;pointer-events:none';
+  const inner=`<div style="background:var(--surf2);border:1px solid var(--gb);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;pointer-events:all;box-shadow:0 4px 24px rgba(0,0,0,.5)">
+    <div style="font-size:26px">${isIOS?'📱':'📲'}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:600;color:var(--tx)">${t(isIOS?'install_ios_hint':'install_android_btn')}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${t(isIOS?'install_ios_guide':'install_android_sub')}</div>
+    </div>
+    ${!isIOS?`<button style="font-size:12px;font-weight:700;color:#000;background:var(--g);border:none;border-radius:8px;padding:8px 12px;white-space:nowrap" onclick="window._bip.prompt();ss('vInstDismissed','1');document.getElementById('install-banner')?.remove()">${t('install_android_btn')}</button>`:''}
+    <button style="font-size:18px;background:none;border:none;color:var(--dim);padding:4px 6px;cursor:pointer" onclick="ss('vInstDismissed','1');document.getElementById('install-banner')?.remove()">✕</button>
+  </div>`;
+  el.innerHTML=inner;
+  document.body.appendChild(el);
+}
+
+// ════════════════════════════════════════════════
+// PWA — MANIFEST + APPLE-TOUCH-ICON (inline, no external files)
+// ════════════════════════════════════════════════
+(function(){
+  try{
+    // Generate icon via canvas: dark bg + green "V"
+    const sz=512,c=document.createElement('canvas');c.width=c.height=sz;
+    const ctx=c.getContext('2d');
+    // Background rounded rect
+    ctx.fillStyle='#06060b';
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(0,0,sz,sz,sz*0.18);
+    else{const r=sz*0.18;ctx.moveTo(r,0);ctx.lineTo(sz-r,0);ctx.quadraticCurveTo(sz,0,sz,r);ctx.lineTo(sz,sz-r);ctx.quadraticCurveTo(sz,sz,sz-r,sz);ctx.lineTo(r,sz);ctx.quadraticCurveTo(0,sz,0,sz-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();}
+    ctx.fill();
+    // Green glow circle
+    const grd=ctx.createRadialGradient(sz/2,sz/2,sz*0.05,sz/2,sz/2,sz*0.45);
+    grd.addColorStop(0,'rgba(0,255,136,0.18)');grd.addColorStop(1,'rgba(0,255,136,0)');
+    ctx.fillStyle=grd;ctx.fillRect(0,0,sz,sz);
+    // Letter V
+    ctx.fillStyle='#00ff88';ctx.font=`bold ${sz*0.72}px 'Arial Black',sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('V',sz/2,sz*0.52);
+    const png=c.toDataURL('image/png');
+    // Apple touch icon
+    const al=document.createElement('link');al.rel='apple-touch-icon';al.href=png;document.head.appendChild(al);
+    // Web app manifest
+    const manifest={name:'Veddemål',short_name:'Veddemål',start_url:'.',display:'standalone',orientation:'portrait',background_color:'#06060b',theme_color:'#00ff88',icons:[{src:png,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
+    const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(blob);document.head.appendChild(ml);
+  }catch(e){console.warn('[PWA]',e);}
+})();
+
+boot();
+</script>
+</body>
+</html>
