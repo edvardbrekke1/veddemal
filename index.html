@@ -2549,7 +2549,7 @@ function showInstallHint(){
       <div style="font-size:13px;font-weight:600;color:var(--tx)">${t('install_android_btn')}</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">${t('install_android_sub')}</div>
     </div>
-    <button style="font-size:12px;font-weight:700;color:#000;background:var(--g);border:none;border-radius:8px;padding:8px 12px;white-space:nowrap" onclick="window._bip.prompt();${dismiss}">${t('install_android_btn')}</button>`;
+    <button style="font-size:12px;font-weight:700;color:#000;background:var(--g);border:none;border-radius:8px;padding:8px 12px;white-space:nowrap" onclick="(async()=>{if(!window._bip)return;try{await window._bip.prompt();const uc=await window._bip.userChoice;document.getElementById('install-banner')?.remove();ss('vInstDismissed','1');if(uc.outcome==='accepted')notify('✅ Installert!');}catch(_e){document.getElementById('install-banner')?.remove();}})()">${t('install_android_btn')}</button>`;
   }else{
     mainContent=`<div style="flex:1;min-width:0">
       <div style="font-size:13px;font-weight:600;color:var(--tx)">${t('install_manual_hint')}</div>
