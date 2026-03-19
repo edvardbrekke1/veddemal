@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VEDDEMÅL v1.0.0 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
+<!-- VEDDEMÅL v1.1.0 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
 <html lang="no">
 <head>
 <meta charset="UTF-8">
@@ -80,7 +80,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .back-btn::before{content:'←';font-size:16px}
 .back-btn:active{border-color:var(--b)}
 .pg-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.pg-hint{font-size:11px;color:var(--dim);letter-spacing:.5px;flex-shrink:0}
 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px}
@@ -123,7 +122,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .b-orange{background:var(--ad);border:1px solid var(--ab);color:var(--a)}
 .b-red{background:var(--rd);border:1px solid var(--rb);color:var(--r)}
 .b-gray{background:var(--surf2);border:1px solid var(--b2);color:var(--muted)}
-.b-purple{background:var(--pud);border:1px solid var(--pub);color:var(--pu)}
 .b-lock{background:#1a0a2a;border:1px solid #4a1a7a;color:#cc88ff}
 
 /* ALERT ROWS */
@@ -131,8 +129,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:600}
 .alert-g{background:var(--gd);border:1px solid var(--gb);color:var(--g)}
 .alert-a{background:var(--ad);border:1px solid var(--ab);color:var(--a)}
-.alert-b{background:var(--bld);border:1px solid var(--blb);color:var(--bl)}
-.alert-r{background:var(--rd);border:1px solid var(--rb);color:var(--r)}
 
 /* FORM */
 .field{margin-bottom:18px}
@@ -146,9 +142,6 @@ select.fi{cursor:pointer}
 .fi-chip{flex:1;min-width:60px;padding:11px 6px;background:var(--surf2);border:1px solid var(--b2);
   border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);text-align:center;cursor:pointer;transition:all .15s}
 .fi-chip.act{background:var(--gd);border-color:var(--gb);color:var(--g)}
-.fee-row{display:flex;justify-content:space-between;background:var(--bg);border:1px solid var(--b);
-  border-radius:9px;padding:10px 14px;font-size:12px;color:var(--muted);margin-top:8px}
-.fee-row span:last-child{color:var(--a);font-weight:600}
 
 /* TYPE GRID */
 .type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
@@ -206,28 +199,19 @@ select.fi{cursor:pointer}
 .drow:last-child{border-bottom:none}
 .drow .dval{color:var(--tx);font-weight:500;text-align:right;max-width:60%}
 .dval-g{color:var(--g)!important}
-.dval-a{color:var(--a)!important}
-.dval-r{color:var(--r)!important}
 
 /* AVATAR */
 .av{width:40px;height:40px;border-radius:20px;background:var(--surf2);display:flex;align-items:center;
   justify-content:center;font-size:15px;font-weight:700;color:var(--tx);flex-shrink:0;
   text-transform:uppercase;border:1px solid var(--b)}
 .av-g{background:var(--gd);color:var(--g);border-color:var(--gb)}
-.av-a{background:var(--ad);color:var(--a);border-color:var(--ab)}
 .av-pu{background:var(--pud);color:var(--pu);border-color:var(--pub)}
 
 /* PERSON ROW */
 .prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b);cursor:pointer}
 .prow:last-child{border-bottom:none}
-.prow-info{flex:1;min-width:0}
 .prow-name{font-size:14px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .prow-sub{font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* VIPPS */
-.vipps-box{background:#0d0800;border:1px solid #3a2000;border-radius:12px;padding:16px;margin-bottom:14px}
-.vipps-amt{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#ff6b00;letter-spacing:2px}
-.vipps-to{font-size:12px;color:var(--muted);margin-top:4px}
 
 /* STARS */
 .stars{display:flex;gap:8px;margin:10px 0}
@@ -329,14 +313,14 @@ select.fi{cursor:pointer}
   <button class="nb" id="nb-prof" onclick="go('profile')"><span class="nb-ico">👤</span>Profil</button>
 </div>
 <script>
-const APP_VERSION='1.0.0';
+const APP_VERSION='1.1.0';
 const UPDATE_URL='https://edvardbrekke1.github.io/veddemal';
 const ADMIN_ID='vp9u0N2GEx8i99v';
 
 // ════════════════════════════════════════════════
 // TRANSLATIONS
 // ════════════════════════════════════════════════
-const T={no:{back:'Tilbake',cancel:'Avbryt',next:'NESTE →',save:'LAGRE',publish:'PUBLISER →',app_tag:'PRIVAT · P2P · KRYPTERT',ob_btn:'KOM I GANG →',ob1t:'Kryptografisk identitet',ob1d:'Ingen konto. Ingen epost. Din ID er et nøkkelpar lokalt. Privat nøkkel forlater aldri telefonen.',ob2t:'Ingen server',ob2d:'Appen lever på telefonene til alle brukere. Info spres fra venn til venn. Ingen kan slå den av.',ob3t:'To typer veddemål',ob3d:'1 mot 1 eller gruppe. Veddemål kun med vennene dine.',ob4t:'Rykte er alt',ob4d:'Nullstiller du mister du all historikk og rating. Straffen for å rømme fra dårlig rykte.',iphone_tip:'📱 iPhone: Legg til på hjemskjerm (Safari → Del → Legg til) for beste opplevelse.',setup_t:'OPPRETT IDENTITET',name_lbl:'VISNINGSNAVN',pay_lbl2:'VIPPS / BETALINGSINFORMASJON',lang_lbl:'SPRÅK',name_ph:'F.eks. Ola N.',pay_ph2:'98765432',setup_info:'Et ECDSA P-256 nøkkelpar genereres automatisk. Din ID kan ikke endres.',setup_btn:'GENERER NØKLER OG START →',setup_loading:'Genererer...',online_s:'venner online',connecting_s:'Kobler til...',no_friends_t:'Velkommen!',no_friends_d:'Veddemål er privat. Du ser kun bets fra venner.\nDel din ID med venner så de kan legge deg til.',copy_invite:'📋 Kopier min ID',invite_copied:'✅ Kopiert!',no_bets_feed:'Ingen åpne bets fra vennene dine.\nPost det første!',type_honor:'1 MOT 1',type_pool:'GRUPPE',type_honor_d:'Veddemål mellom to. Begge bekrefter resultatet.',type_pool_d:'Flere deltakere, to sider. Velg din side.',type_honor_info:'🤝 Begge bekrefter hvem som vant. Enige = ferdig. Uenige = diskuter i chatten.',type_pool_info:'👥 Du definerer to sider. Alle stemmer på hvem som vant. Flertall avgjør. Vinnersiden deler potten.',create_t:'NYTT VEDDEMÅL',step_type:'TYPE',step_desc:'BESKRIV',step_amt:'INNSATS',step_pub:'PUBLISERING',step_conf:'BEKREFT',desc_lbl:'VEDDEMÅLET',desc_ph:'Beskriv tydelig. Vær konkret.',sideA_lbl:'UTFALL 1',sideA_ph:'F.eks. Norge vinner',sideB_lbl:'UTFALL 2',sideB_ph:'F.eks. Sverige vinner',cat_lbl:'KATEGORI',amt_lbl:'INNSATS PER DELTAKER (maks 500kr)',amt_ph:'Eller skriv beløp...',expiry_lbl:'UTLØPSDATO',exp0:'1 dag',exp1:'3 dager',exp2:'7 dager',exp3:'14 dager',pay_lbl:'OPPGJØRSMETODE',pay_ph:'F.eks. Gjøres opp via Vipps.',pub_info:'Velg hvem som skal se bettet. Sendes direkte — aldri til fremmede.',pub_all:'ALLE VENNER',pub_all_d:'Sendes direkte til alle i vennelisten. Kun de kan se det.',pub_sel:'VALGTE VENNER',pub_sel_d:'Velg hvem du vil invitere fra vennelisten.',no_friends_warn:'Du har ingen venner ennå. Legg til via Søk eller del din ID.',sel_who:'VELG HVEM SOM SKAL INVITERES',conf_type:'Type',conf_amt:'Innsats',conf_sideA:'Utfall 1',conf_sideB:'Utfall 2',conf_expires:'Utløper',conf_sends:'Sendes til',conf_pay:'Oppgjør',not_changed:'Kan ikke endres etter publisering.',mine_t:'MINE BETS',lost_lbl:'Tapt',active_lbl:'AKTIVE',done_lbl:'AVSLUTTET',win_rate:'Win rate',no_bets_mine:'Ingen veddemål ennå.\nPost et bet eller bli med på et åpent.',s_open:'Åpent',s_pending:'Venter',s_active:'● Aktivt',s_won:'🏆 Vant',s_lost:'Tapt',s_declined:'Avslått',s_dispute:'⚠️ Tvist',s_awpay_win:'Venter betaling ↓',s_awpay_lose:'Betal nå →',s_np:'💀 Aldri betalt',s_cancelled:'Kansellert',remove_hist:'🗑 Fjern fra historikk',remove_hist_q:'Fjerne fra historikk?',join_t:'BLI MED',join_btn:'MELD INTERESSE →',choose_side:'VELG DITT UTFALL',bet_detail_t:'VEDDEMÅL',row_type:'Type',row_opponent:'Motpart',row_visibility:'Synlighet',row_expires:'Utløper',row_cat:'Kategori',challenger_d:'vil ta bettet ditt',cancel_bet:'🗑 Kanseller veddemål',cancel_q:'Kansellere?',vipps_info:'<strong>Slik fungerer det:</strong> 1) Vinneren sender betalingsinfo i chatten. 2) Taperen betaler. 3) Bekreft mottak.',honor_hdr:'HVEM VANT?',honor_info:'Begge bekrefter. Enige = ferdig. Uenige = diskuter i chatten.',i_won:'Jeg vant',they_won:'Motpart vant',pool_vote_hdr:'STEM PÅ RESULTATET',pool_vote_info:'Alle stemmer. Flertall avgjør.',you_voted_pre:'✅ Du stemte:',you_voted_suf:'Venter på motpartens bekreftelse.',dispute_info:'⚠️ Uenighet — Diskuter i bet-chatten.',won_share:'Du vant! Send betalingsinfo til motparten i bet-chatten.',share_vipps:'📱 Send betalingsinfo',conf_payment:'✅ Bekreft mottatt betaling',never_paid_btn:'💀 Betalte aldri',never_paid_q:'Markere som aldri betalt?',congrats:'Gratulerer!',better_luck:'Bedre lykke neste gang.',rate_comment:'Kommentar (valgfri)...',rate_btn:'SEND VURDERING ✓',rate_done:'✓ Vurdering sendt',rate_missing:'Gi en vurdering av taperen',never_paid_tag:'💀 ALDRI BETALT — synlig for hele nettverket',open_chat:'💬 Åpne bet-chat',interests_t:'INTERESSERTE',interests_info:'Trykk for å se rykteprofil. Velg hvem du vil ta inn. Andre avslås automatisk.',no_rating_hist:'Ingen ratinghistorikk',row_from:'Fra',rep_t:'RYKTE',chat_t:'CHAT',bet_chats_sec:'BET-CHATTER',groups_sec:'GRUPPESAMTALER',dms_sec:'DIREKTEMELDINGER',no_chats:'Ingen samtaler ennå.\nStart en via Kontakter.',write_ph:'Skriv...',bet_chat_t:'BET-CHAT',bet_chat_info:'Kun de involverte kan lese. Sendes direkte P2P.',del_req_msg:'⚠️ Motpart vil slette chatten. Trykk for å godkjenne.',req_del:'🗑 Be om å slette chat',req_del_q:'Be om sletting?',dm_info:'Ende-til-ende kryptert. Kun dere to kan lese.',no_msgs:'Ingen meldinger ennå.',contacts_t:'KONTAKTER',no_contacts:'Ingen venner ennå',search_t:'SØK',search_ph:'Søk på visningsnavn...',search_info:'Søker blant tilkoblede brukere. Bekreft identitet ved å sammenligne ID muntlig.',write_name:'Skriv et navn',no_results:'Ingen treff',add_btn:'+ Legg til',net_lbl:'NETTVERKET',connections_lbl:'Tilkoblinger',peers_lbl:'Kjente peers',id_lbl:'Kryptografisk ID',invite_lbl:'DEL DIN ID',invite_info:'Del din ID med venner. De legger den til i søkefeltet for å koble seg til.',copy_btn:'📋 Kopier min ID',lb_t:'TOPPLISTE',settings_t:'INNSTILLINGER',prof_sec:'PROFIL',notif_sec:'VARSLER',notif_info:'📱 iPhone: Legg til på hjemskjerm for beste varselopplevelse.',notif_btn:'🔔 Be om varslingstillatelse',notif_ok:'✅ Varsler aktivert',notif_no:'❌ Varsler blokkert',danger_sec:'FARLIG SONE',reset_warn:'Nullstill sletter din kryptografiske identitet, all historikk og alle data. KAN IKKE angres.',reset_btn:'⚠️ Nullstill alt',reset_q:'SISTE SJANSE: Alt slettes for alltid?',blocked_t:'BLOKKERTE',blocked_info:'Blokkerte ser du ikke i feed, chat eller invitasjoner.',no_blocked:'Ingen blokkerte brukere',unblock:'Opphev',my_rep:'⭐ Se min fulle rykteprofil',streak_s:'på rad',day_s:'dag(er)',in_s:'inne',id_conflict_title:'ID-konflikt',id_conflict_msg:'Noen bruker din ID. Prøver igjen automatisk...',enc_fail_warn:'Kryptering feilet. Sende uten kryptering?',enc_mitm_warn:'Advarsel: Mottakerens krypteringsnøkkel kunne ikke verifiseres. Sende likevel?',decrypt_fail:'Kunne ikke dekryptere',stat_open:'Åpne bets',stat_friends:'Venner',stat_active:'Aktive',interest_wait:'interesse i dine bets',bet_not_found:'Fant ikke bettet',np_warn_pre:'Denne brukeren har',np_warn_suf:'"aldri betalt"-merke. Vær forsiktig.',np_times:'× aldri betalt',stake_lbl:'Innsats',potential_win:'Mulig gevinst',settlement:'Oppgjør',view_rep_of:'Se rykteprofil til',anon_info_pre:'Du er anonym —',anon_info_suf:'ser kun visningsnavnet ditt. Du velges inn av eieren etter at du melder interesse.',select_min_one:'Velg minst én person å invitere, eller bytt til "Alle venner".',bet_sent_to:'Bet sendt til',you_posted:'Du la ut:',sel_friends_n:'valgte venn(er)',chosen_friends:'Valgte venner',bet_sends_all_pre:'Bettet sendes til alle',bet_sends_all_suf:'venner i listen din.',bet_sends_priv_pre:'Bettet sendes direkte til',bet_sends_priv_suf:'valgte venner.',bet_sends_all_info:'Bettet sendes direkte til alle vennene dine. Ingen fremmede kan se det.',interested_n:'interesserte',interested_choose:'velg hvem du tar inn',no_msgs_yet:'Ingen meldinger ennå.',won_side:'vant',participants:'deltakere',encrypted_p2p:'Kryptert P2P.',new_chat_btn:'+ Ny chat',contact_alias_info:'Lagre en bruker med et kallenavn kun du ser. Kallenavnet erstatter ID i alle lister.',find_contact:'Finn ny kontakt',new_group:'Ny gruppesamtale',remove_contact_q:'Fjerne kontakt?',select_tip:'Tips: Trykk på sirkelen til venstre for å velge flere og lage en gruppesamtale.',selected_n:'valgt. Trykk "Ny gruppe" ovenfor.',rep_btn:'Rykte',as_player_s:'som spiller',no_player_rating:'Ingen spiller-rating',won_s:'Vunnet',leave_bet_q:'Forlate dette veddemålet?',delete_chat:'Slett samtale',delete_chat_q:'Slette denne samtalen?',group_name_prompt:'Gi gruppesamtalen et navn:',visibility_s:'Synlighet',open_s:'Offentlig',closed_s:'Lukket',waiting_payment:'VENTER PÅ BETALING',payment_deadline:'Betalingsfrist',sys_interested:'er interessert i bettet ditt!',choose_your_side:'HVA TROR DU?',your_side:'Du tror',opponent_side:'Motparten tror',sides_info:'Skriv de to mulige utfallene av veddemålet',creator_chose:'valgte',donate_title:'Liker du appen?',donate_msg:'VEDDEMÅL er gratis og uten reklame. Hvis du har lyst, støtt utviklingen med et lite beløp.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Takk for støtten! 🙏',claims:'hevder',they_claim_won:'at de vant',they_claim_lost:'at du vant',honor_claim:'Resultat påstått!',n_bet_accepted:'Bet akseptert!',n_your_side_won:'Din side vant!',n_your_side_lost:'Din side tapte',n_encrypted_msg:'[Kryptert melding]',n_new_group_chat:'Ny gruppesamtale',n_blocked:'Blokkert',n_rating_sent:'Vurdering sendt!',add_by_id:'LEGG TIL MED ID',add_id_ph:'Lim inn vennens ID (vXXX...)',add_id_btn:'Koble til',add_id_ok:'Koblet til!',add_id_err:'Ugyldig ID. Må starte med v.',share_modal_title:'Del VEDDEMÅL',share_modal_sub:'Velg hvordan du vil dele appen',share_link_btn:'Kopier lenke til denne siden',share_link_sub:'Kopier lenken til denne siden',share_file_btn:'Del Veddemål-app',share_file_sub:'Send appen direkte til en venn',share_copied:'Lenke kopiert!',share_downloaded:'Fil lastet ned!',share_err:'Kunne ikke dele fil',share_file_msg:'🎯 Send denne filen til venner!',share_link_msg:'🎯 Sjekk ut VEDDEMÅL – appen for å vedde med venner!',err_enter_name:'Skriv et visningsnavn for å fortsette.',err_enter_desc:'Beskriv veddemålet for å fortsette.',err_enter_outcomes:'Fyll inn begge utfall for å fortsette.',err_choose_side:'Velg din side for å fortsette.',err_enter_amount:'Velg eller skriv inn innsatsen.',pending_detail:'Venter på at betteieren godkjenner deg inn i veddemålet.',vs_no_opponent:'ingen motpart ennå',lb_info:'Basert på nettverksinfo. Trykk for å se rykteprofil.',lb_you:'(deg)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Vurderinger',rep_never_paid_hdr:'ALDRI BETALT',rep_as_player_hdr:'SOM SPILLER',rep_no_ratings:'Ingen vurderinger ennå',rep_send_dm:'Send DM',rep_block:'Blokker',save_ok:'Lagret!',interests_none:'Ingen har meldt interesse ennå.',accept_btn:'✓ Ta inn',pool_loser_await:'Vinnersiden sender betalingsinfo i bet-chatten. Sjekk der for å se hvem du skal betale.',share_app_btn:'Del appen med venner',no_sel_for_group:'Velg minst én kontakt.',ob_inviter_banner:'delte VEDDEMÅL med deg!',auto_friend_notify:'Du er nå venn med {name}!',install_ios_hint:'Legg til på Hjem-skjerm for beste opplevelse',install_ios_guide:"Trykk Del-knappen (□↑) i Safari → 'Legg til på Hjem-skjerm'",install_android_btn:'Installer Veddemål',install_android_sub:'For beste opplevelse, installer appen',update_banner:'Ny versjon tilgjengelig!',update_now:'Oppdater nå',admin_send_upd:'📢 Send oppdateringsvarsel',about_app:'Om VEDDEMÅL',about_made_by:'Laget av Edvard Brekke',about_desc:'P2P veddemål — ingen server, ingen konto, ingen sporing.',about_license:'VEDDEMÅL er gratis å bruke. Koden er beskyttet.',about_contact:'Kontakt: edvardbrekke1@github',about_close:'Lukk',hash_friend_q:'Legg til som venn?'},en:{back:'Back',cancel:'Cancel',next:'NEXT →',save:'SAVE',publish:'PUBLISH →',app_tag:'PRIVATE · P2P · ENCRYPTED',ob_btn:'GET STARTED →',ob1t:'Cryptographic identity',ob1d:'No account. No email. Your ID is a key pair generated locally. The private key never leaves your device.',ob2t:'No server',ob2d:'The app lives on all users phones. Info spreads friend to friend. No one can shut it down.',ob3t:'Two bet types',ob3d:'1 vs 1 or group. Bets only with your friends.',ob4t:'Reputation is everything',ob4d:'Reset and you lose all history and ratings. The punishment for escaping a bad reputation.',iphone_tip:'📱 iPhone: Add to home screen (Safari → Share → Add to Home Screen) for best experience.',setup_t:'CREATE IDENTITY',name_lbl:'DISPLAY NAME',pay_lbl2:'PAYMENT INFO',lang_lbl:'LANGUAGE',name_ph:'E.g. John D.',pay_ph2:'Your Venmo / PayPal / etc',setup_info:'An ECDSA P-256 key pair is automatically generated. Your ID cannot be changed.',setup_btn:'GENERATE KEYS AND START →',setup_loading:'Generating...',online_s:'friends online',connecting_s:'Connecting...',no_friends_t:'Welcome!',no_friends_d:'Wagers is private. You only see bets from friends.\nShare your ID with friends so they can add you.',copy_invite:'📋 Copy my ID',invite_copied:'✅ Copied!',no_bets_feed:'No open bets from your friends.\nPost the first one!',type_honor:'1 VS 1',type_pool:'GROUP',type_honor_d:'Bet between two people. Both confirm the result.',type_pool_d:'Multiple participants, two sides. Pick yours.',type_honor_info:'🤝 Both confirm who won. Agree = done. Disagree = discuss in chat.',type_pool_info:'👥 You define two sides. Everyone votes on who won. Majority decides. Winners split the pot.',create_t:'NEW WAGER',step_type:'TYPE',step_desc:'DESCRIBE',step_amt:'STAKE',step_pub:'PUBLISHING',step_conf:'CONFIRM',desc_lbl:'THE WAGER',desc_ph:'Describe clearly. Be specific.',sideA_lbl:'OUTCOME 1',sideA_ph:'E.g. Norway wins',sideB_lbl:'OUTCOME 2',sideB_ph:'E.g. Sweden wins',cat_lbl:'CATEGORY',amt_lbl:'STAKE PER PARTICIPANT (max 500)',amt_ph:'Or type amount...',expiry_lbl:'EXPIRY',exp0:'1 day',exp1:'3 days',exp2:'7 days',exp3:'14 days',pay_lbl:'PAYMENT METHOD',pay_ph:'E.g. Settle via Venmo.',pub_info:'Choose who sees the bet. Sent directly — never to strangers.',pub_all:'ALL FRIENDS',pub_all_d:'Sent directly to everyone in your friend list. Only they can see it.',pub_sel:'SELECTED FRIENDS',pub_sel_d:'Choose specifically who to invite from your friend list.',no_friends_warn:'You have no friends yet. Add via Search or share your ID.',sel_who:'SELECT FRIENDS TO INVITE',conf_type:'Type',conf_amt:'Stake',conf_sideA:'Outcome 1',conf_sideB:'Outcome 2',conf_expires:'Expires',conf_sends:'Sent to',conf_pay:'Payment',not_changed:'Cannot be changed after publishing.',mine_t:'MY BETS',lost_lbl:'Lost',active_lbl:'ACTIVE',done_lbl:'FINISHED',win_rate:'Win rate',no_bets_mine:'No wagers yet.\nPost a bet or join an open one.',s_open:'Open',s_pending:'Pending',s_active:'● Active',s_won:'🏆 Won',s_lost:'Lost',s_declined:'Declined',s_dispute:'⚠️ Dispute',s_awpay_win:'Awaiting payment ↓',s_awpay_lose:'Pay now →',s_np:'💀 Never paid',s_cancelled:'Cancelled',remove_hist:'🗑 Remove from history',remove_hist_q:'Remove from history?',join_t:'JOIN',join_btn:'SHOW INTEREST →',choose_side:'PICK YOUR OUTCOME',bet_detail_t:'WAGER',row_type:'Type',row_opponent:'Opponent',row_visibility:'Visibility',row_expires:'Expires',row_cat:'Category',challenger_d:'wants to take your bet',cancel_bet:'🗑 Cancel wager',cancel_q:'Cancel?',vipps_info:'<strong>How it works:</strong> 1) Winner sends payment info in chat. 2) Loser pays. 3) Confirm payment.',honor_hdr:'WHO WON?',honor_info:'Both confirm. Agree = done. Disagree = discuss in chat.',i_won:'I won',they_won:'Opponent won',pool_vote_hdr:'VOTE ON RESULT',pool_vote_info:'All participants vote. Majority decides.',you_voted_pre:'✅ You voted:',you_voted_suf:"Waiting for opponent's confirmation.",dispute_info:'⚠️ Disagreement — Discuss in the bet chat.',won_share:'You won! Send your payment info to your opponent in the bet chat.',share_vipps:'📱 Send payment info',conf_payment:'✅ Confirm payment received',never_paid_btn:'💀 Never paid',never_paid_q:'Mark as never paid?',congrats:'Congratulations!',better_luck:'Better luck next time.',rate_comment:'Comment (optional)...',rate_btn:'SUBMIT RATING ✓',rate_done:'✓ Rating submitted',rate_missing:'Rate the loser first',never_paid_tag:'💀 NEVER PAID — visible to your whole network',open_chat:'💬 Open bet chat',interests_t:'INTERESTED',interests_info:'Tap to see reputation. Choose who to let in. Others are automatically declined.',no_rating_hist:'No rating history',row_from:'From',leave_bet_q:'Leave this bet?',delete_chat:'Delete chat',delete_chat_q:'Delete this chat?',group_name_prompt:'Name your group chat:',rep_t:'REPUTATION',chat_t:'CHAT',bet_chats_sec:'BET CHATS',groups_sec:'GROUP CHATS',dms_sec:'DIRECT MESSAGES',no_chats:'No conversations yet.\nStart one via Contacts.',write_ph:'Write...',bet_chat_t:'BET CHAT',bet_chat_info:'Only the involved parties can read. Sent directly P2P.',del_req_msg:'⚠️ Other party wants to delete chat. Tap to approve.',req_del:'🗑 Request chat deletion',req_del_q:'Request deletion?',dm_info:'End-to-end encrypted. Only you two can read.',no_msgs:'No messages yet.',contacts_t:'FRIENDS',no_contacts:'No friends yet',search_t:'SEARCH',search_ph:'Search by display name...',search_info:'Searches connected users. Confirm identity by comparing the first 8 ID characters verbally.',write_name:'Type a name',no_results:'No results',add_btn:'+ Add',net_lbl:'NETWORK',connections_lbl:'Connections',peers_lbl:'Known peers',id_lbl:'Cryptographic ID',invite_lbl:'SHARE YOUR ID',invite_info:'Share your ID with friends. They add it to the search field to connect.',copy_btn:'📋 Copy my ID',lb_t:'LEADERBOARD',settings_t:'SETTINGS',prof_sec:'PROFILE',notif_sec:'NOTIFICATIONS',notif_info:'📱 iPhone: Add to home screen for best notification experience.',notif_btn:'🔔 Request notification permission',notif_ok:'✅ Notifications enabled',notif_no:'❌ Notifications blocked',danger_sec:'DANGER ZONE',reset_warn:'Reset deletes your cryptographic identity, all history and all data. CANNOT be undone.',reset_btn:'⚠️ Reset everything',reset_q:'LAST CHANCE: Delete everything forever?',blocked_t:'BLOCKED',blocked_info:'Blocked users are hidden from feed, chat and invitations.',no_blocked:'No blocked users',unblock:'Unblock',my_rep:'⭐ View my full reputation',streak_s:'in a row',day_s:'day(s)',in_s:'in',id_conflict_title:'ID conflict',id_conflict_msg:'Someone is using your ID. Retrying automatically...',enc_fail_warn:'Encryption failed. Send without encryption?',enc_mitm_warn:'Warning: Recipient encryption key could not be verified. Send anyway?',decrypt_fail:'Could not decrypt',stat_open:'Open bets',stat_friends:'Friends',stat_active:'Active',interest_wait:'interest in your bets',bet_not_found:'Bet not found',np_warn_pre:'This user has',np_warn_suf:'"never paid" marks. Be careful.',np_times:'× never paid',stake_lbl:'Stake',potential_win:'Potential win',settlement:'Settlement',view_rep_of:'View reputation of',anon_info_pre:'You are anonymous —',anon_info_suf:'only sees your display name. The owner selects who to let in.',select_min_one:'Select at least one person to invite, or switch to "All friends".',bet_sent_to:'Bet sent to',you_posted:'You posted:',sel_friends_n:'selected friend(s)',chosen_friends:'Selected friends',bet_sends_all_pre:'Bet sent to all',bet_sends_all_suf:'friends on your list.',bet_sends_priv_pre:'Bet sent directly to',bet_sends_priv_suf:'selected friends.',bet_sends_all_info:'Bet sent directly to all your friends. No strangers can see it.',interested_n:'interested',interested_choose:'choose who to let in',no_msgs_yet:'No messages yet.',won_side:'won',participants:'participants',encrypted_p2p:'Encrypted P2P.',new_chat_btn:'+ New chat',contact_alias_info:'Save a user with a nickname only you see. The nickname replaces the ID in all lists.',find_contact:'Find new friend',new_group:'New group chat',remove_contact_q:'Remove contact?',select_tip:'Tip: Tap the circle on the left to select multiple and create a group chat.',selected_n:'selected. Tap "New group" above.',rep_btn:'Rep',as_player_s:'as player',no_player_rating:'No player rating',won_s:'Won',visibility_s:'Visibility',open_s:'Public',closed_s:'Private',waiting_payment:'AWAITING PAYMENT',payment_deadline:'Payment deadline',sys_interested:'is interested in your bet!',choose_your_side:'WHAT DO YOU THINK?',your_side:'You believe',opponent_side:"Opponent believes",sides_info:'Write the two possible outcomes of the bet',creator_chose:'chose',donate_title:'Enjoying the app?',donate_msg:'VEDDEMÅL is free and ad-free. If you want to, support development with a small amount.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Thanks for the support! 🙏',claims:'claims',they_claim_won:'that they won',they_claim_lost:'that you won',honor_claim:'Result claimed!',n_bet_accepted:'Bet accepted!',n_your_side_won:'Your side won!',n_your_side_lost:'Your side lost',n_encrypted_msg:'[Encrypted message]',n_new_group_chat:'New group chat',n_blocked:'Blocked',n_rating_sent:'Rating sent!',add_by_id:'ADD BY ID',add_id_ph:"Paste friend's ID (vXXX...)",add_id_btn:'Connect',add_id_ok:'Connected!',add_id_err:'Invalid ID. Must start with v.',share_modal_title:'Share VEDDEMÅL',share_modal_sub:'Choose how to share the app',share_link_btn:'Copy link to this page',share_link_sub:'Copy the link to this page',share_file_btn:'Share Veddemål app',share_file_sub:'Send the app directly to a friend',share_copied:'Link copied!',share_downloaded:'File downloaded!',share_err:'Could not share file',share_file_msg:'🎯 Send this file to friends!',share_link_msg:'🎯 Check out VEDDEMÅL – the private bet app!',err_enter_name:'Enter a display name to continue.',err_enter_desc:'Describe the wager to continue.',err_enter_outcomes:'Fill in both outcomes to continue.',err_choose_side:'Pick your side to continue.',err_enter_amount:'Choose or enter the stake.',pending_detail:'Waiting for the bet owner to approve you.',vs_no_opponent:'no opponent yet',lb_info:'Based on network info. Tap to view reputation.',lb_you:'(you)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Ratings',rep_never_paid_hdr:'NEVER PAID',rep_as_player_hdr:'AS PLAYER',rep_no_ratings:'No ratings yet',rep_send_dm:'Send DM',rep_block:'Block',save_ok:'Saved!',interests_none:'No one has shown interest yet.',accept_btn:'✓ Accept',pool_loser_await:"The winning side will send payment info in the bet chat. Check there to see who and how to pay.",share_app_btn:'Share app with friends',no_sel_for_group:'Select at least one contact.',ob_inviter_banner:'shared VEDDEMÅL with you!',auto_friend_notify:'You are now friends with {name}!',install_ios_hint:'Add to Home Screen for the best experience',install_ios_guide:"Tap the Share button (□↑) in Safari → 'Add to Home Screen'",install_android_btn:'Install Veddemål',install_android_sub:'For the best experience, install the app',update_banner:'New version available!',update_now:'Update now',admin_send_upd:'📢 Send update notice',about_app:'About VEDDEMÅL',about_made_by:'Made by Edvard Brekke',about_desc:'P2P betting — no server, no account, no tracking.',about_license:'VEDDEMÅL is free to use. The code is protected.',about_contact:'Contact: edvardbrekke1@github',about_close:'Close',hash_friend_q:'Add as friend?'}};
+const T={no:{back:'Tilbake',cancel:'Avbryt',next:'NESTE →',save:'LAGRE',publish:'PUBLISER →',app_tag:'PRIVAT · P2P · KRYPTERT',ob_btn:'KOM I GANG →',ob1t:'Kryptografisk identitet',ob1d:'Ingen konto. Ingen epost. Din ID er et nøkkelpar lokalt. Privat nøkkel forlater aldri telefonen.',ob2t:'Ingen server',ob2d:'Appen lever på telefonene til alle brukere. Info spres fra venn til venn. Ingen kan slå den av.',ob3t:'To typer veddemål',ob3d:'1 mot 1 eller gruppe. Veddemål kun med vennene dine.',ob4t:'Rykte er alt',ob4d:'Nullstiller du mister du all historikk og rating. Straffen for å rømme fra dårlig rykte.',iphone_tip:'📱 iPhone: Legg til på hjemskjerm (Safari → Del → Legg til) for beste opplevelse.',setup_t:'OPPRETT IDENTITET',name_lbl:'VISNINGSNAVN',pay_lbl2:'VIPPS / BETALINGSINFORMASJON',lang_lbl:'SPRÅK',name_ph:'F.eks. Ola N.',pay_ph2:'98765432',setup_info:'Et ECDSA P-256 nøkkelpar genereres automatisk. Din ID kan ikke endres.',setup_btn:'GENERER NØKLER OG START →',setup_loading:'Genererer...',online_s:'venner online',connecting_s:'Kobler til...',no_friends_t:'Velkommen!',no_friends_d:'Veddemål er privat. Du ser kun bets fra venner.\nDel din ID med venner så de kan legge deg til.',copy_invite:'📋 Kopier min ID',invite_copied:'✅ Kopiert!',no_bets_feed:'Ingen åpne bets fra vennene dine.\nPost det første!',type_honor:'1 MOT 1',type_pool:'GRUPPE',type_honor_d:'Veddemål mellom to. Begge bekrefter resultatet.',type_pool_d:'Flere deltakere, to sider. Velg din side.',type_honor_info:'🤝 Begge bekrefter hvem som vant. Enige = ferdig. Uenige = diskuter i chatten.',type_pool_info:'👥 Du definerer to sider. Alle stemmer på hvem som vant. Flertall avgjør. Vinnersiden deler potten.',create_t:'NYTT VEDDEMÅL',step_type:'TYPE',step_desc:'BESKRIV',step_amt:'INNSATS',step_pub:'PUBLISERING',step_conf:'BEKREFT',desc_lbl:'VEDDEMÅLET',desc_ph:'Beskriv tydelig. Vær konkret.',sideA_lbl:'UTFALL 1',sideA_ph:'F.eks. Norge vinner',sideB_lbl:'UTFALL 2',sideB_ph:'F.eks. Sverige vinner',cat_lbl:'KATEGORI',amt_lbl:'INNSATS PER DELTAKER (maks 500kr)',amt_ph:'Eller skriv beløp...',expiry_lbl:'UTLØPSDATO',exp0:'1 dag',exp1:'3 dager',exp2:'7 dager',exp3:'14 dager',pay_lbl:'OPPGJØRSMETODE',pay_ph:'F.eks. Gjøres opp via Vipps.',pub_info:'Velg hvem som skal se bettet. Sendes direkte — aldri til fremmede.',pub_all:'ALLE VENNER',pub_all_d:'Sendes direkte til alle i vennelisten. Kun de kan se det.',pub_sel:'VALGTE VENNER',pub_sel_d:'Velg hvem du vil invitere fra vennelisten.',no_friends_warn:'Du har ingen venner ennå. Legg til via Søk eller del din ID.',sel_who:'VELG HVEM SOM SKAL INVITERES',conf_type:'Type',conf_amt:'Innsats',conf_sideA:'Utfall 1',conf_sideB:'Utfall 2',conf_expires:'Utløper',conf_sends:'Sendes til',conf_pay:'Oppgjør',not_changed:'Kan ikke endres etter publisering.',mine_t:'MINE BETS',lost_lbl:'Tapt',active_lbl:'AKTIVE',done_lbl:'AVSLUTTET',win_rate:'Win rate',no_bets_mine:'Ingen veddemål ennå.\nPost et bet eller bli med på et åpent.',s_open:'Åpent',s_pending:'Venter',s_active:'● Aktivt',s_won:'🏆 Vant',s_lost:'Tapt',s_declined:'Avslått',s_awpay_win:'Venter betaling ↓',s_awpay_lose:'Betal nå →',s_np:'💀 Aldri betalt',s_cancelled:'Kansellert',remove_hist:'🗑 Fjern fra historikk',remove_hist_q:'Fjerne fra historikk?',join_t:'BLI MED',join_btn:'MELD INTERESSE →',choose_side:'VELG DITT UTFALL',bet_detail_t:'VEDDEMÅL',row_type:'Type',row_opponent:'Motpart',row_visibility:'Synlighet',row_expires:'Utløper',row_cat:'Kategori',challenger_d:'vil ta bettet ditt',cancel_bet:'🗑 Kanseller veddemål',cancel_q:'Kansellere?',vipps_info:'<strong>Slik fungerer det:</strong> 1) Vinneren sender betalingsinfo i chatten. 2) Taperen betaler. 3) Bekreft mottak.',honor_hdr:'HVEM VANT?',honor_info:'Begge bekrefter. Enige = ferdig. Uenige = diskuter i chatten.',i_won:'Jeg vant',they_won:'Motpart vant',you_voted_pre:'✅ Du stemte:',you_voted_suf:'Venter på motpartens bekreftelse.',won_share:'Du vant! Send betalingsinfo til motparten i bet-chatten.',share_vipps:'📱 Send betalingsinfo',conf_payment:'✅ Bekreft mottatt betaling',never_paid_btn:'💀 Betalte aldri',never_paid_q:'Markere som aldri betalt?',congrats:'Gratulerer!',better_luck:'Bedre lykke neste gang.',rate_comment:'Kommentar (valgfri)...',rate_btn:'SEND VURDERING ✓',rate_done:'✓ Vurdering sendt',rate_missing:'Gi en vurdering av taperen',never_paid_tag:'💀 ALDRI BETALT — synlig for hele nettverket',open_chat:'💬 Åpne bet-chat',interests_t:'INTERESSERTE',interests_info:'Trykk for å se rykteprofil. Velg hvem du vil ta inn. Andre avslås automatisk.',no_rating_hist:'Ingen ratinghistorikk',row_from:'Fra',rep_t:'RYKTE',chat_t:'CHAT',bet_chats_sec:'BET-CHATTER',groups_sec:'GRUPPESAMTALER',dms_sec:'DIREKTEMELDINGER',no_chats:'Ingen samtaler ennå.\nStart en via Kontakter.',write_ph:'Skriv...',bet_chat_t:'BET-CHAT',bet_chat_info:'Kun de involverte kan lese. Sendes direkte P2P.',del_req_msg:'⚠️ Motpart vil slette chatten. Trykk for å godkjenne.',req_del:'🗑 Be om å slette chat',req_del_q:'Be om sletting?',dm_info:'Ende-til-ende kryptert. Kun dere to kan lese.',no_msgs:'Ingen meldinger ennå.',contacts_t:'KONTAKTER',no_contacts:'Ingen venner ennå',search_t:'SØK',search_ph:'Søk på visningsnavn...',search_info:'Søker blant tilkoblede brukere. Bekreft identitet ved å sammenligne ID muntlig.',write_name:'Skriv et navn',no_results:'Ingen treff',add_btn:'+ Legg til',net_lbl:'NETTVERKET',connections_lbl:'Tilkoblinger',peers_lbl:'Kjente peers',id_lbl:'Kryptografisk ID',invite_lbl:'DEL DIN ID',invite_info:'Del din ID med venner. De legger den til i søkefeltet for å koble seg til.',copy_btn:'📋 Kopier min ID',lb_t:'TOPPLISTE',settings_t:'INNSTILLINGER',prof_sec:'PROFIL',notif_sec:'VARSLER',notif_info:'📱 iPhone: Legg til på hjemskjerm for beste varselopplevelse.',notif_btn:'🔔 Be om varslingstillatelse',notif_ok:'✅ Varsler aktivert',notif_no:'❌ Varsler blokkert',danger_sec:'FARLIG SONE',reset_warn:'Nullstill sletter din kryptografiske identitet, all historikk og alle data. KAN IKKE angres.',reset_btn:'⚠️ Nullstill alt',reset_q:'SISTE SJANSE: Alt slettes for alltid?',blocked_t:'BLOKKERTE',blocked_info:'Blokkerte ser du ikke i feed, chat eller invitasjoner.',no_blocked:'Ingen blokkerte brukere',unblock:'Opphev',my_rep:'⭐ Se min fulle rykteprofil',streak_s:'på rad',day_s:'dag(er)',in_s:'inne',id_conflict_title:'ID-konflikt',id_conflict_msg:'Noen bruker din ID. Prøver igjen automatisk...',enc_fail_warn:'Kryptering feilet. Sende uten kryptering?',enc_mitm_warn:'Advarsel: Mottakerens krypteringsnøkkel kunne ikke verifiseres. Sende likevel?',decrypt_fail:'Kunne ikke dekryptere',stat_open:'Åpne bets',stat_friends:'Venner',stat_active:'Aktive',interest_wait:'interesse i dine bets',bet_not_found:'Fant ikke bettet',np_warn_pre:'Denne brukeren har',np_warn_suf:'"aldri betalt"-merke. Vær forsiktig.',np_times:'× aldri betalt',stake_lbl:'Innsats',potential_win:'Mulig gevinst',settlement:'Oppgjør',view_rep_of:'Se rykteprofil til',anon_info_pre:'Du er anonym —',anon_info_suf:'ser kun visningsnavnet ditt. Du velges inn av eieren etter at du melder interesse.',select_min_one:'Velg minst én person å invitere, eller bytt til "Alle venner".',bet_sent_to:'Bet sendt til',you_posted:'Du la ut:',sel_friends_n:'valgte venn(er)',chosen_friends:'Valgte venner',bet_sends_all_pre:'Bettet sendes til alle',bet_sends_all_suf:'venner i listen din.',bet_sends_priv_pre:'Bettet sendes direkte til',bet_sends_priv_suf:'valgte venner.',bet_sends_all_info:'Bettet sendes direkte til alle vennene dine. Ingen fremmede kan se det.',interested_n:'interesserte',interested_choose:'velg hvem du tar inn',no_msgs_yet:'Ingen meldinger ennå.',won_side:'vant',participants:'deltakere',new_chat_btn:'+ Ny chat',contact_alias_info:'Lagre en bruker med et kallenavn kun du ser. Kallenavnet erstatter ID i alle lister.',find_contact:'Finn ny kontakt',new_group:'Ny gruppesamtale',remove_contact_q:'Fjerne kontakt?',select_tip:'Tips: Trykk på sirkelen til venstre for å velge flere og lage en gruppesamtale.',selected_n:'valgt. Trykk "Ny gruppe" ovenfor.',rep_btn:'Rykte',as_player_s:'som spiller',no_player_rating:'Ingen spiller-rating',won_s:'Vunnet',leave_bet_q:'Forlate dette veddemålet?',delete_chat:'Slett samtale',delete_chat_q:'Slette denne samtalen?',group_name_prompt:'Gi gruppesamtalen et navn:',visibility_s:'Synlighet',open_s:'Offentlig',closed_s:'Lukket',waiting_payment:'VENTER PÅ BETALING',payment_deadline:'Betalingsfrist',sys_interested:'er interessert i bettet ditt!',choose_your_side:'HVA TROR DU?',your_side:'Du tror',opponent_side:'Motparten tror',sides_info:'Skriv de to mulige utfallene av veddemålet',creator_chose:'valgte',donate_title:'Liker du appen?',donate_msg:'VEDDEMÅL er gratis og uten reklame. Hvis du har lyst, støtt utviklingen med et lite beløp.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Takk for støtten! 🙏',claims:'hevder',they_claim_won:'at de vant',they_claim_lost:'at du vant',honor_claim:'Resultat påstått!',n_bet_accepted:'Bet akseptert!',n_your_side_won:'Din side vant!',n_your_side_lost:'Din side tapte',n_encrypted_msg:'[Kryptert melding]',n_new_group_chat:'Ny gruppesamtale',n_blocked:'Blokkert',n_rating_sent:'Vurdering sendt!',add_by_id:'LEGG TIL MED ID',add_id_ph:'Lim inn vennens ID (vXXX...)',add_id_btn:'Koble til',add_id_ok:'Koblet til!',add_id_err:'Ugyldig ID. Må starte med v.',share_modal_title:'Del VEDDEMÅL',share_modal_sub:'Velg hvordan du vil dele appen',share_link_btn:'Kopier lenke til denne siden',share_link_sub:'Kopier lenken til denne siden',share_file_btn:'Del Veddemål-app',share_file_sub:'Send appen direkte til en venn',share_copied:'Lenke kopiert!',share_downloaded:'Fil lastet ned!',share_err:'Kunne ikke dele fil',share_file_msg:'🎯 Send denne filen til venner!',share_link_msg:'🎯 Sjekk ut VEDDEMÅL – appen for å vedde med venner!',err_enter_name:'Skriv et visningsnavn for å fortsette.',err_enter_desc:'Beskriv veddemålet for å fortsette.',err_enter_outcomes:'Fyll inn begge utfall for å fortsette.',err_choose_side:'Velg din side for å fortsette.',err_enter_amount:'Velg eller skriv inn innsatsen.',pending_detail:'Venter på at betteieren godkjenner deg inn i veddemålet.',vs_no_opponent:'ingen motpart ennå',lb_info:'Basert på nettverksinfo. Trykk for å se rykteprofil.',lb_you:'(deg)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Vurderinger',rep_never_paid_hdr:'ALDRI BETALT',rep_as_player_hdr:'SOM SPILLER',rep_no_ratings:'Ingen vurderinger ennå',rep_send_dm:'Send DM',rep_block:'Blokker',save_ok:'Lagret!',interests_none:'Ingen har meldt interesse ennå.',accept_btn:'✓ Ta inn',share_app_btn:'Del appen med venner',no_sel_for_group:'Velg minst én kontakt.',ob_inviter_banner:'delte VEDDEMÅL med deg!',auto_friend_notify:'Du er nå venn med {name}!',install_ios_hint:'Legg til på Hjem-skjerm for beste opplevelse',install_ios_guide:"Trykk Del-knappen (□↑) i Safari → 'Legg til på Hjem-skjerm'",install_android_btn:'Installer Veddemål',install_android_sub:'For beste opplevelse, installer appen',update_banner:'Ny versjon tilgjengelig!',update_now:'Oppdater nå',admin_send_upd:'📢 Send oppdateringsvarsel',about_app:'Om VEDDEMÅL',about_made_by:'Laget av Edvard Brekke',about_desc:'P2P veddemål — ingen server, ingen konto, ingen sporing.',about_license:'VEDDEMÅL er gratis å bruke. Koden er beskyttet.',about_close:'Lukk',hash_friend_q:'Legg til som venn?',sync_btn:'🔄 Synkroniser',sync_done:'✅ Synkronisert!',pool_start_btn:'🏁 Start veddemålet',pool_start_sub:'Stenger innmeldingen og aktiverer veddemålet',pool_declare_winner:'Kunngjør vinnersiden',pool_members_hdr:'DELTAKERE',pool_you_pay:'Du betaler',pool_you_receive:'Du mottar',pool_to:'til',pool_from:'fra',pool_full:'siden er full',pool_activated:'Veddemål startet!',pool_waiting_start:'Venter på at eieren kunngjør vinnersiden...',n_pool_started:'Gruppe-veddemål startet!',pool_confirm_winner:'Kunngjøre vinnersiden? Kan ikke angres.',pool_pay_instr:'DIN BETALINGSINSTRUKSJON',pool_max_per_side:'MAKS PER SIDE (valgfritt)',pool_max_ph:'F.eks. 3',pool_no_payments:'Ingen betalingsinstruksjon mottatt ennå.',},en:{back:'Back',cancel:'Cancel',next:'NEXT →',save:'SAVE',publish:'PUBLISH →',app_tag:'PRIVATE · P2P · ENCRYPTED',ob_btn:'GET STARTED →',ob1t:'Cryptographic identity',ob1d:'No account. No email. Your ID is a key pair generated locally. The private key never leaves your device.',ob2t:'No server',ob2d:'The app lives on all users phones. Info spreads friend to friend. No one can shut it down.',ob3t:'Two bet types',ob3d:'1 vs 1 or group. Bets only with your friends.',ob4t:'Reputation is everything',ob4d:'Reset and you lose all history and ratings. The punishment for escaping a bad reputation.',iphone_tip:'📱 iPhone: Add to home screen (Safari → Share → Add to Home Screen) for best experience.',setup_t:'CREATE IDENTITY',name_lbl:'DISPLAY NAME',pay_lbl2:'PAYMENT INFO',lang_lbl:'LANGUAGE',name_ph:'E.g. John D.',pay_ph2:'Your Venmo / PayPal / etc',setup_info:'An ECDSA P-256 key pair is automatically generated. Your ID cannot be changed.',setup_btn:'GENERATE KEYS AND START →',setup_loading:'Generating...',online_s:'friends online',connecting_s:'Connecting...',no_friends_t:'Welcome!',no_friends_d:'Wagers is private. You only see bets from friends.\nShare your ID with friends so they can add you.',copy_invite:'📋 Copy my ID',invite_copied:'✅ Copied!',no_bets_feed:'No open bets from your friends.\nPost the first one!',type_honor:'1 VS 1',type_pool:'GROUP',type_honor_d:'Bet between two people. Both confirm the result.',type_pool_d:'Multiple participants, two sides. Pick yours.',type_honor_info:'🤝 Both confirm who won. Agree = done. Disagree = discuss in chat.',type_pool_info:'👥 You define two sides. Everyone votes on who won. Majority decides. Winners split the pot.',create_t:'NEW WAGER',step_type:'TYPE',step_desc:'DESCRIBE',step_amt:'STAKE',step_pub:'PUBLISHING',step_conf:'CONFIRM',desc_lbl:'THE WAGER',desc_ph:'Describe clearly. Be specific.',sideA_lbl:'OUTCOME 1',sideA_ph:'E.g. Norway wins',sideB_lbl:'OUTCOME 2',sideB_ph:'E.g. Sweden wins',cat_lbl:'CATEGORY',amt_lbl:'STAKE PER PARTICIPANT (max 500)',amt_ph:'Or type amount...',expiry_lbl:'EXPIRY',exp0:'1 day',exp1:'3 days',exp2:'7 days',exp3:'14 days',pay_lbl:'PAYMENT METHOD',pay_ph:'E.g. Settle via Venmo.',pub_info:'Choose who sees the bet. Sent directly — never to strangers.',pub_all:'ALL FRIENDS',pub_all_d:'Sent directly to everyone in your friend list. Only they can see it.',pub_sel:'SELECTED FRIENDS',pub_sel_d:'Choose specifically who to invite from your friend list.',no_friends_warn:'You have no friends yet. Add via Search or share your ID.',sel_who:'SELECT FRIENDS TO INVITE',conf_type:'Type',conf_amt:'Stake',conf_sideA:'Outcome 1',conf_sideB:'Outcome 2',conf_expires:'Expires',conf_sends:'Sent to',conf_pay:'Payment',not_changed:'Cannot be changed after publishing.',mine_t:'MY BETS',lost_lbl:'Lost',active_lbl:'ACTIVE',done_lbl:'FINISHED',win_rate:'Win rate',no_bets_mine:'No wagers yet.\nPost a bet or join an open one.',s_open:'Open',s_pending:'Pending',s_active:'● Active',s_won:'🏆 Won',s_lost:'Lost',s_declined:'Declined',s_awpay_win:'Awaiting payment ↓',s_awpay_lose:'Pay now →',s_np:'💀 Never paid',s_cancelled:'Cancelled',remove_hist:'🗑 Remove from history',remove_hist_q:'Remove from history?',join_t:'JOIN',join_btn:'SHOW INTEREST →',choose_side:'PICK YOUR OUTCOME',bet_detail_t:'WAGER',row_type:'Type',row_opponent:'Opponent',row_visibility:'Visibility',row_expires:'Expires',row_cat:'Category',challenger_d:'wants to take your bet',cancel_bet:'🗑 Cancel wager',cancel_q:'Cancel?',vipps_info:'<strong>How it works:</strong> 1) Winner sends payment info in chat. 2) Loser pays. 3) Confirm payment.',honor_hdr:'WHO WON?',honor_info:'Both confirm. Agree = done. Disagree = discuss in chat.',i_won:'I won',they_won:'Opponent won',you_voted_pre:'✅ You voted:',you_voted_suf:"Waiting for opponent's confirmation.",won_share:'You won! Send your payment info to your opponent in the bet chat.',share_vipps:'📱 Send payment info',conf_payment:'✅ Confirm payment received',never_paid_btn:'💀 Never paid',never_paid_q:'Mark as never paid?',congrats:'Congratulations!',better_luck:'Better luck next time.',rate_comment:'Comment (optional)...',rate_btn:'SUBMIT RATING ✓',rate_done:'✓ Rating submitted',rate_missing:'Rate the loser first',never_paid_tag:'💀 NEVER PAID — visible to your whole network',open_chat:'💬 Open bet chat',interests_t:'INTERESTED',interests_info:'Tap to see reputation. Choose who to let in. Others are automatically declined.',no_rating_hist:'No rating history',row_from:'From',leave_bet_q:'Leave this bet?',delete_chat:'Delete chat',delete_chat_q:'Delete this chat?',group_name_prompt:'Name your group chat:',rep_t:'REPUTATION',chat_t:'CHAT',bet_chats_sec:'BET CHATS',groups_sec:'GROUP CHATS',dms_sec:'DIRECT MESSAGES',no_chats:'No conversations yet.\nStart one via Contacts.',write_ph:'Write...',bet_chat_t:'BET CHAT',bet_chat_info:'Only the involved parties can read. Sent directly P2P.',del_req_msg:'⚠️ Other party wants to delete chat. Tap to approve.',req_del:'🗑 Request chat deletion',req_del_q:'Request deletion?',dm_info:'End-to-end encrypted. Only you two can read.',no_msgs:'No messages yet.',contacts_t:'FRIENDS',no_contacts:'No friends yet',search_t:'SEARCH',search_ph:'Search by display name...',search_info:'Searches connected users. Confirm identity by comparing the first 8 ID characters verbally.',write_name:'Type a name',no_results:'No results',add_btn:'+ Add',net_lbl:'NETWORK',connections_lbl:'Connections',peers_lbl:'Known peers',id_lbl:'Cryptographic ID',invite_lbl:'SHARE YOUR ID',invite_info:'Share your ID with friends. They add it to the search field to connect.',copy_btn:'📋 Copy my ID',lb_t:'LEADERBOARD',settings_t:'SETTINGS',prof_sec:'PROFILE',notif_sec:'NOTIFICATIONS',notif_info:'📱 iPhone: Add to home screen for best notification experience.',notif_btn:'🔔 Request notification permission',notif_ok:'✅ Notifications enabled',notif_no:'❌ Notifications blocked',danger_sec:'DANGER ZONE',reset_warn:'Reset deletes your cryptographic identity, all history and all data. CANNOT be undone.',reset_btn:'⚠️ Reset everything',reset_q:'LAST CHANCE: Delete everything forever?',blocked_t:'BLOCKED',blocked_info:'Blocked users are hidden from feed, chat and invitations.',no_blocked:'No blocked users',unblock:'Unblock',my_rep:'⭐ View my full reputation',streak_s:'in a row',day_s:'day(s)',in_s:'in',id_conflict_title:'ID conflict',id_conflict_msg:'Someone is using your ID. Retrying automatically...',enc_fail_warn:'Encryption failed. Send without encryption?',enc_mitm_warn:'Warning: Recipient encryption key could not be verified. Send anyway?',decrypt_fail:'Could not decrypt',stat_open:'Open bets',stat_friends:'Friends',stat_active:'Active',interest_wait:'interest in your bets',bet_not_found:'Bet not found',np_warn_pre:'This user has',np_warn_suf:'"never paid" marks. Be careful.',np_times:'× never paid',stake_lbl:'Stake',potential_win:'Potential win',settlement:'Settlement',view_rep_of:'View reputation of',anon_info_pre:'You are anonymous —',anon_info_suf:'only sees your display name. The owner selects who to let in.',select_min_one:'Select at least one person to invite, or switch to "All friends".',bet_sent_to:'Bet sent to',you_posted:'You posted:',sel_friends_n:'selected friend(s)',chosen_friends:'Selected friends',bet_sends_all_pre:'Bet sent to all',bet_sends_all_suf:'friends on your list.',bet_sends_priv_pre:'Bet sent directly to',bet_sends_priv_suf:'selected friends.',bet_sends_all_info:'Bet sent directly to all your friends. No strangers can see it.',interested_n:'interested',interested_choose:'choose who to let in',no_msgs_yet:'No messages yet.',won_side:'won',participants:'participants',new_chat_btn:'+ New chat',contact_alias_info:'Save a user with a nickname only you see. The nickname replaces the ID in all lists.',find_contact:'Find new friend',new_group:'New group chat',remove_contact_q:'Remove contact?',select_tip:'Tip: Tap the circle on the left to select multiple and create a group chat.',selected_n:'selected. Tap "New group" above.',rep_btn:'Rep',as_player_s:'as player',no_player_rating:'No player rating',won_s:'Won',visibility_s:'Visibility',open_s:'Public',closed_s:'Private',waiting_payment:'AWAITING PAYMENT',payment_deadline:'Payment deadline',sys_interested:'is interested in your bet!',choose_your_side:'WHAT DO YOU THINK?',your_side:'You believe',opponent_side:"Opponent believes",sides_info:'Write the two possible outcomes of the bet',creator_chose:'chose',donate_title:'Enjoying the app?',donate_msg:'VEDDEMÅL is free and ad-free. If you want to, support development with a small amount.',donate_vipps:'Vipps',donate_lightning:'Lightning',donate_thx:'Thanks for the support! 🙏',claims:'claims',they_claim_won:'that they won',they_claim_lost:'that you won',honor_claim:'Result claimed!',n_bet_accepted:'Bet accepted!',n_your_side_won:'Your side won!',n_your_side_lost:'Your side lost',n_encrypted_msg:'[Encrypted message]',n_new_group_chat:'New group chat',n_blocked:'Blocked',n_rating_sent:'Rating sent!',add_by_id:'ADD BY ID',add_id_ph:"Paste friend's ID (vXXX...)",add_id_btn:'Connect',add_id_ok:'Connected!',add_id_err:'Invalid ID. Must start with v.',share_modal_title:'Share VEDDEMÅL',share_modal_sub:'Choose how to share the app',share_link_btn:'Copy link to this page',share_link_sub:'Copy the link to this page',share_file_btn:'Share Veddemål app',share_file_sub:'Send the app directly to a friend',share_copied:'Link copied!',share_downloaded:'File downloaded!',share_err:'Could not share file',share_file_msg:'🎯 Send this file to friends!',share_link_msg:'🎯 Check out VEDDEMÅL – the private bet app!',err_enter_name:'Enter a display name to continue.',err_enter_desc:'Describe the wager to continue.',err_enter_outcomes:'Fill in both outcomes to continue.',err_choose_side:'Pick your side to continue.',err_enter_amount:'Choose or enter the stake.',pending_detail:'Waiting for the bet owner to approve you.',vs_no_opponent:'no opponent yet',lb_info:'Based on network info. Tap to view reputation.',lb_you:'(you)',rep_bets_lbl:'Bets',rep_ratings_lbl:'Ratings',rep_never_paid_hdr:'NEVER PAID',rep_as_player_hdr:'AS PLAYER',rep_no_ratings:'No ratings yet',rep_send_dm:'Send DM',rep_block:'Block',save_ok:'Saved!',interests_none:'No one has shown interest yet.',accept_btn:'✓ Accept',share_app_btn:'Share app with friends',no_sel_for_group:'Select at least one contact.',ob_inviter_banner:'shared VEDDEMÅL with you!',auto_friend_notify:'You are now friends with {name}!',install_ios_hint:'Add to Home Screen for the best experience',install_ios_guide:"Tap the Share button (□↑) in Safari → 'Add to Home Screen'",install_android_btn:'Install Veddemål',install_android_sub:'For the best experience, install the app',update_banner:'New version available!',update_now:'Update now',admin_send_upd:'📢 Send update notice',about_app:'About VEDDEMÅL',about_made_by:'Made by Edvard Brekke',about_desc:'P2P betting — no server, no account, no tracking.',about_license:'VEDDEMÅL is free to use. The code is protected.',about_close:'Close',hash_friend_q:'Add as friend?',sync_btn:'🔄 Sync',sync_done:'✅ Synced!',pool_start_btn:'🏁 Start bet',pool_start_sub:'Closes joining and activates the bet',pool_declare_winner:'Declare winning side',pool_members_hdr:'PARTICIPANTS',pool_you_pay:'You pay',pool_you_receive:'You receive',pool_to:'to',pool_from:'from',pool_full:'side is full',pool_activated:'Bet started!',pool_waiting_start:'Waiting for creator to declare the winning side...',n_pool_started:'Group bet started!',pool_confirm_winner:'Declare winning side? Cannot be undone.',pool_pay_instr:'YOUR PAYMENT INSTRUCTION',pool_max_per_side:'MAX PER SIDE (optional)',pool_max_ph:'E.g. 3',pool_no_payments:'No payment instruction received yet.',}};
 const t=k=>{const v=(T[A?.lang]||T.no)[k];return v!==undefined?v:(T.no[k]||k);};
 
 // ════════════════════════════════════════════════
@@ -356,12 +340,47 @@ const starStr=(n,max=5)=>'★'.repeat(n)+'☆'.repeat(max-n);
 const cats=()=>A?.lang==='en'?['All','⚽ Sports','🎮 Gaming','🎲 Random','💪 Skills','🌍 World','🔥 Trending']:['Alle','⚽ Sport','🎮 Gaming','🎲 Tilfeldigheter','💪 Ferdigheter','🌍 Verden','🔥 Trendy'];
 
 // ════════════════════════════════════════════════
+// CUSTOM MODALS (replace browser prompt)
+// ════════════════════════════════════════════════
+function showPrompt(title,defaultVal,callback){
+  const oid='sp'+Date.now();
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML=`<div style="background:var(--surf2);border:1px solid var(--b2);border-radius:20px;padding:24px;width:100%;max-width:380px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px">${esc(title)}</div>
+    <input id="${oid}" class="fi" style="width:100%;margin-bottom:16px" value="${esc(defaultVal||'')}">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sec" style="flex:1" onclick="this.closest('[style*=fixed]').remove()">${t('cancel')}</button>
+      <button class="btn btn-prim" style="flex:1" id="${oid}-ok">OK</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+  const inp=document.getElementById(oid);
+  inp.focus();inp.select();
+  const ok=()=>{const v=inp.value;el.remove();callback(v);};
+  document.getElementById(oid+'-ok').addEventListener('click',ok);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')ok();if(e.key==='Escape')el.remove();});
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+}
+function showCopyModal(title,value){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML=`<div style="background:var(--surf2);border:1px solid var(--b2);border-radius:20px;padding:24px;width:100%;max-width:380px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:12px">${esc(title)}</div>
+    <div style="background:var(--b);border:1px solid var(--b2);border-radius:12px;padding:12px 14px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;margin-bottom:16px">${esc(value)}</div>
+    <button class="btn btn-sec btn-full" onclick="this.closest('[style*=fixed]').remove()">${t('about_close')}</button>
+  </div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+}
+
+// ════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════
 const A={
   myId:'',myName:'',myVipps:'',lang:'en',
   pubB64:'',privKey:null,pubKey:null,
-  ecdhPriv:null,ecdhPub:null,ecdhPubB64:'',
+  ecdhPriv:null,ecdhPubB64:'',
   sharedKeys:new Map(),
   peer:null,ready:false,
   conns:new Map(),peers:new Map(),seen:new Set(),
@@ -370,13 +389,14 @@ const A={
   betChats:{},dms:{},groupChats:[],
   contacts:[],blocked:new Set(),
   ratings:{},
-  activity:[],offlineQ:[],
+  activity:[],offlineQ:[],relayQ:[],
   wins:0,streak:0,
   screen:'loading',params:{},
   filter:'*',nb:{},rated:new Set(),
   inviteSelected:new Set(),
   unreadChat:0,
-  _donDismissed:new Set()
+  _donDismissed:new Set(),
+  _seenMids:new Set()
 };
 
 function loadState(){
@@ -384,19 +404,24 @@ function loadState(){
   A.myName=ls('vName')||'';
   A.myVipps=ls('vVipps')||'';
   A.lang=ls('vLang')||'en';
-  A.myBets=jp('vBets','[]');
-  A.betChats=jp('vBChat','{}');
-  A.dms=jp('vDM','{}');
-  A.groupChats=jp('vGC','[]');
-  A.contacts=jp('vContacts','[]');
+  A.myBets=jp('vBets','[]');if(!Array.isArray(A.myBets))A.myBets=[];
+  A.betChats=jp('vBChat','{}');if(!A.betChats||typeof A.betChats!=='object'||Array.isArray(A.betChats))A.betChats={};
+  A.dms=jp('vDM','{}');if(!A.dms||typeof A.dms!=='object'||Array.isArray(A.dms))A.dms={};
+  A.groupChats=jp('vGC','[]');if(!Array.isArray(A.groupChats))A.groupChats=[];
+  A.contacts=jp('vContacts','[]');if(!Array.isArray(A.contacts))A.contacts=[];
   A.blocked=new Set(jp('vBlocked','[]'));
-  A.ratings=jp('vRatings','{}');
-  A.activity=jp('vAct','[]');
-  A.offlineQ=jp('vOffQ','[]');
+  A.ratings=jp('vRatings','{}');if(!A.ratings||typeof A.ratings!=='object'||Array.isArray(A.ratings))A.ratings={};
+  A.activity=jp('vAct','[]');if(!Array.isArray(A.activity))A.activity=[];
+  A.offlineQ=jp('vOffQ','[]');if(!Array.isArray(A.offlineQ))A.offlineQ=[];
+  A.relayQ=jp('vRelayQ','[]');if(!Array.isArray(A.relayQ))A.relayQ=[];
+  A._seenMids=new Set(jp('vSeenMids','[]'));
   A.wins=parseInt(ls('vWins')||'0');
   A.streak=parseInt(ls('vStreak')||'0');
   A.rated=new Set(jp('vRated','[]'));
   A._donDismissed=new Set(jp('vDon','[]'));
+  // Restore received bets (openBets); drop expired ones
+  const rawOB=jp('vOpenBets','[]');
+  A.openBets=new Map((Array.isArray(rawOB)?rawOB:[]).filter(([,b])=>!b.expiresAt||b.expiresAt>Date.now()));
   A.filter='*';
 }
 
@@ -412,7 +437,18 @@ function persist(){
     ss('vAct',JSON.stringify(A.activity.slice(0,50)));
     ss('vOffQ',JSON.stringify(A.offlineQ.slice(0,100)));
     ss('vDon',JSON.stringify([...A._donDismissed]));
-  }catch(e){console.error('[persist]',e);}
+    ss('vOpenBets',JSON.stringify([...A.openBets.entries()].slice(0,200)));
+    ss('vRated',JSON.stringify([...A.rated]));
+    ss('vRelayQ',JSON.stringify(A.relayQ.slice(0,RELAY_MAX)));
+    ss('vSeenMids',JSON.stringify([...A._seenMids].slice(-500)));
+  }catch(e){
+    console.error('[persist]',e);
+    if(e.name==='QuotaExceededError'||e.code===22){
+      if(!persist._warned){persist._warned=true;setTimeout(()=>{persist._warned=false;},30000);}
+      else return;
+      notify('⚠️ Lagring mislyktes','Lagringsplass full – slett gamle veddemål for å frigjøre plass.');
+    }
+  }
 }
 
 function addAct(text,ico){A.activity.unshift({text,ico:ico||'📌',ts:now()});if(A.activity.length>50)A.activity.pop();}
@@ -570,31 +606,9 @@ function setupConn(conn){
     try{
     A.conns.set(conn.peer,conn);
     conn.send({t:'HI',...myPresence()});
-    // Only share bets with contacts, not with strangers
-    const isContact=A.contacts.some(c=>c.id===conn.peer);
-    if(isContact){
-      // Send my open bets to this contact
-      A.myBets.filter(b=>b.status==='open'&&!b.isPrivate).forEach(b=>{
-        try{conn.send({t:'INV',bet:{...b,fromContact:true}});}catch(e){}
-      });
-    }
-    // Bet sync: let both sides compare honor-bet state and fix whoever is behind
-    const syncBets=A.myBets
-      .filter(b=>b.opponentId===conn.peer&&b.type==='honor'&&['active','await_payment','done'].includes(b.status))
-      .map(b=>({id:b.id,status:b.status,myConfirm:b.myConfirm,winnerId:b.winnerId,winnerName:b.winnerName,payDeadline:b.payDeadline}));
-    if(syncBets.length)try{conn.send({t:'BS',bets:syncBets});}catch(e){}
-    // Pool sync: creator sends current pool-bet verdict to members who may have missed PFV
-    const poolSyncs=A.myBets
-      .filter(b=>b.type==='pool'&&b.creatorId===A.myId
-        &&['await_payment','done'].includes(b.status)
-        &&b.members?.find(m=>m.id===conn.peer))
-      .map(b=>({id:b.id,status:b.status,winningSide:b.winningSide,payDeadline:b.payDeadline}));
-    if(poolSyncs.length)try{conn.send({t:'PSV',bets:poolSyncs});}catch(e){}
-    // PJ re-send: joiner re-registers with creator if still pending (guards against >24h offline)
-    A.myBets
-      .filter(b=>b.type==='pool'&&b.isChallenger&&b.status==='pending'&&b.opponentId===conn.peer)
-      .forEach(b=>{try{conn.send({t:'PJ',bid:b.id,name:A.myName,side:b.side,amt:b.amount});}catch(e){}});
-    flushQ();schedRender();updateBadges();
+    deliverRelay(conn.peer);
+    syncWithPeer(conn.peer);
+    schedRender();updateBadges();
     }catch(e){console.error('[setupConn open]',e);}
   });
   conn.on('data',m=>onData(conn.peer,m));
@@ -606,6 +620,7 @@ function send(id,msg){
   if(c?.open){try{c.send(msg);}catch(e){console.warn('[send]',id,e);}return;}
   if(A.offlineQ.length>=100)A.offlineQ.shift(); // dropp eldste hvis full
   A.offlineQ.push({to:id,msg,ts:now()});persist();
+  relayMsg(id,msg);
   tryConn(id);setTimeout(()=>flushQ(),500);setTimeout(()=>flushQ(),2000);setTimeout(()=>flushQ(),5000);
 }
 function broadcast(msg){A.conns.forEach((c,id)=>{if(c.open&&id!==msg.from)try{c.send(msg);}catch(e){console.warn('[broadcast]',id,e);}});}
@@ -629,13 +644,99 @@ function flushQ(){
   }catch(e){console.error('[flushQ]',e);}
 }
 
+// ════════════════════════════════════════════════
+// RELAY — store-and-forward for offline contacts
+// ════════════════════════════════════════════════
+const RELAY_TYPES=new Set(['INV','HC','WV','PC','PA','PFV','BM','GCI','GCM','DM','JR','JY','JN','PJ']);
+const RELAY_TTL=7776000000; // 90 days
+const RELAY_MAX=200;
+
+function addToRelayQ(item){
+  if(!item.id||!item.to||!item.msg)return;
+  if(item.to===A.myId)return;
+  if(A.relayQ.find(r=>r.id===item.id))return; // dedup by relay id
+  A.relayQ.push(item);
+  if(A.relayQ.length>RELAY_MAX)A.relayQ.splice(0,A.relayQ.length-RELAY_MAX);
+}
+function pruneRelayQ(){
+  const n=now();
+  A.relayQ=A.relayQ.filter(r=>r.expiresAt>n);
+}
+function deliverRelay(peerId){
+  const conn=A.conns.get(peerId);if(!conn?.open)return;
+  const n=now();
+  const items=A.relayQ.filter(r=>r.to===peerId&&r.expiresAt>n);
+  if(!items.length)return;
+  const delivered=new Set();
+  items.forEach(item=>{try{conn.send({t:'RR',rid:item.id,to:item.to,msg:item.msg,from:item.from,ts:item.ts,expiresAt:item.expiresAt});delivered.add(item.id);}catch(e){console.warn('[deliverRelay]',item.id,e);}});
+  if(delivered.size){A.relayQ=A.relayQ.filter(r=>!delivered.has(r.id));persist();}
+}
+function relayMsg(toId,msg){
+  if(!A.myId||!toId||!msg)return;
+  if(!RELAY_TYPES.has(msg.t))return;
+  const rid=uid();const ts=now();const expiresAt=ts+RELAY_TTL;
+  A.conns.forEach((conn,cid)=>{
+    if(cid===toId||cid===A.myId||!conn.open)return;
+    if(!A.contacts.find(c=>c.id===cid))return; // only relay through contacts
+    try{conn.send({t:'RR',rid,to:toId,msg,from:A.myId,ts,expiresAt});}catch(e){}
+  });
+}
+
+function syncWithPeer(id){
+  const conn=A.conns.get(id);if(!conn?.open)return;
+  // 1. Re-send my open bets (public + private if this peer was invited)
+  A.myBets.filter(b=>b.status==='open'&&(!b.isPrivate||(b.invitedIds&&b.invitedIds.includes(id)))).forEach(b=>{
+    try{conn.send({t:'INV',bet:{...b,fromContact:true}});}catch(e){}
+  });
+  // 2. Honor bet status sync
+  const syncBets=A.myBets
+    .filter(b=>b.opponentId===id&&b.type==='honor'&&['active','await_payment','done'].includes(b.status))
+    .map(b=>({id:b.id,status:b.status,myConfirm:b.myConfirm,winnerId:b.winnerId,winnerName:b.winnerName,payDeadline:b.payDeadline}));
+  if(syncBets.length)try{conn.send({t:'BS',bets:syncBets});}catch(e){}
+  // 2b. Re-send HC if I've confirmed but peer may have missed it
+  A.myBets.filter(b=>b.type==='honor'&&b.opponentId===id&&b.status==='active'&&b.myConfirm)
+    .forEach(b=>{try{conn.send({t:'HC',bid:b.id,wId:b.myConfirm});}catch(e){}});
+  // 2c. Re-send WV if I've already shared Vipps and bet is still in await_payment
+  A.myBets.filter(b=>b.opponentId===id&&b.vippsShared&&b.status==='await_payment')
+    .forEach(b=>{try{conn.send({t:'WV',bid:b.id,vipps:A.myVipps});}catch(e){}});
+  // 3. Pool verdict sync — creator re-sends personalized PFV for missed members
+  A.myBets.filter(b=>b.type==='pool'&&b.creatorId===A.myId
+    &&['active','await_payment','done'].includes(b.status)
+    &&b.members?.find(m=>m.id===id)).forEach(b=>{
+      // Re-send PA if bet is active (member may have missed it)
+      if(b.status==='active'){
+        const memberList=[{id:b.creatorId,name:b.creatorName,side:b.creatorSide,vipps:b.creatorVipps||''},...(b.members||[])];
+        try{conn.send({t:'PA',bid:b.id,memberList});}catch(e){}
+      }
+      // Re-send personalized PFV if verdict already declared
+      if(['await_payment','done'].includes(b.status)&&b.winningSide){
+        const payments=computePoolPayments(b,b.winningSide);
+        const myPayments=payments.filter(p=>p.from===id||p.to===id);
+        const memberList=[{id:b.creatorId,name:b.creatorName,side:b.creatorSide,vipps:b.creatorVipps||''},...(b.members||[])];
+        try{conn.send({t:'PFV',bid:b.id,side:b.winningSide,payDeadline:b.payDeadline,memberList,myPayments});}catch(e){}
+      }
+    });
+  // 4. Pool join re-register — joiner re-sends PJ if still pending
+  A.myBets.filter(b=>b.type==='pool'&&b.isChallenger&&b.status==='pending'&&b.opponentId===id)
+    .forEach(b=>{try{conn.send({t:'PJ',bid:b.id,name:A.myName,side:b.side,amt:b.amount,vipps:A.myVipps});}catch(e){}});
+  // 5. Flush offline queue for this peer
+  flushQ();
+  // 6. Deliver queued relay items for this peer
+  deliverRelay(id);
+}
+window.syncAll=()=>{
+  if(!A.myName)return;
+  A.contacts.forEach(c=>{tryConn(c.id);});
+  setTimeout(()=>{A.conns.forEach((_,id)=>{deliverRelay(id);syncWithPeer(id);});flushQ();},800);
+  notify('🔄 '+t('sync_done'));
+};
+
 function onData(from,m){
   try{
   if(!m||A.blocked.has(from))return;
   if(m.t==='HI'){
     const ex=A.peers.get(from)||{};
     // SECURITY FIX: Verify ECDH pubkey signature before trusting epub
-    let verifiedEpub=m.epub;
     if(m.epub&&m.pub&&m.esig){
       verifyECDHSig(m.pub,m.epub,m.esig).then(valid=>{
         const p=A.peers.get(from);
@@ -769,7 +870,7 @@ function handleDirect(from,m){
     // JOIN YES
     case 'JY':{
       const b=A.myBets.find(x=>x.id===m.bid);
-      if(b){b.opponentId=from;b.opponentName=m.name;b.opponentVipps=m.vipps;b.status='active';notify('✅ '+t('n_bet_accepted'),m.name,()=>go('betDetail',{betId:m.bid}));persist();}schedRender();break;
+      if(b&&b.status==='pending'){b.opponentId=from;b.opponentName=m.name;b.opponentVipps=m.vipps;b.status='active';notify('✅ '+t('n_bet_accepted'),m.name,()=>go('betDetail',{betId:m.bid}));persist();}schedRender();break;
     }
     case 'JN':{
       const b=A.myBets.find(x=>x.id===m.bid);
@@ -777,7 +878,6 @@ function handleDirect(from,m){
       persist();schedRender();break;
     }
     case 'HC':{if(!m.bid||!m.wId)break;const b=A.myBets.find(x=>x.id===m.bid);if(b){b.theirConfirm=m.wId;checkHonor(b);notify('🤝 '+t('honor_claim'),esc(b.opponentName||'?'),()=>go('betDetail',{betId:m.bid}));}persist();render(true);break;}
-    case 'PV':{if(!m.bid||!m.side)break;const b=A.myBets.find(x=>x.id===m.bid);if(b){if(!b.votes)b.votes={};b.votes[from]=m.side;checkPoolVotes(b);}persist();schedRender();break;}
     case 'NP':{
       const b=A.myBets.find(x=>x.id===m.bid);if(b)b.status='never_paid';
       if(!A.ratings[from])A.ratings[from]=[];
@@ -789,6 +889,7 @@ function handleDirect(from,m){
     // CHAT
     case 'BM':{
       if(!m.bid||!m.text)break;
+      if(m._mid){if(A._seenMids.has(m._mid))break;A._seenMids.add(m._mid);if(A._seenMids.size>1000)A._seenMids=new Set([...A._seenMids].slice(-500));}
       addBetMsg(m.bid,{from,name:m.name||'?',text:m.text,ts:m.ts||now()});
       if(A.screen!=='betChat'||A.params.betId!==m.bid){notify('💬 '+(m.name||'?'),m.text,()=>go('betChat',{betId:m.bid}));A.unreadChat++;}
       persist();if(A.screen==='betChat'&&A.params.betId===m.bid)schedRender();break;
@@ -796,36 +897,62 @@ function handleDirect(from,m){
     // PAYMENT CONFIRMED (motpart bekrefter mottatt betaling)
     case 'PC':{
       const b=A.myBets.find(x=>x.id===m.bid);
-      if(b)b.status='done';
+      if(b&&b.status!=='done')b.status='done';
       persist();schedRender();break;
     }
     // POOL JOIN — creator mottar nye members
     case 'PJ':{
       const b=A.myBets.find(x=>x.id===m.bid);
-      if(b){
+      if(b&&b.creatorId===A.myId){
         if(!b.members)b.members=[];
-        if(!b.members.find(x=>x.id===from))
-          b.members.push({id:from,name:m.name,side:m.side,amt:m.amt});
+        if(!b.members.find(x=>x.id===from)){
+          // Enforce maxPerSide if set
+          if(b.maxPerSide){
+            const creatorOnSide=b.creatorSide===m.side?1:0;
+            const sideCount=b.members.filter(x=>x.side===m.side).length+creatorOnSide;
+            if(sideCount>=b.maxPerSide){send(from,{t:'JN',bid:m.bid});break;}
+          }
+          b.members.push({id:from,name:m.name,side:m.side,amt:m.amt,vipps:m.vipps||''});
+          notify('👥 '+esc(m.name||'?'),(A.lang==='en'?'joined the group bet':'ble med i gruppe-veddemålet'),()=>go('betDetail',{betId:m.bid}));
+        }
       }
       persist();schedRender();break;
     }
-    // POOL FINAL VERDICT — alle parter varsles om vinnende side
+    // POOL ACTIVATE — creator sends when bet goes live
+    case 'PA':{
+      const b=A.myBets.find(x=>x.id===m.bid);
+      if(b&&b.status==='pending'){
+        b.status='active';
+        if(m.memberList)b.memberList=m.memberList;
+        notify('🏁 '+t('n_pool_started'),b.desc,()=>go('betDetail',{betId:m.bid}));
+      }
+      persist();schedRender();break;
+    }
+    // POOL FINAL VERDICT — creator sends winning side + payment instructions
     case 'PFV':{
+      const RANK={active:0,await_payment:1,done:2};
       const b=A.myBets.find(x=>x.id===m.bid);
       if(b){
-        b.status='await_payment';b.winningSide=m.side;b.payDeadline=now()+172800000;
-        const me=b.members?.find(x=>x.id===A.myId);
-        const iWon=me&&me.side===m.side;
-        if(iWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);
-          notify('🏆 '+t('n_your_side_won'),b.desc,()=>go('betDetail',{betId:m.bid}));}
-        else{A.streak=0;ss('vStreak','0');
-          notify('😔 '+t('n_your_side_lost'),b.desc,()=>go('betDetail',{betId:m.bid}));}
+        const localRank=RANK[b.status]??-1;
+        const remoteRank=RANK['await_payment']??-1;
+        if(remoteRank>localRank){
+          b.status='await_payment';b.winningSide=m.side;
+          b.payDeadline=m.payDeadline||now()+172800000;
+          if(m.myPayments)b.payPairs=m.myPayments;
+          if(m.memberList)b.memberList=m.memberList;
+          const iWon=b.side===m.side||(b.creatorId===A.myId&&b.creatorSide===m.side);
+          if(iWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);
+            notify('🏆 '+t('n_your_side_won'),b.desc,()=>go('betDetail',{betId:m.bid}));}
+          else{A.streak=0;ss('vStreak','0');
+            notify('😔 '+t('n_your_side_lost'),b.desc,()=>go('betDetail',{betId:m.bid}));}
+        }
       }
       persist();schedRender();break;
     }
     case 'SDA':{if(m.bid&&A.betChats[m.bid]){delete A.betChats[m.bid];delete A.betChats[m.bid+'_delReq'];}persist();schedRender();break;}
     // DM — direct message (encrypted)
     case 'DM':{
+      if(m._mid){if(A._seenMids.has(m._mid))break;A._seenMids.add(m._mid);if(A._seenMids.size>1000)A._seenMids=new Set([...A._seenMids].slice(-500));}
       const text=m.enc?null:m.text;
       const decrypted=m.enc?decryptFrom(m.text,A.peers.get(from)?.epub):null;
       if(m.enc){
@@ -850,6 +977,7 @@ function handleDirect(from,m){
     // GROUP CHAT MESSAGE
     case 'GCM':{
       if(!m.gcId||!m.text)break;
+      if(m._mid){if(A._seenMids.has(m._mid))break;A._seenMids.add(m._mid);if(A._seenMids.size>1000)A._seenMids=new Set([...A._seenMids].slice(-500));}
       const gc=A.groupChats.find(g=>g.id===m.gcId);
       if(gc){gc.msgs=gc.msgs||[];gc.msgs.push({from,name:m.name||'?',text:m.text,ts:m.ts||now()});if(gc.msgs.length>300)gc.msgs.shift();A.unreadChat++;notify('💬 '+(m.name||'?'),m.text?.substr(0,40)||'',()=>go('groupChat',{gcId:m.gcId}));}
       persist();if(A.screen==='groupChat'&&A.params.gcId===m.gcId)schedRender();break;
@@ -888,36 +1016,22 @@ function handleDirect(from,m){
       if(changed){persist();render(true);}
       break;
     }
-    // POOL STATUS VERIFY — fix pool members who missed PFV (>24h offline or message lost)
-    case 'PSV':{
-      const RANK={active:0,await_payment:1,done:2};
-      let changed=false;
-      (m.bets||[]).forEach(rb=>{
-        // Only apply from the actual creator (opponentId on joiner's copy = creator's id)
-        const b=A.myBets.find(x=>x.id===rb.id&&x.opponentId===from&&x.type==='pool');
-        if(!b)return;
-        const localRank=RANK[b.status]??-1;
-        const remoteRank=RANK[rb.status]??-1;
-        if(remoteRank<=localRank)return;
-        // Apply verdict and update wins/streak if transitioning from active or pending
-        if(['active','pending'].includes(b.status)&&rb.winningSide){
-          const iWon=b.side===rb.winningSide;
-          if(iWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);}
-          else{A.streak=0;ss('vStreak','0');}
-          notify(iWon?'🏆 '+t('n_your_side_won'):'😔 '+t('n_your_side_lost'),b.desc,()=>go('betDetail',{betId:b.id}));
-        }
-        b.status=rb.status;
-        if(rb.winningSide)b.winningSide=rb.winningSide;
-        if(rb.payDeadline&&!b.payDeadline)b.payDeadline=rb.payDeadline;
-        changed=true;
-      });
-      if(changed){persist();render(true);}
+    // RELAY — store-and-forward envelope
+    case 'RR':{
+      if(!m.rid||!m.to||!m.msg)break;
+      if(!RELAY_TYPES.has(m.msg.t))break;
+      if(m.to===A.myId){handleDirect(m.from||from,m.msg);break;} // addressed to us — use original sender
+      if(!A.contacts.find(c=>c.id===m.to))break; // only store relay for known contacts
+      addToRelayQ({id:m.rid,to:m.to,msg:m.msg,from:m.from||from,ts:m.ts||now(),expiresAt:m.expiresAt||(now()+RELAY_TTL)});
+      deliverRelay(m.to); // deliver immediately if target is already connected
+      persist();
       break;
     }
   }
 }
 
 function checkHonor(bet){
+  if(bet.status!=='active')return; // idempotency guard — never double-count wins
   if(bet.myConfirm&&bet.theirConfirm){
     if(bet.myConfirm===bet.theirConfirm){
       bet.status='await_payment';bet.winnerId=bet.myConfirm;
@@ -928,26 +1042,78 @@ function checkHonor(bet){
     }
   }
 }
-function checkPoolVotes(bet){
-  if(!bet.members||!bet.votes)return;
-  if(bet.creatorId!==A.myId)return; // only creator tallies — joiners lack full members list
-  // Total participants = members + creator
-  const total=(bet.members.length||0)+1;
-  const aV=Object.values(bet.votes).filter(v=>v==='A').length;
-  const bV=Object.values(bet.votes).filter(v=>v==='B').length;
-  if(aV+bV<total)return; // not all voted yet
-  if(aV>bV){
-    bet.status='await_payment';bet.winningSide='A';bet.payDeadline=now()+172800000;
-    bet.members.forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PFV',bid:bet.id,side:'A'});});
-    gossip({t:'ACT',text:`Pool-veddemål avgjort — Side A (${esc(bet.sideA||'A')}) vant! 🎯`,ico:'🎯'});
-  } else if(bV>aV){
-    bet.status='await_payment';bet.winningSide='B';bet.payDeadline=now()+172800000;
-    bet.members.forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PFV',bid:bet.id,side:'B'});});
-    gossip({t:'ACT',text:`Pool-veddemål avgjort — Side B (${esc(bet.sideB||'B')}) vant! 🎯`,ico:'🎯'});
-  } else {
-    // Tie — stay active, discuss in chat
-  }
+
+function computePoolPayments(bet,winningSide){
+  const winners=[],losers=[];
+  // Include creator
+  const cSide=bet.creatorSide;
+  if(cSide===winningSide)winners.push({id:bet.creatorId,name:bet.creatorName,vipps:bet.creatorVipps||''});
+  else losers.push({id:bet.creatorId,name:bet.creatorName,vipps:bet.creatorVipps||''});
+  // Include members
+  (bet.members||[]).forEach(m=>{
+    if(m.side===winningSide)winners.push({id:m.id,name:m.name,vipps:m.vipps||''});
+    else losers.push({id:m.id,name:m.name,vipps:m.vipps||''});
+  });
+  if(!winners.length||!losers.length)return[];
+  const amt=bet.amount||0;
+  const totalPot=losers.length*amt;
+  const perWinner=totalPot/winners.length;
+  const payments=[];
+  const wRem=winners.map(w=>({...w,remaining:perWinner}));
+  let wi=0;
+  losers.forEach(loser=>{
+    let rem=amt;
+    while(rem>0.01&&wi<wRem.length){
+      const w=wRem[wi];
+      const pay=Math.min(rem,w.remaining);
+      if(pay>0.01){
+        payments.push({from:loser.id,fromName:loser.name,to:w.id,toName:w.name,toVipps:w.vipps,amount:Math.round(pay)});
+        rem-=pay;w.remaining-=pay;
+      }
+      if(w.remaining<0.01)wi++;
+    }
+  });
+  return payments;
 }
+window.poolActivate=bid=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b||b.creatorId!==A.myId)return;
+  b.status='active';
+  const memberList=[{id:b.creatorId,name:b.creatorName,side:b.creatorSide,vipps:b.creatorVipps||''},...(b.members||[])];
+  (b.members||[]).forEach(m=>send(m.id,{t:'PA',bid,memberList}));
+  notify('🏁 '+t('pool_activated'));persist();render(true);
+};
+window.poolDeclareWinner=bid=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b||b.creatorId!==A.myId)return;
+  const el=document.createElement('div');
+  el.id='pdw-modal';
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML=`<div style="background:var(--surf2);border:1px solid var(--b2);border-radius:20px;padding:24px;width:100%;max-width:380px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">${A.lang==='en'?'Which side won?':'Hvem vant?'}</div>
+    <div style="font-size:12px;color:var(--r);margin-bottom:16px">${t('pool_confirm_winner')}</div>
+    <button class="btn btn-prim btn-full" style="margin-bottom:8px" onclick="document.getElementById('pdw-modal').remove();_doPDW('${bid}','A')">🏆 A: ${esc(b.sideA||'Side A')}</button>
+    <button class="btn btn-prim btn-full" style="margin-bottom:12px;background:var(--bld);border:1px solid var(--blb);color:var(--bl)" onclick="document.getElementById('pdw-modal').remove();_doPDW('${bid}','B')">🏆 B: ${esc(b.sideB||'Side B')}</button>
+    <button class="btn btn-sec btn-full" onclick="document.getElementById('pdw-modal').remove()">${t('cancel')}</button>
+  </div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+};
+window._doPDW=(bid,winningSide)=>{
+  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
+  b.status='await_payment';b.winningSide=winningSide;b.payDeadline=now()+172800000;
+  const payments=computePoolPayments(b,winningSide);
+  b.payPairs=payments;
+  const memberList=[{id:b.creatorId,name:b.creatorName,side:b.creatorSide,vipps:b.creatorVipps||''},...(b.members||[])];
+  (b.members||[]).forEach(m=>{
+    const myPayments=payments.filter(p=>p.from===m.id||p.to===m.id);
+    send(m.id,{t:'PFV',bid,side:winningSide,payDeadline:b.payDeadline,memberList,myPayments});
+  });
+  const creatorWon=b.creatorSide===winningSide;
+  if(creatorWon){A.wins++;A.streak++;ss('vWins',A.wins);ss('vStreak',A.streak);}
+  else{A.streak=0;ss('vStreak','0');}
+  gossip({t:'ACT',text:`Gruppe-veddemål avgjort! ${winningSide==='A'?esc(b.sideA||'Side A'):esc(b.sideB||'Side B')} vant! 🎯`,ico:'🎯'});
+  notify(creatorWon?'🏆 '+t('n_your_side_won'):'😔 '+t('n_your_side_lost'),b.desc);
+  persist();render(true);
+};
 
 // ════════════════════════════════════════════════
 // NOTIFICATIONS
@@ -1206,6 +1372,9 @@ function pCreate(){
     <div class="field"><label class="flbl">${t('pay_lbl')}</label>
       <input class="fi" id="cp" placeholder="${t('pay_ph')}" value="${esc(A.nb.payMethod||'')}" oninput="A.nb.payMethod=this.value">
     </div>
+    ${A.nb.type==='pool'?`<div class="field"><label class="flbl">${t('pool_max_per_side')}</label>
+      <input class="fi" id="cmps" type="number" min="1" max="50" placeholder="${t('pool_max_ph')}" value="${A.nb.maxPerSide||''}" oninput="A.nb.maxPerSide=parseInt(this.value)||null">
+    </div>`:''}
     <button class="btn btn-prim btn-full" onclick="cs3()">${t('next')}</button>
   </div>`;}
 
@@ -1256,6 +1425,7 @@ function pCreate(){
         A.nb.sideA?[t('conf_sideA'),A.nb.sideA]:null,
         A.nb.sideB?[t('conf_sideB'),A.nb.sideB]:null,
         A.nb.creatorSide&&A.nb.sideA?[t('your_side'),A.nb.creatorSide==='A'?'🅰 '+A.nb.sideA:'🅱 '+A.nb.sideB]:null,
+        A.nb.maxPerSide?[t('pool_max_per_side'),A.nb.maxPerSide+' '+(A.lang==='en'?'per side':'per side')]:null,
         [t('conf_expires'),A.nb.expiry+' '+t('day_s')],
         [t('conf_sends'),isPrivate?`🎯 ${A.inviteSelected.size} ${t('chosen_friends')}`:`👥 ${A.contacts.length} ${t('stat_friends')}`],
         A.nb.payMethod?[t('conf_pay'),A.nb.payMethod]:null,
@@ -1288,6 +1458,7 @@ window.cs3=()=>{
   if(!A.nb.amount){alert(t('err_enter_amount'));return;}
   if(!A.nb.expiry)A.nb.expiry=7;
   A.nb.payMethod=($('cp')||{}).value?.trim()||'';
+  A.nb.maxPerSide=parseInt(($('cmps')||{}).value)||null;
   go('create',{step:4});
 };
 window.doPost=()=>{
@@ -1301,6 +1472,8 @@ window.doPost=()=>{
     creatorId:A.myId,creatorName:A.myName,creatorVipps:A.myVipps,
     payMethod:A.nb.payMethod,
     isPrivate:A.nb.visibility==='private',
+    invitedIds:A.nb.visibility==='private'?[...A.inviteSelected]:null,
+    maxPerSide:A.nb.maxPerSide||null,
     ts:now(),expiresAt:now()+A.nb.expiry*86400000,
     status:'open',members:[],interests:[]
   };
@@ -1366,14 +1539,16 @@ window.doJoin=(betId,cId,type)=>{
     sideA:bet?.sideA,sideB:bet?.sideB,payMethod:bet?.payMethod,opponentId:cId,opponentName:bet?.creatorName,
     status:'pending',isChallenger:true,ts:now(),side:mySide};
   A.myBets.push(myBet);
-  // For pool: send PJ so creator gets member added, and also JR for interest
   if(type==='pool'){
-    send(cId,{t:'PJ',bid:betId,name:A.myName,side:mySide,amt:bet?.amount});
+    // Pool: send PJ only — JR is for 1v1 interest tracking, not needed for pool
+    send(cId,{t:'PJ',bid:betId,name:A.myName,side:mySide,amt:bet?.amount,vipps:A.myVipps});
     // Also add self to local copy of bet members if we have it
     const openBet=A.openBets.get(betId);
     if(openBet){if(!openBet.members)openBet.members=[];openBet.members.push({id:A.myId,name:A.myName,side:mySide,amt:bet?.amount});}
+  }else{
+    // 1v1: send JR so creator can choose who to let in
+    send(cId,{t:'JR',bid:betId,name:A.myName,vipps:A.myVipps,side:mySide});
   }
-  send(cId,{t:'JR',bid:betId,name:A.myName,vipps:A.myVipps,side:mySide});
   persist();A.nb={};go('mine');
 };
 
@@ -1443,8 +1618,8 @@ function pMine(){
   </div>`;}
 function myCard(b){
   const iW=b.winnerId===A.myId||(b.winningSide&&(b.members?.find(m=>m.id===A.myId&&m.side===b.winningSide)||b.side===b.winningSide||(b.creatorId===A.myId&&b.creatorSide===b.winningSide)));
-  const cols={open:'b-blue',pending:'b-orange',accepting:'b-green',active:'b-blue',done:iW?'b-green':'b-red',declined:'b-gray',dispute:'b-orange',await_payment:iW?'b-green':'b-orange',never_paid:'b-red',cancelled:'b-gray'};
-  const lbls={open:t('s_open'),pending:t('s_pending'),accepting:`⚡ ${(b.interests||[]).length} ${t('interested_n')}`,active:t('s_active'),done:iW?t('s_won'):t('s_lost'),declined:t('s_declined'),dispute:t('s_dispute'),await_payment:iW?t('s_awpay_win'):t('s_awpay_lose'),never_paid:t('s_np'),cancelled:t('s_cancelled')};
+  const cols={open:'b-blue',pending:'b-orange',accepting:'b-green',active:'b-blue',done:iW?'b-green':'b-red',declined:'b-gray',await_payment:iW?'b-green':'b-orange',never_paid:'b-red',cancelled:'b-gray'};
+  const lbls={open:t('s_open'),pending:t('s_pending'),accepting:`⚡ ${(b.interests||[]).length} ${t('interested_n')}`,active:t('s_active'),done:iW?t('s_won'):t('s_lost'),declined:t('s_declined'),await_payment:iW?t('s_awpay_win'):t('s_awpay_lose'),never_paid:t('s_np'),cancelled:t('s_cancelled')};
   const isDone=['done','declined','never_paid','cancelled'].includes(b.status);
   return`<div class="card card-tap" onclick="go('betDetail',{betId:'${b.id}'})">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
@@ -1499,8 +1674,8 @@ function pBetDetail(){
     body+=`<button class="btn btn-ghost btn-full" style="border-color:var(--rb);color:var(--r);margin-bottom:10px" onclick="cancelBet('${bet.id}')">${t('cancel_bet')}</button>`;}
 
 
-  // ── PENDING (waiting for bet owner to accept) ──
-  if(bet.status==='pending'&&bet.isChallenger){
+  // ── PENDING (waiting for bet owner to accept) — honor only; pool shows in member list block ──
+  if(bet.status==='pending'&&bet.isChallenger&&!isPool){
     body+=`<div class="info-box">${t('pending_detail')}</div>${chatBtn}`;}
 
   // ── ACTIVE (honor) ──
@@ -1512,30 +1687,76 @@ function pBetDetail(){
       :`<div class="btn-row"><button class="btn btn-acc" onclick="hConf('${bet.id}','${A.myId}')">${t('i_won')}</button><button class="btn btn-dec" onclick="hConf('${bet.id}','${bet.opponentId}')">${t('they_won')}</button></div>`}
     </div>${chatBtn}`;}
 
-  // ── ACTIVE (pool) ──
-  if(bet.status==='active'&&isPool){
-    const myV=bet.votes?.[A.myId];
-    body+=`<div class="card" style="margin-bottom:14px"><div class="section-label">${t('pool_vote_hdr')}</div>
-      <div class="info-box">${t('pool_vote_info')}</div>
-      ${!myV?`<div class="btn-row"><button class="btn" style="flex:1;background:var(--gd);border:1px solid var(--gb);color:var(--g);padding:13px;font-weight:700" onclick="poolVote('${bet.id}','A')">🅰 ${esc(bet.sideA||'A')} ${t('won_side')}</button><button class="btn" style="flex:1;background:var(--bld);border:1px solid var(--blb);color:var(--bl);padding:13px;font-weight:700" onclick="poolVote('${bet.id}','B')">🅱 ${esc(bet.sideB||'B')} ${t('won_side')}</button></div>`:
-      `<div class="info-box" style="color:var(--g)">${t('you_voted_pre')} ${myV==='A'?esc(bet.sideA||'A'):esc(bet.sideB||'B')}. ${t('you_voted_suf')}</div>`}
+  // ── OPEN/PENDING (pool) — show member list ──
+  if(['open','accepting','pending'].includes(bet.status)&&isPool){
+    const allMembers=bet.creatorId===A.myId
+      ?[{id:bet.creatorId,name:bet.creatorName,side:bet.creatorSide},...(bet.members||[])]
+      :(bet.memberList||[{id:bet.creatorId,name:bet.creatorName,side:bet.creatorSide},...(bet.members||[])]);
+    const aM=allMembers.filter(m=>m.side==='A');
+    const bM=allMembers.filter(m=>m.side==='B');
+    const aCount=aM.length,bCount=bM.length;
+    const maxPS=bet.maxPerSide;
+    body+=`<div class="card" style="margin-bottom:14px">
+      <div class="section-label">${t('pool_members_hdr')} (${allMembers.length}${maxPS?'/('+(maxPS*2)+')':''})</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div style="background:var(--gd);border:1px solid var(--gb);border-radius:10px;padding:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--g);margin-bottom:6px">🅰 ${esc(bet.sideA||'A')} (${aCount}${maxPS?'/'+maxPS:''})</div>
+          ${aM.map(m=>`<div style="font-size:12px;color:var(--tx);padding:2px 0">${esc(m.name||'?')}${m.id===A.myId?' ←':''}</div>`).join('')}
+          ${!aM.length?`<div style="font-size:11px;color:var(--dim)">${A.lang==='en'?'No one yet':'Ingen ennå'}</div>`:''}
+          ${maxPS&&aCount>=maxPS?`<div style="font-size:10px;color:var(--r);margin-top:4px">● ${t('pool_full')}</div>`:''}
+        </div>
+        <div style="background:var(--bld);border:1px solid var(--blb);border-radius:10px;padding:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--bl);margin-bottom:6px">🅱 ${esc(bet.sideB||'B')} (${bCount}${maxPS?'/'+maxPS:''})</div>
+          ${bM.map(m=>`<div style="font-size:12px;color:var(--tx);padding:2px 0">${esc(m.name||'?')}${m.id===A.myId?' ←':''}</div>`).join('')}
+          ${!bM.length?`<div style="font-size:11px;color:var(--dim)">${A.lang==='en'?'No one yet':'Ingen ennå'}</div>`:''}
+          ${maxPS&&bCount>=maxPS?`<div style="font-size:10px;color:var(--r);margin-top:4px">● ${t('pool_full')}</div>`:''}
+        </div>
+      </div>
+      ${bet.creatorId===A.myId&&bet.status!=='pending'?`<div style="margin-top:12px"><button class="btn btn-prim btn-full" onclick="poolActivate('${bet.id}')">${t('pool_start_btn')}</button><div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">${t('pool_start_sub')}</div></div>`:''}
+      ${bet.isChallenger&&bet.status==='pending'?`<div class="info-box" style="margin-top:8px">${t('pool_waiting_start')}</div>`:''}
     </div>${chatBtn}`;}
 
-  // ── DISPUTE ──
-  if(bet.status==='dispute')body+=`<div class="warn-box">${t('dispute_info')}</div>${chatBtn}`;
+  // ── ACTIVE (pool) — show members + creator can declare winner ──
+  if(bet.status==='active'&&isPool){
+    const allMembers=bet.creatorId===A.myId
+      ?[{id:bet.creatorId,name:bet.creatorName,side:bet.creatorSide},...(bet.members||[])]
+      :(bet.memberList||[]);
+    const aM=allMembers.filter(m=>m.side==='A');
+    const bM=allMembers.filter(m=>m.side==='B');
+    body+=`<div class="card" style="margin-bottom:14px">
+      <div class="section-label">${t('pool_members_hdr')} (${allMembers.length})</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div style="background:var(--gd);border:1px solid var(--gb);border-radius:10px;padding:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--g);margin-bottom:6px">🅰 ${esc(bet.sideA||'A')} (${aM.length})</div>
+          ${aM.map(m=>`<div style="font-size:12px;color:var(--tx);padding:2px 0">${esc(m.name||'?')}${m.id===A.myId?' ←':''}</div>`).join('')||`<div style="font-size:11px;color:var(--dim)">${A.lang==='en'?'No one yet':'Ingen ennå'}</div>`}
+        </div>
+        <div style="background:var(--bld);border:1px solid var(--blb);border-radius:10px;padding:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--bl);margin-bottom:6px">🅱 ${esc(bet.sideB||'B')} (${bM.length})</div>
+          ${bM.map(m=>`<div style="font-size:12px;color:var(--tx);padding:2px 0">${esc(m.name||'?')}${m.id===A.myId?' ←':''}</div>`).join('')||`<div style="font-size:11px;color:var(--dim)">${A.lang==='en'?'No one yet':'Ingen ennå'}</div>`}
+        </div>
+      </div>
+      ${bet.creatorId===A.myId
+        ?`<div style="margin-top:14px"><button class="btn btn-prim btn-full" onclick="poolDeclareWinner('${bet.id}')">${t('pool_declare_winner')}</button></div>`
+        :`<div class="info-box" style="margin-top:8px">${t('pool_waiting_start')}</div>`}
+    </div>${chatBtn}`;}
 
   // ── AWAIT PAYMENT ──
   if(bet.status==='await_payment'){
+    const myPairs=bet.payPairs||[];
+    const iPay=myPairs.filter(p=>p.from===A.myId);
+    const iReceive=myPairs.filter(p=>p.to===A.myId);
+    const hasInstructions=isPool&&myPairs.length>0;
     body+=`<div class="card" style="margin-bottom:14px;border-color:${iW?'var(--gb)':'var(--ab)'}">
       <div class="section-label">${t('waiting_payment')}</div>
       ${bet.payDeadline?`<div class="timer-n">${countdown(bet.payDeadline)}</div><div style="font-size:11px;color:var(--muted);margin-bottom:12px;margin-top:2px">${t('payment_deadline')}</div>`:''}
-      ${iW?`<div class="info-box">${t('won_share')}</div>
-        <button class="btn btn-prim btn-full" onclick="shareVipps('${bet.id}')">${t('share_vipps')}</button>
+      ${hasInstructions?`<div class="section-label" style="margin-top:4px">${t('pool_pay_instr')}</div>
+        ${iReceive.map(p=>`<div class="info-box" style="background:var(--gd);border-color:var(--gb);color:var(--g);margin-top:6px">💚 ${t('pool_you_receive')} <strong>${p.amount}kr</strong> ${t('pool_from')} ${esc(p.fromName)}</div>`).join('')}
+        ${iPay.map(p=>`<div class="info-box" style="background:var(--ad);border-color:var(--ab);color:var(--a);margin-top:6px">💳 ${t('pool_you_pay')} <strong>${p.amount}kr</strong> ${t('pool_to')} ${esc(p.toName)}${p.toVipps?` · <strong>${esc(p.toVipps)}</strong>`:''}</div>`).join('')}
+      `:`${iW?`<div class="info-box">${t('won_share')}</div>`:`<div class="info-box">${isPool?t('pool_no_payments'):t('vipps_info')}</div>${bet.winnerVipps?`<div class="info-box" style="margin-top:8px">💳 ${esc(bet.winnerVipps)}</div>`:''}`}`}
+      ${iW?`<button class="btn btn-prim btn-full" style="margin-top:8px" onclick="shareVipps('${bet.id}')">${t('share_vipps')}</button>
         <button class="btn btn-prim btn-full" style="margin-top:8px" onclick="confPayment('${bet.id}')">${t('conf_payment')}</button>
-        ${bet.payDeadline&&bet.payDeadline<now()+43200000?`<button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--r);border-color:var(--rb)" onclick="doNeverPaid('${bet.id}')">${t('never_paid_btn')}</button>`:''}`
-      :`<div class="info-box">${isPool?t('pool_loser_await'):t('vipps_info')}</div>
-        ${bet.winnerVipps?`<div class="info-box" style="margin-top:8px">💳 ${esc(bet.winnerVipps)}</div>`:''}
-        <button class="btn btn-sec btn-full" style="margin-top:8px" onclick="go('betChat',{betId:'${bet.id}'})">💬 ${t('open_chat')}</button>`}
+        ${!isPool&&bet.payDeadline&&bet.payDeadline<now()+43200000?`<button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--r);border-color:var(--rb)" onclick="doNeverPaid('${bet.id}')">${t('never_paid_btn')}</button>`:''}`
+      :`<button class="btn btn-sec btn-full" style="margin-top:8px" onclick="go('betChat',{betId:'${bet.id}'})">💬 ${t('open_chat')}</button>`}
     </div>`;}
 
   // ── DONE ──
@@ -1606,13 +1827,6 @@ window.hConf=(bid,wId)=>{
   const b=A.myBets.find(x=>x.id===bid);if(!b)return;
   b.myConfirm=wId;send(b.opponentId,{t:'HC',bid,wId});checkHonor(b);persist();render(true);
 };
-window.poolVote=(bid,side)=>{
-  const b=A.myBets.find(x=>x.id===bid);if(!b)return;
-  if(!b.votes)b.votes={};b.votes[A.myId]=side;
-  (b.members||[]).forEach(m=>{if(m.id!==A.myId)send(m.id,{t:'PV',bid,side});});
-  if(b.opponentId&&b.opponentId!==A.myId)send(b.opponentId,{t:'PV',bid,side});
-  checkPoolVotes(b);persist();render(true);
-};
 window.shareVipps=bid=>{
   const b=A.myBets.find(x=>x.id===bid);if(!b)return;
   b.vippsShared=true;
@@ -1630,10 +1844,14 @@ window.confPayment=bid=>{
   const b=A.myBets.find(x=>x.id===bid);if(!b)return;
   b.status='done';
   if(b.type==='pool'){
-    const rcpts=b.isChallenger
-      ?(b.opponentId?[b.opponentId]:[])
-      :(b.members||[]).map(m=>m.id).filter(Boolean);
-    rcpts.forEach(id=>send(id,{t:'PC',bid}));
+    // Collect all other pool member IDs — fall back to memberList/opponentId for joiners
+    // (joiner's bet copy lacks creatorId and members, but has memberList and opponentId)
+    const allMemberIds=new Set();
+    (b.members||[]).forEach(m=>{if(m.id&&m.id!==A.myId)allMemberIds.add(m.id);});
+    (b.memberList||[]).forEach(m=>{if(m.id&&m.id!==A.myId)allMemberIds.add(m.id);});
+    if(b.creatorId&&b.creatorId!==A.myId)allMemberIds.add(b.creatorId);
+    if(b.opponentId&&b.opponentId!==A.myId)allMemberIds.add(b.opponentId);
+    allMemberIds.forEach(id=>send(id,{t:'PC',bid}));
   }else{
     if(b.opponentId)send(b.opponentId,{t:'PC',bid});
   }
@@ -1688,17 +1906,32 @@ function donateBox(betId){
     <button style="margin-top:12px;font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer" onclick="dismissDonate('${betId}')">✕</button>
   </div>`;}
 window.doDonate=(method)=>{
-  const amt=A.nb._donAmt||10;
   if(method==='vipps'){
-    const vippsNr='46500029';
-    const msg='Vipps '+amt+'kr til '+vippsNr;
-    try{navigator.clipboard.writeText(vippsNr).then(()=>notify('✅ '+t('donate_thx'),msg)).catch(()=>prompt(msg,vippsNr));}
-    catch(e){prompt(msg,vippsNr);}
+    window.location.href='https://qr.vipps.no/vp/0sYbxfEnM';
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    el.innerHTML=`<div style="background:var(--surf2);border:1px solid var(--b2);border-radius:20px;padding:28px 24px;width:100%;max-width:380px;text-align:center">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">${A.lang==='en'?'Vipps number':'Vipps-nummer'}</div>
+      <div style="font-size:52px;font-weight:700;color:var(--tx);letter-spacing:2px;margin-bottom:12px">45390</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">${A.lang==='en'?"Vipps is opening. If it doesn't work: Open Vipps → Send to → 45390":'Vipps åpner seg. Hvis det ikke fungerer: Åpne Vipps → Send til → 45390'}</div>
+      <button class="btn btn-sec btn-full" onclick="this.closest('[style*=fixed]').remove()">${t('about_close')}</button>
+    </div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+    try{navigator.clipboard.writeText('45390').catch(()=>{});}catch(e){}
   }else{
     const lnAddr='ironneedle25@walletofsatoshi.com';
-    const msg='Lightning: '+lnAddr;
-    try{navigator.clipboard.writeText(lnAddr).then(()=>notify('✅ '+t('donate_thx'),msg)).catch(()=>prompt(msg,lnAddr));}
-    catch(e){prompt(msg,lnAddr);}
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    el.innerHTML=`<div style="background:var(--surf2);border:1px solid var(--b2);border-radius:20px;padding:28px 24px;width:100%;max-width:380px;text-align:center">
+      <div style="font-size:22px;margin-bottom:8px">⚡ Lightning</div>
+      <div style="background:var(--b);border:1px solid var(--b2);border-radius:12px;padding:12px 14px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;margin-bottom:12px;color:var(--tx)">${lnAddr}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">${A.lang==='en'?'Copied to clipboard. Paste in your Lightning wallet.':'Kopiert til utklippstavlen. Lim inn i din Lightning-lommebok.'}</div>
+      <button class="btn btn-sec btn-full" onclick="this.closest('[style*=fixed]').remove()">${t('about_close')}</button>
+    </div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+    try{navigator.clipboard.writeText(lnAddr).then(()=>notify('✅ '+t('donate_thx'))).catch(()=>{});}catch(e){}
   }
 };
 window.dismissDonate=(betId)=>{A._donDismissed.add(betId);persist();render(true);};
@@ -1819,7 +2052,7 @@ function pBetChat(){
     </div>
     <button class="btn btn-ghost btn-full" style="margin-top:10px;color:var(--r);border-color:var(--rb)" onclick="reqDel('${bid}','${oppId}')">${t('req_del')}</button>
   </div>`;}
-window.bcSend=(bid,oppId)=>{const inp=$('bc-in');if(!inp||!inp.value.trim())return;const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now()};addBetMsg(bid,msg);const b=A.myBets.find(x=>x.id===bid);const rcpts=b?.type==='pool'?[...new Set([b.creatorId,...(b.members||[]).map(m=>m.id)])].filter(id=>id&&id!==A.myId):[oppId].filter(Boolean);rcpts.forEach(id=>send(id,{t:'BM',bid,name:A.myName,text:msg.text,ts:msg.ts}));inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);};
+window.bcSend=(bid,oppId)=>{const inp=$('bc-in');if(!inp||!inp.value.trim())return;const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now(),_mid:uid()};addBetMsg(bid,msg);const b=A.myBets.find(x=>x.id===bid);let rcpts;if(b?.type==='pool'){const ids=new Set();[b.creatorId,...(b.members||[]).map(m=>m.id),...(b.memberList||[]).map(m=>m.id),b.opponentId].forEach(id=>{if(id&&id!==A.myId)ids.add(id);});rcpts=[...ids];}else{rcpts=[oppId].filter(Boolean);}rcpts.forEach(id=>send(id,{t:'BM',bid,name:A.myName,text:msg.text,ts:msg.ts,_mid:msg._mid}));inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);};
 window.reqDel=(bid,oppId)=>{if(!confirm(t('req_del_q')))return;A.betChats[bid+'_delReq']=A.myId;if(oppId)send(oppId,{t:'SD',bid});persist();render(true);};
 window.acceptDel=bid=>{const r=A.betChats[bid+'_delReq'];if(r)send(r,{t:'SDA',bid});delete A.betChats[bid];delete A.betChats[bid+'_delReq'];persist();render(true);};
 
@@ -1861,8 +2094,9 @@ window.dmSend=async(pid)=>{
   } else {
     // No ECDH key available — send unencrypted with warning
   }
-  addDM(pid,{from:A.myId,name:A.myName,text:raw,ts:now()});
-  send(pid,{t:'DM',name:A.myName,text:enc,enc:isEnc,ts:now()});
+  const dmMid=uid();
+  addDM(pid,{from:A.myId,name:A.myName,text:raw,ts:now(),_mid:dmMid});
+  send(pid,{t:'DM',name:A.myName,text:enc,enc:isEnc,ts:now(),_mid:dmMid});
   inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);
 };
 
@@ -1893,18 +2127,20 @@ function pGrpChat(){
 window.grpSend=gcId=>{
   const inp=$('grp-in');if(!inp||!inp.value.trim())return;
   const gc=A.groupChats.find(g=>g.id===gcId);if(!gc)return;
-  const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now()};
+  const msg={from:A.myId,name:A.myName,text:inp.value.trim(),ts:now(),_mid:uid()};
   gc.msgs=gc.msgs||[];gc.msgs.push(msg);if(gc.msgs.length>300)gc.msgs.shift();
-  (gc.members||[]).filter(id=>id!==A.myId).forEach(id=>send(id,{t:'GCM',gcId,name:A.myName,text:msg.text,ts:msg.ts}));
+  (gc.members||[]).filter(id=>id!==A.myId).forEach(id=>send(id,{t:'GCM',gcId,name:A.myName,text:msg.text,ts:msg.ts,_mid:msg._mid}));
   inp.value='';persist();render(true);setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},50);
 };
 window.createGroupChat=()=>{
   const sel=[...A.inviteSelected];if(!sel.length){alert(t('no_sel_for_group'));return;}
-  const name=prompt(t('group_name_prompt'));if(!name)return;
-  const gc={id:'gc'+now().toString(36),name,members:[A.myId,...sel],msgs:[],ts:now()};
-  A.groupChats.push(gc);
-  sel.forEach(id=>send(id,{t:'GCI',gc:{id:gc.id,name:gc.name,members:gc.members,ts:gc.ts}}));
-  A.inviteSelected.clear();persist();go('groupChat',{gcId:gc.id});
+  showPrompt(t('group_name_prompt'),'',name=>{
+    if(!name)return;
+    const gc={id:'gc'+now().toString(36),name,members:[A.myId,...sel],msgs:[],ts:now()};
+    A.groupChats.push(gc);
+    sel.forEach(id=>send(id,{t:'GCI',gc:{id:gc.id,name:gc.name,members:gc.members,ts:gc.ts}}));
+    A.inviteSelected.clear();persist();go('groupChat',{gcId:gc.id});
+  });
 };
 
 // ════════════════════════════════════════════════
@@ -1962,10 +2198,10 @@ window.copyId=()=>{
   try{
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(id).then(()=>notify('✅ '+t('invite_copied'),id)).catch(()=>{
-        prompt(t('invite_copied'),id);
+        showCopyModal(t('invite_copied'),id);
       });
-    }else{prompt(t('invite_copied'),id);}
-  }catch(e){prompt(t('invite_copied'),id);}
+    }else{showCopyModal(t('invite_copied'),id);}
+  }catch(e){showCopyModal(t('invite_copied'),id);}
 };
 window.connectById=()=>{
   const inp=$('add-id-input');if(!inp)return;
@@ -1973,16 +2209,19 @@ window.connectById=()=>{
   if(!id||!id.startsWith('v')||id.length<8){alert(t('add_id_err'));return;}
   if(id===A.myId)return;
   tryConn(id);
-  const alias=prompt(A.lang==='en'?'Alias for '+id.substr(0,12)+'?':'Kallenavn for '+id.substr(0,12)+'?',id.substr(0,12));
-  if(alias===null)return;
-  if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name:alias||id.substr(0,12),alias:alias||id.substr(0,12)});
-  persist();notify('✅ '+t('add_id_ok'));
-  inp.value='';render(true);
+  const lbl=A.lang==='en'?'Alias for '+id.substr(0,12)+'?':'Kallenavn for '+id.substr(0,12)+'?';
+  showPrompt(lbl,id.substr(0,12),alias=>{
+    if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name:alias||id.substr(0,12),alias:alias||id.substr(0,12)});
+    persist();notify('✅ '+t('add_id_ok'));
+    const i=$('add-id-input');if(i)i.value='';render(true);
+  });
 };
 window.addContact=(id,name)=>{
-  const alias=prompt(A.lang==='en'?`Alias for ${name}?`:`Kallenavn for ${name}?`,name);if(alias===null)return;
-  if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name,alias:alias||name});
-  persist();go('contacts');
+  const lbl=A.lang==='en'?`Alias for ${name}?`:`Kallenavn for ${name}?`;
+  showPrompt(lbl,name,alias=>{
+    if(!A.contacts.find(c=>c.id===id))A.contacts.push({id,name,alias:alias||name});
+    persist();go('contacts');
+  });
 };
 
 // ════════════════════════════════════════════════
@@ -2033,10 +2272,12 @@ function pProfile(){
       <button class="btn btn-sec" onclick="go('settings')">⚙️ ${t('settings_t')}</button>
       <button class="btn btn-sec" onclick="go('blocked')">🚫 ${t('blocked_t')}</button>
     </div>
+    <button class="btn btn-sec btn-full" style="margin-top:8px" onclick="syncAll()">${t('sync_btn')}</button>
     <div class="divider" style="margin:16px 0"></div>
     <button class="btn btn-prim btn-full" onclick="shareApp()" style="background:linear-gradient(135deg,var(--pu),var(--bl));border:none;font-size:15px;letter-spacing:0.3px">📤 ${t('share_app_btn')}</button>
     <div style="text-align:center;margin-top:20px;padding-bottom:4px">
-      <span style="font-size:11px;color:var(--dim)">v${APP_VERSION} · © 2025 Edvard Brekke</span>
+      <span style="font-size:11px;color:var(--dim)">v${APP_VERSION} · © 2025</span>
+      ${(()=>{const mb=lsUsage();const pct=parseFloat(mb)/5;return`<span style="font-size:11px;color:${pct>0.8?'var(--r)':'var(--dim)'};margin-top:2px;display:block">💾 ${mb} / ~5 MB${pct>0.8?' ⚠️ Nær grensen':''}</span>`})()}
       <button style="display:block;margin:4px auto 0;font-size:11px;color:var(--bl);background:none;border:none;cursor:pointer;text-decoration:underline" onclick="showAboutModal()">${t('about_app')}</button>
     </div>
   </div>`;}
@@ -2047,8 +2288,7 @@ window.showAboutModal=()=>{
     <div style="font-family:\'Bebas Neue\',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:4px">VEDDE<span style="color:var(--g)">MÅL</span> <span style="font-size:14px;color:var(--dim)">v${APP_VERSION}</span></div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${t('about_made_by')}</div>
     <div style="font-size:13px;color:var(--tx);line-height:1.8;margin-bottom:8px">${t('about_desc')}</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${t('about_license')}</div>
-    <div style="font-size:12px;color:var(--dim);margin-bottom:20px">${t('about_contact')}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px">${t('about_license')}</div>
     <button class="btn btn-sec btn-full" onclick="this.closest('[style*=fixed]').remove()">${t('about_close')}</button>
   </div>`;
   m.addEventListener('click',e=>{if(e.target===m)m.remove();});
@@ -2095,13 +2335,16 @@ function pSettings(){return`<div class="scr">
     <button class="btn btn-danger btn-full" onclick="if(confirm(t('reset_q'))){localStorage.clear();location.reload();}">${t('reset_btn')}</button>
     ${ADMIN_ID&&A.myId===ADMIN_ID?`<div class="divider" style="margin:20px 0"></div>
     <span class="section-label" style="color:var(--pu)">ADMIN</span>
-    <button class="btn btn-full" style="background:var(--pud);border:1px solid var(--pub);color:var(--pu);margin-top:8px" onclick="(()=>{const ver=prompt('Ny versjon (f.eks. 1.0.1):',APP_VERSION);if(!ver)return;const msg=prompt('Melding til nettverket:');if(!msg)return;gossip({t:'UPD',version:ver,message:msg,url:UPDATE_URL+'/'});notify('📢 Sendt til nettverket! v'+ver);})()">${t('admin_send_upd')}</button>`:''}
+    <button class="btn btn-full" style="background:var(--pud);border:1px solid var(--pub);color:var(--pu);margin-top:8px" onclick="showPrompt('Ny versjon (f.eks. 1.0.1):',APP_VERSION,ver=>{if(!ver)return;showPrompt('Melding til nettverket:','',msg=>{if(!msg)return;gossip({t:'UPD',version:ver,message:msg,url:UPDATE_URL+'/'});notify('📢 Sendt til nettverket! v'+ver);});})">${t('admin_send_upd')}</button>`:''}
   </div>`;}
 window.saveSettings=()=>{
   const n=($('stn')||{}).value?.trim(),v=($('stv')||{}).value?.trim();
   if(!n){alert(t('err_enter_name'));return;}
   A.myName=n;A.myVipps=v||'';A.lang=($('stl')||{}).value||'en';
-  ss('vName',n);ss('vVipps',v||'');ss('vLang',A.lang);notify('✅ '+t('save_ok'));go('profile');
+  ss('vName',n);ss('vVipps',v||'');ss('vLang',A.lang);
+  // Broadcast updated presence to all open connections
+  A.conns.forEach((c)=>{if(c.open)try{c.send({t:'HI',...myPresence()});}catch(e){}});
+  notify('✅ '+t('save_ok'));go('profile');
 };
 
 // ════════════════════════════════════════════════
@@ -2122,10 +2365,55 @@ function pBlocked(){
 window.blockUser=id=>{A.blocked.add(id);persist();notify('🚫 '+t('n_blocked'));};
 
 // ════════════════════════════════════════════════
+// STATE REPAIR + MAINTENANCE
+// ════════════════════════════════════════════════
+function repairState(){
+  let changed=false;
+  A.myBets.forEach(b=>{
+    // 1v1 active without opponentId → revert to open
+    if(b.status==='active'&&b.type==='honor'&&!b.opponentId){b.status='open';changed=true;console.warn('[repairState] active honor without opponent → open',b.id);}
+    // await_payment without winner info → revert to active
+    if(b.status==='await_payment'&&b.type==='honor'&&!b.winnerId){b.status='active';changed=true;console.warn('[repairState] await_payment honor without winnerId → active',b.id);}
+    if(b.status==='await_payment'&&b.type==='pool'&&!b.winningSide){b.status='active';changed=true;console.warn('[repairState] await_payment pool without winningSide → active',b.id);}
+  });
+  if(changed)persist();
+}
+function cleanOldChats(){
+  const cutoff=now()-7776000000; // 90 days in ms
+  let cleaned=false;
+  Object.keys(A.betChats).forEach(k=>{
+    if(k.endsWith('_delReq'))return;
+    if(Array.isArray(A.betChats[k])){
+      const before=A.betChats[k].length;
+      A.betChats[k]=A.betChats[k].filter(m=>(m.ts||0)>cutoff);
+      if(A.betChats[k].length!==before)cleaned=true;
+    }
+  });
+  Object.keys(A.dms).forEach(pid=>{
+    if(Array.isArray(A.dms[pid])){
+      const before=A.dms[pid].length;
+      A.dms[pid]=A.dms[pid].filter(m=>(m.ts||0)>cutoff);
+      if(A.dms[pid].length!==before)cleaned=true;
+    }
+  });
+  pruneRelayQ();
+  if(cleaned)persist();
+}
+function lsUsage(){
+  try{
+    let total=0;
+    for(const k in localStorage){if(Object.prototype.hasOwnProperty.call(localStorage,k))total+=(localStorage.getItem(k)||'').length+k.length;}
+    return(total*2/1048576).toFixed(1); // UTF-16 × 2 bytes → MB
+  }catch(e){return'?';}
+}
+
+// ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
 async function boot(){
   loadState();
+  repairState();
+  cleanOldChats();
   // Auto-friend: only for brand-new users opening a shared file
   if(!ls('vPriv')){
     const invId=document.body.dataset.inviter;
@@ -2162,6 +2450,15 @@ async function boot(){
     try{A.openBets.forEach((b,id)=>{if(b.expiresAt&&b.expiresAt<now())A.openBets.delete(id);});schedRender();}
     catch(e){console.error('[cleanup interval]',e);}
   },300000);
+  // Re-sync + update check when app returns from background
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&A.myName){
+      A.contacts.forEach(c=>tryConn(c.id));
+      flushQ();
+      checkForUpdate();
+      setTimeout(()=>{A.conns.forEach((_,id)=>{deliverRelay(id);syncWithPeer(id);});},1000);
+    }
+  });
   // Check for updates (silent, non-blocking)
   checkForUpdate();
   setInterval(()=>checkForUpdate(),3600000);
@@ -2201,7 +2498,7 @@ window.shareLink = async () => {
     try{ await navigator.share(shareData); return; }catch(e){ if(e.name==='AbortError') return; }
   }
   try{ await navigator.clipboard.writeText(url); notify('🔗 '+t('share_copied')); }
-  catch(e){ prompt('Kopier denne lenken:', url); }
+  catch(e){ showCopyModal(A.lang==='en'?'Copy this link:':'Kopier denne lenken:', url); }
 };
 window.shareFile = async () => {
   document.getElementById('share-modal')?.remove();
