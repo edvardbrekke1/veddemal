@@ -574,14 +574,29 @@ function checkGossipRate(peerId){
 }
 function myPresence(){return{id:A.myId,name:A.myName,vipps:A.myVipps,pub:A.pubB64,epub:A.ecdhPubB64,esig:A.ecdhSig||'',wins:A.wins,bets:(A.myBets||[]).length,ts:now(),pr:avgRating(A.myId,false),jr:avgRating(A.myId,true),cids:(A.contacts||[]).map(c=>c.id)};}
 
+const RECONNECT_BACKOFF=[2000,5000,15000,30000,60000];
+function schedReconnect(){
+  if(A._reconnectTimer||A.ready||!A.peer||A.peer.destroyed)return;
+  const step=Math.min(A._reconnectStep||0,RECONNECT_BACKOFF.length-1);
+  A._reconnectStep=(A._reconnectStep||0)+1;
+  A._reconnectTimer=setTimeout(()=>{
+    A._reconnectTimer=null;
+    if(A.ready||!A.peer||A.peer.destroyed)return;
+    try{A.peer.reconnect();}catch(e){schedReconnect();}
+  },RECONNECT_BACKOFF[step]);
+}
 function initPeer(){
   A.peer=new Peer(A.myId,{debug:0});
   A.peer.on('open',()=>{
-    A.ready=true;schedRender();
+    A.ready=true;
+    clearTimeout(A._reconnectTimer);A._reconnectTimer=null;A._reconnectStep=0;
+    schedRender();
     window.location.hash.replace('#','').split(',').filter(p=>p.startsWith('v')&&p!==A.myId).forEach(tryConn);
     A.peers.forEach((_,id)=>tryConn(id));
     flushQ();
-    setInterval(()=>{try{if(A.conns.size)broadcast({t:'HI',...myPresence()});A.contacts.forEach(c=>tryConn(c.id));flushQ();}catch(e){console.error('[HI interval]',e);}},10000);
+    // Bug 3 fix: clear any stacked interval before creating a new one
+    clearInterval(A._hiInterval);
+    A._hiInterval=setInterval(()=>{try{if(A.conns.size)broadcast({t:'HI',...myPresence()});A.contacts.forEach(c=>tryConn(c.id));flushQ();}catch(e){console.error('[HI interval]',e);}},10000);
   });
   A.peer.on('error',e=>{
     if(e.type==='unavailable-id'){
@@ -594,15 +609,15 @@ function initPeer(){
       setTimeout(()=>{try{A.peer.destroy();}catch(e){}initPeer();},delay);
       return;
     }
-    A.ready=false;schedRender();
-    setTimeout(()=>{try{A.peer.reconnect();}catch(e){}},3000);
+    A.ready=false;schedRender();schedReconnect();
   });
   A.peer.on('connection',c=>setupConn(c));
-  A.peer.on('disconnected',()=>{A.ready=false;schedRender();setTimeout(()=>{try{A.peer.reconnect();}catch(e){}},2000);});
+  A.peer.on('disconnected',()=>{A.ready=false;schedRender();schedReconnect();});
 }
 
 function tryConn(id){
-  if(!A.peer||!A.ready||id===A.myId||A.conns.get(id)?.open||A.conns.size>=MAX_CONN||A.blocked.has(id))return;
+  if(!A.peer||A.peer.destroyed||id===A.myId||A.conns.get(id)?.open||A.conns.size>=MAX_CONN||A.blocked.has(id))return;
+  if(!A.ready){schedReconnect();return;}// peer disconnected — ensure signaling recovery is scheduled
   try{setupConn(A.peer.connect(id,{reliable:true,serialization:'json'}));}catch(e){}
 }
 function setupConn(conn){
@@ -617,12 +632,23 @@ function setupConn(conn){
     }catch(e){console.error('[setupConn open]',e);}
   });
   conn.on('data',m=>onData(conn.peer,m));
-  conn.on('close',()=>{A.conns.delete(conn.peer);const p=A.peers.get(conn.peer);if(p)p.online=false;schedRender();});
+  conn.on('close',()=>{
+    A.conns.delete(conn.peer);
+    const p=A.peers.get(conn.peer);
+    if(p){
+      // Bug 4 fix: grace period before marking offline to avoid blinking on short drops
+      if(p._offlineTimer)clearTimeout(p._offlineTimer);
+      p._offlineTimer=setTimeout(()=>{
+        if(!A.conns.get(conn.peer)?.open){p.online=false;p._offlineTimer=null;schedRender();}
+      },8000);
+    }
+    schedRender();
+  });
   conn.on('error',()=>{A.conns.delete(conn.peer);schedRender();});
 }
 function send(id,msg){
   const c=A.conns.get(id);
-  if(c?.open){try{c.send(msg);}catch(e){console.warn('[send]',id,e);}return;}
+  if(c?.open){try{c.send(msg);return;}catch(e){console.warn('[send fallback]',id,e);}}// send failed — fall through to offlineQ
   if(A.offlineQ.length>=100)A.offlineQ.shift(); // dropp eldste hvis full
   // Generate relay mid upfront so offlineQ and relayQ share the same id for A2 cleanup
   const relayMid=RELAY_TYPES.has(msg.t)?uid():null;
@@ -2666,6 +2692,8 @@ async function boot(){
     try{A.openBets.forEach((b,id)=>{if(b.expiresAt&&b.expiresAt<now())A.openBets.delete(id);});pruneRelayQ();schedRender();}
     catch(e){console.error('[cleanup interval]',e);}
   },300000);
+  // Bug 1 fix: periodic health check — restart reconnect loop if peer is stuck disconnected
+  setInterval(()=>{if(A.myName&&A.peer&&!A.ready&&!A.peer.destroyed)schedReconnect();},30000);
   // Re-sync + update check when app returns from background
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden&&A.myName){
