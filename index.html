@@ -577,13 +577,28 @@ function schedReconnect(){
   if(A._reconnectTimer||A.ready||!A.peer||A.peer.destroyed)return;
   const step=Math.min(A._reconnectStep||0,RECONNECT_BACKOFF.length-1);
   A._reconnectStep=(A._reconnectStep||0)+1;
+  console.log('[peer] schedReconnect step',A._reconnectStep,'delay',RECONNECT_BACKOFF[step]+'ms');
   A._reconnectTimer=setTimeout(()=>{
     A._reconnectTimer=null;
-    if(A.ready||!A.peer||A.peer.destroyed)return;
-    try{A.peer.reconnect();}catch(e){schedReconnect();}
+    if(A.ready)return;
+    // After 3 failed soft reconnects, destroy peer and create fresh connection
+    if(A._reconnectStep>3||!A.peer||A.peer.destroyed){
+      console.log('[peer] full reinit (step',A._reconnectStep,')');
+      A._reconnectStep=0;
+      try{if(A.peer&&!A.peer.destroyed)A.peer.destroy();}catch(e){}
+      initPeer();
+      return;
+    }
+    console.log('[peer] soft reconnect attempt',A._reconnectStep);
+    try{A.peer.reconnect();}catch(e){console.warn('[peer] reconnect threw',e);}
+    // Safety: always schedule next attempt — open handler cancels if reconnect succeeds
+    schedReconnect();
   },RECONNECT_BACKOFF[step]);
 }
 function initPeer(){
+  A._peerGen=(A._peerGen||0)+1;
+  const gen=A._peerGen;
+  console.log('[peer] initPeer gen',gen);
   A.peer=new Peer(A.myId,{
     host:'veddemal-peer.onrender.com',
     port:443,
@@ -592,7 +607,9 @@ function initPeer(){
     debug:0
   });
   A.peer.on('open',()=>{
-    A.ready=true;
+    if(gen!==A._peerGen){console.log('[peer] stale open ignored (gen',gen,'cur',A._peerGen,')');return;}
+    console.log('[peer] open — A.ready=true');
+    A.ready=true;A._idRetry=0;
     clearTimeout(A._reconnectTimer);A._reconnectTimer=null;A._reconnectStep=0;
     schedRender();
     window.location.hash.replace('#','').split(',').filter(p=>p.startsWith('v')&&p!==A.myId).forEach(tryConn);
@@ -603,6 +620,8 @@ function initPeer(){
     A._hiInterval=setInterval(()=>{try{if(A.conns.size)broadcast({t:'HI',...myPresence()});A.contacts.forEach(c=>tryConn(c.id));flushQ();}catch(e){console.error('[HI interval]',e);}},10000);
   });
   A.peer.on('error',e=>{
+    if(gen!==A._peerGen){console.log('[peer] stale error ignored (gen',gen,')');return;}
+    console.log('[peer] error —',e.type,e.message||e);
     if(e.type==='unavailable-id'){
       // SECURITY FIX: Never delete private key — that destroys identity permanently.
       // Instead retry with exponential backoff. Someone else may have hijacked our ID temporarily.
@@ -613,10 +632,24 @@ function initPeer(){
       setTimeout(()=>{try{A.peer.destroy();}catch(e){}initPeer();},delay);
       return;
     }
+    // Non-fatal errors: don't kill connection status
+    if(e.type==='peer-unavailable'){
+      console.log('[peer] target peer offline (non-fatal)');
+      return;
+    }
     A.ready=false;schedRender();schedReconnect();
   });
   A.peer.on('connection',c=>setupConn(c));
-  A.peer.on('disconnected',()=>{A.ready=false;schedRender();schedReconnect();});
+  A.peer.on('disconnected',()=>{
+    if(gen!==A._peerGen){console.log('[peer] stale disconnected ignored (gen',gen,')');return;}
+    console.log('[peer] disconnected — A.ready=false');
+    A.ready=false;schedRender();schedReconnect();
+  });
+  A.peer.on('close',()=>{
+    if(gen!==A._peerGen)return;
+    console.log('[peer] close — peer destroyed');
+    A.ready=false;schedRender();
+  });
 }
 
 function tryConn(id){
