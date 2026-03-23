@@ -3198,6 +3198,134 @@ GAMES['sequence']={
 };
 
 // ════════════════════════════════════════════════
+// CONNECT FOUR — third built-in game (7×6 board)
+// ════════════════════════════════════════════════
+GAMES['connect4']={
+  id:'connect4',
+  name:'Fire på rad',nameEn:'Connect Four',
+  icon:'🔴',
+  description:'Slipp brikker — fire på rad vinner!',
+  descriptionEn:'Drop pieces — four in a row wins!',
+  minPlayers:2,maxPlayers:2,estimatedMinutes:5,
+
+  createInitialState({players,seed}){
+    const board=[];for(let r=0;r<6;r++){board.push(new Array(7).fill(null));}
+    return{rows:6,cols:7,board,turn:players[0].id,
+      p:[{id:players[0].id,name:players[0].name},{id:players[1].id,name:players[1].name}],
+      finished:false,winnerId:null,draw:false,lastMove:null};
+  },
+
+  applyAction(state,action,playerId){
+    if(state.finished)return state;
+    if(action.type!=='drop')return state;
+    if(playerId!==state.turn)return state;
+    const col=action.col;
+    if(col<0||col>=state.cols)return state;
+    // Find lowest empty row in column (gravity)
+    let row=-1;
+    for(let r=state.rows-1;r>=0;r--){if(!state.board[r][col]){row=r;break;}}
+    if(row<0)return state; // column full
+    const board=state.board.map(r=>[...r]);
+    board[row][col]=playerId;
+    const next=state.p[0].id===playerId?state.p[1].id:state.p[0].id;
+    const win=_c4Check(board,row,col,playerId);
+    if(win)return{...state,board,turn:null,finished:true,winnerId:playerId,lastMove:{row,col,by:playerId}};
+    // Check draw (board full)
+    const full=board[0].every(c=>c!==null);
+    if(full)return{...state,board,turn:null,finished:true,winnerId:null,draw:true,lastMove:{row,col,by:playerId}};
+    return{...state,board,turn:next,lastMove:{row,col,by:playerId}};
+  },
+
+  getLegalActions(state,playerId){
+    if(state.finished||playerId!==state.turn)return[];
+    const actions=[];
+    for(let c=0;c<state.cols;c++){if(!state.board[0][c])actions.push({type:'drop',col:c});}
+    return actions;
+  },
+
+  getStatus(state){
+    const scores={};state.p.forEach(x=>{scores[x.id]=state.winnerId===x.id?1:0;});
+    if(state.finished)return{finished:true,winnerId:state.winnerId,currentTurn:null,scores};
+    return{finished:false,winnerId:null,currentTurn:state.turn,scores};
+  },
+
+  render(container,state,myId,{onAction}){
+    const myTurn=state.turn===myId;
+    const me=state.p.find(x=>x.id===myId);
+    const opp=state.p.find(x=>x.id!==myId);
+    const myColor=state.p[0].id===myId?'var(--r)':'var(--a)';
+    const oppColor=state.p[0].id===myId?'var(--a)':'var(--r)';
+    const en=A.lang==='en';
+    const pColor=id=>id===state.p[0].id?'var(--r)':'var(--a)';
+
+    let html='';
+    // Status bar
+    let statusTxt='';
+    if(state.finished){
+      if(state.draw)statusTxt=en?'Draw!':'Uavgjort!';
+      else statusTxt=state.winnerId===myId?(en?'You won!':'Du vant!'):(en?'You lost':'Du tapte');
+    }else{
+      statusTxt=myTurn?(en?'Your turn':'Din tur'):(en?`${esc(opp?.name||'?')}'s turn`:`${esc(opp?.name||'?')} sin tur`);
+    }
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:14px;border-radius:7px;background:${myColor}"></div><span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(me?.name||'Du')}</span></div>
+      <div style="font-size:12px;font-weight:600;color:${myTurn&&!state.finished?'var(--g)':'var(--muted)'}">${statusTxt}</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(opp?.name||'?')}</span><div style="width:14px;height:14px;border-radius:7px;background:${oppColor}"></div></div>
+    </div>`;
+
+    // Column drop buttons
+    if(!state.finished&&myTurn){
+      html+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;max-width:350px;margin:0 auto 4px">`;
+      for(let c=0;c<state.cols;c++){
+        const canDrop=!state.board[0][c];
+        html+=`<div onclick="window._c4Drop(${c})" style="text-align:center;font-size:16px;cursor:${canDrop?'pointer':'not-allowed'};opacity:${canDrop?'1':'0.2'};padding:4px 0;user-select:none">▼</div>`;
+      }
+      html+=`</div>`;
+    }
+
+    // Board
+    html+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;max-width:350px;margin:0 auto;background:var(--blb);border-radius:10px;padding:6px">`;
+    for(let r=0;r<state.rows;r++){
+      for(let c=0;c<state.cols;c++){
+        const cell=state.board[r][c];
+        const isLast=state.lastMove&&state.lastMove.row===r&&state.lastMove.col===c;
+        const bg=cell?pColor(cell):'var(--surf)';
+        html+=`<div style="aspect-ratio:1;border-radius:50%;background:${bg};border:2px solid ${isLast?'var(--g)':'var(--blb)'};"></div>`;
+      }
+    }
+    html+=`</div>`;
+
+    // Last move info
+    if(state.lastMove&&!state.finished){
+      const who=state.p.find(x=>x.id===state.lastMove.by);
+      html+=`<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">${esc(who?.name||'?')} → ${en?'column':'kolonne'} ${state.lastMove.col+1}</div>`;
+    }
+
+    container.innerHTML=html;
+
+    window._c4Drop=(col)=>{
+      if(state.finished||state.turn!==myId)return;
+      if(state.board[0][col])return; // column full
+      onAction({type:'drop',col});
+    };
+  },
+
+  serialize(state){return state;},
+  deserialize(data){return data;}
+};
+// Connect Four win check helper (4 in a row from last placed piece)
+function _c4Check(board,row,col,pid){
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]]; // horizontal, vertical, diag-down-right, diag-down-left
+  for(const[dr,dc]of dirs){
+    let count=1;
+    for(let d=1;d<=3;d++){const r=row+dr*d,c=col+dc*d;if(r<0||r>=6||c<0||c>=7||board[r][c]!==pid)break;count++;}
+    for(let d=1;d<=3;d++){const r=row-dr*d,c=col-dc*d;if(r<0||r>=6||c<0||c>=7||board[r][c]!==pid)break;count++;}
+    if(count>=4)return true;
+  }
+  return false;
+}
+
+// ════════════════════════════════════════════════
 // STATE REPAIR + MAINTENANCE
 // ════════════════════════════════════════════════
 function repairState(){
