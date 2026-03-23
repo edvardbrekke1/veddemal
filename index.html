@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VEDDEMÅL v1.4.0 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
+<!-- VEDDEMÅL v1.5.0 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
 <html lang="no">
 <head>
 <meta charset="UTF-8">
@@ -313,7 +313,7 @@ select.fi{cursor:pointer}
   <button class="nb" id="nb-prof" onclick="go('profile')"><span class="nb-ico">👤</span>Profil</button>
 </div>
 <script>
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 const UPDATE_URL='https://edvardbrekke1.github.io/veddemal';
 const ADMIN_ID='vaue9DQV9yIGGfS';
 
@@ -2994,56 +2994,92 @@ GAMES['memo']={
 };
 
 // ════════════════════════════════════════════════
-// SEQUENCE MEMORY — second built-in game (3×3 board)
+// SEQUENCE MEMORY — second built-in game (3×3 board, fair rounds)
+// Levels: 4 → 5 → 6 (capped). 3 full rounds per level. Each round = 2 legs (both players repeat once).
 // ════════════════════════════════════════════════
 GAMES['sequence']={
   id:'sequence',
   name:'Sekvens',nameEn:'Sequence',
   icon:'🔢',
-  description:'Husk rekkefølgen! Lag en sekvens — motparten gjentar.',
-  descriptionEn:'Remember the order! Create a sequence — opponent repeats.',
-  minPlayers:2,maxPlayers:2,estimatedMinutes:5,
+  description:'Husk rekkefølgen! Rettferdig: begge gjentar like mange ganger.',
+  descriptionEn:'Remember the order! Fair: both players repeat equally.',
+  minPlayers:2,maxPlayers:2,estimatedMinutes:10,
+
+  // State shape:
+  // size:9, level:4-6, roundAtLevel:0-2 (0-indexed), leg:'a'|'b',
+  // phase:'create'|'replay', turn, creator, repeater,
+  // seq, p:[{id,name,sc}], finished, winnerId, lastResult,
+  // firstPlayer (who was P1 at game start — leg A creator at each round)
 
   createInitialState({players,seed}){
     return{
-      size:9, // 3x3 grid
-      level:4, // starting sequence length
-      phase:'create', // create | replay
-      turn:players[0].id, // whose turn it is (creator of the sequence)
-      creator:players[0].id, // who is creating the current sequence
-      repeater:players[1].id, // who must repeat
-      seq:null, // the current canonical sequence (set by creator)
-      p:[{id:players[0].id,name:players[0].name},{id:players[1].id,name:players[1].name}],
+      size:9,level:4,
+      roundAtLevel:0, // 0,1,2 = three rounds per level
+      leg:'a', // 'a' = firstPlayer creates, 'b' = secondPlayer creates
+      phase:'create',
+      turn:players[0].id,
+      creator:players[0].id,
+      repeater:players[1].id,
+      seq:null,
+      p:[{id:players[0].id,name:players[0].name,sc:0},{id:players[1].id,name:players[1].name,sc:0}],
+      firstPlayer:players[0].id, // anchor for round structure
       finished:false,winnerId:null,
-      lastResult:null // {success:bool, by:id} for UI
+      lastResult:null
     };
   },
 
   applyAction(state,action,playerId){
     if(state.finished)return state;
-    // Creator submits a sequence
     if(action.type==='set_sequence'){
       if(state.phase!=='create'||playerId!==state.creator)return state;
       if(!Array.isArray(action.seq)||action.seq.length!==state.level)return state;
-      // Validate: all indices in range, no immediate consecutive duplicates
       if(action.seq.some(i=>i<0||i>=state.size))return state;
       return{...state,seq:action.seq,phase:'replay',turn:state.repeater};
     }
-    // Repeater submits their attempt
     if(action.type==='attempt'){
       if(state.phase!=='replay'||playerId!==state.repeater||!state.seq)return state;
       if(!Array.isArray(action.seq)||action.seq.length!==state.level)return state;
       if(action.seq.some(i=>i<0||i>=state.size))return state;
       const success=state.seq.every((v,i)=>v===action.seq[i]);
-      if(success){
-        // Roles swap, level increases
-        return{...state,seq:null,phase:'create',level:state.level+1,
-          turn:state.repeater,creator:state.repeater,repeater:state.creator,
-          lastResult:{success:true,by:playerId}};
+      // Award point: success → repeater gets 1pt, fail → creator gets 1pt
+      const p=state.p.map(x=>{
+        if(success&&x.id===state.repeater)return{...x,sc:x.sc+1};
+        if(!success&&x.id===state.creator)return{...x,sc:x.sc+1};
+        return{...x};
+      });
+      const lr={success,by:playerId};
+      const fp=state.firstPlayer;
+      const sp=state.p.find(x=>x.id!==fp).id;
+      // Determine next state after this leg
+      if(state.leg==='a'){
+        // Leg A done → start leg B (swap roles, same level, same roundAtLevel)
+        return{...state,seq:null,phase:'create',leg:'b',
+          turn:sp,creator:sp,repeater:fp,p,lastResult:lr};
       }else{
-        // Repeater failed — creator wins
-        return{...state,finished:true,winnerId:state.creator,
-          lastResult:{success:false,by:playerId}};
+        // Leg B done → full round complete. Check progression.
+        const nextRound=state.roundAtLevel+1;
+        const ROUNDS_PER_LEVEL=3;
+        const MAX_LEVEL=6;
+        if(nextRound<ROUNDS_PER_LEVEL&&state.level<MAX_LEVEL){
+          // More rounds at this level
+          return{...state,seq:null,phase:'create',leg:'a',roundAtLevel:nextRound,
+            turn:fp,creator:fp,repeater:sp,p,lastResult:lr};
+        }
+        if(nextRound>=ROUNDS_PER_LEVEL&&state.level<MAX_LEVEL){
+          // Advance to next level
+          return{...state,seq:null,phase:'create',leg:'a',level:state.level+1,roundAtLevel:0,
+            turn:fp,creator:fp,repeater:sp,p,lastResult:lr};
+        }
+        // At level 6: check if we have a winner after this completed round
+        const s0=p[0].sc,s1=p[1].sc;
+        if(nextRound>=ROUNDS_PER_LEVEL&&s0!==s1){
+          // Winner exists after required rounds at level 6
+          return{...state,seq:null,phase:'create',p,finished:true,
+            winnerId:s0>s1?p[0].id:p[1].id,lastResult:lr};
+        }
+        // Level 6 but still tied or haven't completed required rounds — continue
+        return{...state,seq:null,phase:'create',leg:'a',roundAtLevel:nextRound,
+          turn:fp,creator:fp,repeater:sp,p,lastResult:lr};
       }
     }
     return state;
@@ -3057,8 +3093,9 @@ GAMES['sequence']={
   },
 
   getStatus(state){
-    if(state.finished)return{finished:true,winnerId:state.winnerId,currentTurn:null,scores:null};
-    return{finished:false,winnerId:null,currentTurn:state.turn,scores:null};
+    const scores={};state.p.forEach(x=>{scores[x.id]=x.sc;});
+    if(state.finished)return{finished:true,winnerId:state.winnerId,currentTurn:null,scores};
+    return{finished:false,winnerId:null,currentTurn:state.turn,scores};
   },
 
   render(container,state,myId,{onAction}){
@@ -3072,33 +3109,39 @@ GAMES['sequence']={
 
     const drawUI=()=>{
       let html='';
-      // Phase instruction
-      const levelTxt=en?`Level ${state.level}`:`Nivå ${state.level}`;
+      const levelTxt=en?`Length ${state.level}`:`Lengde ${state.level}`;
+      const isExtra=state.level===6&&state.roundAtLevel>=3;
+      const roundTxt=isExtra?(en?'Tiebreak':'Ekstra runde'):(en?`Round ${state.roundAtLevel+1}/3`:`Runde ${state.roundAtLevel+1}/3`);
+      const legTxt=state.leg==='a'?(en?'Leg A':'Del A'):(en?'Leg B':'Del B');
       let instrTxt='';
       if(state.finished){
-        const iWon=state.winnerId===myId;
-        instrTxt=iWon?(en?'You won!':'Du vant!'):(en?'You lost':'Du tapte');
+        instrTxt=(state.winnerId===myId)?(en?'You won!':'Du vant!'):(en?'You lost':'Du tapte');
       }else if(amCreator){
         instrTxt=en?`Tap ${state.level} tiles to create a sequence`:`Trykk ${state.level} ruter for å lage en sekvens`;
       }else if(amRepeater){
         instrTxt=en?'Repeat the sequence!':'Gjenta sekvensen!';
       }else if(state.phase==='create'){
-        instrTxt=en?`${esc(opp?.name||'?')} is creating a sequence...`:`${esc(opp?.name||'?')} lager en sekvens...`;
+        instrTxt=en?`${esc(opp?.name||'?')} is creating...`:`${esc(opp?.name||'?')} lager sekvens...`;
       }else{
         instrTxt=en?`${esc(opp?.name||'?')} is repeating...`:`${esc(opp?.name||'?')} gjentar...`;
       }
 
-      html+=`<div style="text-align:center;margin-bottom:14px">
-        <div style="font-size:16px;font-weight:700;color:var(--g);margin-bottom:4px">${levelTxt}</div>
-        <div style="font-size:13px;color:${myTurn?'var(--tx)':'var(--muted)'}">${instrTxt}</div>
+      // Score bar
+      html+=`<div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;color:${myTurn?'var(--g)':'var(--muted)'}">${esc(me?.name||'Du')}: ${me?.sc||0}</div>
+        <div style="font-size:14px;font-weight:700;color:${!myTurn?'var(--bl)':'var(--muted)'}">${esc(opp?.name||'?')}: ${opp?.sc||0}</div>
       </div>`;
-
+      // Level / round info
+      html+=`<div style="text-align:center;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:var(--g);margin-bottom:2px">${levelTxt}</div>
+        <div style="font-size:11px;color:var(--muted)">${roundTxt} · ${legTxt}</div>
+        <div style="font-size:13px;color:${myTurn?'var(--tx)':'var(--muted)'};margin-top:4px">${instrTxt}</div>
+      </div>`;
       // Last result
       if(state.lastResult&&!state.finished){
         const who=state.p.find(x=>x.id===state.lastResult.by);
         html+=`<div style="font-size:11px;text-align:center;margin-bottom:10px;color:${state.lastResult.success?'var(--g)':'var(--r)'}">${esc(who?.name||'?')} — ${state.lastResult.success?(en?'correct! ✓':'riktig! ✓'):(en?'wrong ✗':'feil ✗')}</div>`;
       }
-
       // Board (3x3)
       html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto">`;
       for(let i=0;i<state.size;i++){
@@ -3106,49 +3149,29 @@ GAMES['sequence']={
         const tapped=positions.length>0;
         const canTap=(amCreator&&taps.length<state.level)||(amRepeater&&taps.length<state.level);
         html+=`<div onclick="window._seqTap(${i})" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:${positions.length>1?'14':'22'}px;font-weight:700;
-          cursor:${canTap?'pointer':'default'};
-          background:${tapped?'var(--gd)':'var(--surf)'};
-          border:2px solid ${tapped?'var(--gb)':'var(--b)'};
-          color:${tapped?'var(--g)':'var(--dim)'};
+          cursor:${canTap?'pointer':'default'};background:${tapped?'var(--gd)':'var(--surf)'};
+          border:2px solid ${tapped?'var(--gb)':'var(--b)'};color:${tapped?'var(--g)':'var(--dim)'};
           user-select:none;-webkit-user-select:none">${tapped?positions.join(','):'·'}</div>`;
       }
       html+=`</div>`;
-
-      // Tap counter
       if((amCreator||amRepeater)&&!state.finished){
         html+=`<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">${taps.length} / ${state.level}</div>`;
       }
-
-      // Submit button
       if((amCreator||amRepeater)&&taps.length===state.level){
         const btnLabel=amCreator?(en?'Submit sequence':'Send sekvens'):(en?'Submit answer':'Send svar');
         html+=`<button class="btn btn-prim btn-full" style="margin-top:14px;max-width:280px;margin-left:auto;margin-right:auto" onclick="window._seqSubmit()">${btnLabel}</button>`;
       }
-
-      // Undo button (always available while tapping, even when sequence is complete)
       if((amCreator||amRepeater)&&taps.length>0){
         html+=`<button class="btn btn-sec" style="margin-top:10px;max-width:280px;margin-left:auto;margin-right:auto;display:block;font-size:12px" onclick="window._seqUndo()">↩ ${en?'Undo':'Angre'}</button>`;
       }
-
-      // Replay section: show sequence to repeater (non-interactive, always available)
       if(amRepeater&&state.seq){
         html+=`<div style="text-align:center;margin-top:16px"><button class="btn btn-sec" style="font-size:12px;display:inline-block" onclick="window._seqShowReplay()">👁 ${en?'Show sequence again':'Vis sekvensen igjen'}</button></div>`;
       }
-
       container.innerHTML=html;
     };
 
-    window._seqTap=(i)=>{
-      if(state.finished)return;
-      if(!amCreator&&!amRepeater)return;
-      if(taps.length>=state.level)return;
-      taps.push(i);
-      drawUI();
-    };
-    window._seqUndo=()=>{
-      taps.pop();
-      drawUI();
-    };
+    window._seqTap=(i)=>{if(state.finished||(!amCreator&&!amRepeater)||taps.length>=state.level)return;taps.push(i);drawUI();};
+    window._seqUndo=()=>{taps.pop();drawUI();};
     window._seqSubmit=()=>{
       if(taps.length!==state.level)return;
       if(amCreator)onAction({type:'set_sequence',seq:[...taps]});
@@ -3157,27 +3180,17 @@ GAMES['sequence']={
     };
     window._seqShowReplay=()=>{
       if(!state.seq)return;
-      // Visual replay: highlight tiles in sequence with delays
       const tiles=container.querySelectorAll('[onclick^="window._seqTap"]');
       let delay=0;
       state.seq.forEach((idx,step)=>{
-        setTimeout(()=>{
-          const tile=tiles[idx];
-          if(!tile)return;
-          tile.style.background='var(--gd)';tile.style.borderColor='var(--g)';tile.style.color='var(--g)';
-          tile.textContent=''+(step+1);
+        setTimeout(()=>{const tile=tiles[idx];if(!tile)return;
+          tile.style.background='var(--gd)';tile.style.borderColor='var(--g)';tile.style.color='var(--g)';tile.textContent=''+(step+1);
           setTimeout(()=>{tile.style.background='var(--surf)';tile.style.borderColor='var(--b)';tile.style.color='var(--dim)';tile.textContent='·';},600);
-        },delay);
-        delay+=800;
+        },delay);delay+=800;
       });
     };
-
     drawUI();
-
-    // Auto-show replay once when repeater first sees the phase
-    if(amRepeater&&state.seq){
-      setTimeout(()=>{window._seqShowReplay();},400);
-    }
+    if(amRepeater&&state.seq){setTimeout(()=>{window._seqShowReplay();},400);}
   },
 
   serialize(state){return state;},
