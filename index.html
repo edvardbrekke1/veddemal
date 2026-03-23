@@ -1567,10 +1567,15 @@ function feedCard(b){
 // ════════════════════════════════════════════════
 function pCreate(){
   const step=A.params.step||1;
-  const steps=5;
-  const bar=`<div class="steps-bar">${Array.from({length:steps},(_,i)=>`<div class="step-dot${i+1<=step?' act':''}"></div>`).join('')}</div>`;
-  const stepNames=[t('step_type'),t('step_desc'),t('step_amt'),t('step_pub'),t('step_conf')];
-  const info=`<div style="font-size:10px;color:var(--dim);letter-spacing:2px;font-weight:700;margin-bottom:16px">${stepNames[step-1]} · ${step}/${steps}</div>`;
+  const isGame=!!A.nb.gameType; // game bets skip step 2 (BESKRIV)
+  const gameStepMap={1:1,3:2,4:3,5:4}; // internal→visual step for game bets
+  const steps=isGame?4:5;
+  const visualStep=isGame?(gameStepMap[step]||step):step;
+  const bar=`<div class="steps-bar">${Array.from({length:steps},(_,i)=>`<div class="step-dot${i+1<=visualStep?' act':''}"></div>`).join('')}</div>`;
+  const stepNamesNormal=[t('step_type'),t('step_desc'),t('step_amt'),t('step_pub'),t('step_conf')];
+  const stepNamesGame=[t('step_type'),t('step_amt'),t('step_pub'),t('step_conf')];
+  const stepNames=isGame?stepNamesGame:stepNamesNormal;
+  const info=`<div style="font-size:10px;color:var(--dim);letter-spacing:2px;font-weight:700;margin-bottom:16px">${stepNames[visualStep-1]||''} · ${visualStep}/${steps}</div>`;
 
   if(step===1)return`<div class="scr">
     <div class="tbar"><button class="back-btn" onclick="go('feed')">${t('cancel')}</button><div class="pg-title">${t('create_t')}</div></div>
@@ -1605,7 +1610,7 @@ function pCreate(){
 
   if(step===3){
     return`<div class="scr">
-    <div class="tbar"><button class="back-btn" onclick="go('create',{step:2})">${t('back')}</button><div class="pg-title">${t('step_amt')}</div></div>
+    <div class="tbar"><button class="back-btn" onclick="go('create',{step:${isGame?1:2}})">${t('back')}</button><div class="pg-title">${t('step_amt')}</div></div>
     ${bar}${info}
     <div class="field"><label class="flbl">${t('amt_lbl')}</label>
       <div class="fi-row">${[50,100,200,500].map(a=>`<button class="fi-chip${A.nb.amount==a?' act':''}" onclick="selAmt(${a})">${a}</button>`).join('')}</div>
@@ -1682,7 +1687,7 @@ function pCreate(){
     <button class="btn btn-ghost" onclick="go('feed')">${t('cancel')}</button>
   </div>`;}
 }
-window.selType=v=>{A.nb.type=v;render(true);};
+window.selType=v=>{A.nb.type=v;if(v!=='game'){A.nb.gameType=undefined;A.nb.desc='';A.nb.cat='';}render(true);};
 window.createNext=()=>{if(A.nb.type==='game'){go('game',{fromCreate:true});}else{go('create',{step:2});}};
 window.selCat=v=>{A.nb.cat=v;render(true);};
 window.selAmt=v=>{A.nb.amount=v;render(true);};
@@ -1710,6 +1715,8 @@ window.cs3=()=>{
 };
 window.doPost=()=>{
   if(A.nb.visibility==='private'&&A.inviteSelected.size===0){alert(t('select_min_one'));return;}
+  // Defensive: ensure game bets have auto-filled defaults even if draft state is weird
+  if(A.nb.gameType&&!A.nb.desc){const _gm=GAMES[A.nb.gameType];A.nb.desc=(_gm?.icon||'🎮')+' '+(_gm?.name||A.nb.gameType)+' — 1 vs 1';A.nb.cat='🎮 Gaming';}
   const bet={
     id:'b'+now().toString(36)+Math.random().toString(36).substr(2,4),
     desc:A.nb.desc,amount:A.nb.amount,type:A.nb.type==='game'?'honor':A.nb.type,
@@ -2785,9 +2792,13 @@ function pGame(){
 }
 window.pickGame=gameType=>{
   if(A.params.fromCreate){
-    // Coming from create flow: pre-select game type, use honor lifecycle under the hood
+    // Coming from create flow: auto-fill game-bet defaults and skip to INNSATS (step 3)
+    const gm=GAMES[gameType];if(!gm)return;
     A.nb.gameType=gameType;A.nb.type='game';
-    go('create',{step:2});
+    A.nb.desc=(gm.icon||'🎮')+' '+(A.lang==='en'?gm.nameEn||gm.name:gm.name)+' — 1 vs 1';
+    A.nb.cat='🎮 Gaming';
+    A.nb.sideA='';A.nb.sideB='';A.nb.creatorSide=null;
+    go('create',{step:3}); // skip BESKRIV, go straight to INNSATS
   }else if(A.params.betId){
     // Coming from existing bet: start the game immediately
     startGame(A.params.betId,gameType);
@@ -2976,6 +2987,197 @@ GAMES['memo']={
       }
     };
     drawBoard();
+  },
+
+  serialize(state){return state;},
+  deserialize(data){return data;}
+};
+
+// ════════════════════════════════════════════════
+// SEQUENCE MEMORY — second built-in game (3×3 board)
+// ════════════════════════════════════════════════
+GAMES['sequence']={
+  id:'sequence',
+  name:'Sekvens',nameEn:'Sequence',
+  icon:'🔢',
+  description:'Husk rekkefølgen! Lag en sekvens — motparten gjentar.',
+  descriptionEn:'Remember the order! Create a sequence — opponent repeats.',
+  minPlayers:2,maxPlayers:2,estimatedMinutes:5,
+
+  createInitialState({players,seed}){
+    return{
+      size:9, // 3x3 grid
+      level:4, // starting sequence length
+      phase:'create', // create | replay
+      turn:players[0].id, // whose turn it is (creator of the sequence)
+      creator:players[0].id, // who is creating the current sequence
+      repeater:players[1].id, // who must repeat
+      seq:null, // the current canonical sequence (set by creator)
+      p:[{id:players[0].id,name:players[0].name},{id:players[1].id,name:players[1].name}],
+      finished:false,winnerId:null,
+      lastResult:null // {success:bool, by:id} for UI
+    };
+  },
+
+  applyAction(state,action,playerId){
+    if(state.finished)return state;
+    // Creator submits a sequence
+    if(action.type==='set_sequence'){
+      if(state.phase!=='create'||playerId!==state.creator)return state;
+      if(!Array.isArray(action.seq)||action.seq.length!==state.level)return state;
+      // Validate: all indices in range, no immediate consecutive duplicates
+      if(action.seq.some(i=>i<0||i>=state.size))return state;
+      return{...state,seq:action.seq,phase:'replay',turn:state.repeater};
+    }
+    // Repeater submits their attempt
+    if(action.type==='attempt'){
+      if(state.phase!=='replay'||playerId!==state.repeater||!state.seq)return state;
+      if(!Array.isArray(action.seq)||action.seq.length!==state.level)return state;
+      if(action.seq.some(i=>i<0||i>=state.size))return state;
+      const success=state.seq.every((v,i)=>v===action.seq[i]);
+      if(success){
+        // Roles swap, level increases
+        return{...state,seq:null,phase:'create',level:state.level+1,
+          turn:state.repeater,creator:state.repeater,repeater:state.creator,
+          lastResult:{success:true,by:playerId}};
+      }else{
+        // Repeater failed — creator wins
+        return{...state,finished:true,winnerId:state.creator,
+          lastResult:{success:false,by:playerId}};
+      }
+    }
+    return state;
+  },
+
+  getLegalActions(state,playerId){
+    if(state.finished)return[];
+    if(state.phase==='create'&&playerId===state.creator)return[{type:'set_sequence',seq:'*'}];
+    if(state.phase==='replay'&&playerId===state.repeater)return[{type:'attempt',seq:'*'}];
+    return[];
+  },
+
+  getStatus(state){
+    if(state.finished)return{finished:true,winnerId:state.winnerId,currentTurn:null,scores:null};
+    return{finished:false,winnerId:null,currentTurn:state.turn,scores:null};
+  },
+
+  render(container,state,myId,{onAction}){
+    const myTurn=state.turn===myId;
+    const amCreator=state.phase==='create'&&state.creator===myId;
+    const amRepeater=state.phase==='replay'&&state.repeater===myId;
+    const me=state.p.find(x=>x.id===myId);
+    const opp=state.p.find(x=>x.id!==myId);
+    const en=A.lang==='en';
+    let taps=[];
+
+    const drawUI=()=>{
+      let html='';
+      // Phase instruction
+      const levelTxt=en?`Level ${state.level}`:`Nivå ${state.level}`;
+      let instrTxt='';
+      if(state.finished){
+        const iWon=state.winnerId===myId;
+        instrTxt=iWon?(en?'You won!':'Du vant!'):(en?'You lost':'Du tapte');
+      }else if(amCreator){
+        instrTxt=en?`Tap ${state.level} tiles to create a sequence`:`Trykk ${state.level} ruter for å lage en sekvens`;
+      }else if(amRepeater){
+        instrTxt=en?'Repeat the sequence!':'Gjenta sekvensen!';
+      }else if(state.phase==='create'){
+        instrTxt=en?`${esc(opp?.name||'?')} is creating a sequence...`:`${esc(opp?.name||'?')} lager en sekvens...`;
+      }else{
+        instrTxt=en?`${esc(opp?.name||'?')} is repeating...`:`${esc(opp?.name||'?')} gjentar...`;
+      }
+
+      html+=`<div style="text-align:center;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700;color:var(--g);margin-bottom:4px">${levelTxt}</div>
+        <div style="font-size:13px;color:${myTurn?'var(--tx)':'var(--muted)'}">${instrTxt}</div>
+      </div>`;
+
+      // Last result
+      if(state.lastResult&&!state.finished){
+        const who=state.p.find(x=>x.id===state.lastResult.by);
+        html+=`<div style="font-size:11px;text-align:center;margin-bottom:10px;color:${state.lastResult.success?'var(--g)':'var(--r)'}">${esc(who?.name||'?')} — ${state.lastResult.success?(en?'correct! ✓':'riktig! ✓'):(en?'wrong ✗':'feil ✗')}</div>`;
+      }
+
+      // Board (3x3)
+      html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto">`;
+      for(let i=0;i<state.size;i++){
+        const positions=[];taps.forEach((t,idx)=>{if(t===i)positions.push(idx+1);});
+        const tapped=positions.length>0;
+        const canTap=(amCreator&&taps.length<state.level)||(amRepeater&&taps.length<state.level);
+        html+=`<div onclick="window._seqTap(${i})" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:${positions.length>1?'14':'22'}px;font-weight:700;
+          cursor:${canTap?'pointer':'default'};
+          background:${tapped?'var(--gd)':'var(--surf)'};
+          border:2px solid ${tapped?'var(--gb)':'var(--b)'};
+          color:${tapped?'var(--g)':'var(--dim)'};
+          user-select:none;-webkit-user-select:none">${tapped?positions.join(','):'·'}</div>`;
+      }
+      html+=`</div>`;
+
+      // Tap counter
+      if((amCreator||amRepeater)&&!state.finished){
+        html+=`<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">${taps.length} / ${state.level}</div>`;
+      }
+
+      // Submit button
+      if((amCreator||amRepeater)&&taps.length===state.level){
+        const btnLabel=amCreator?(en?'Submit sequence':'Send sekvens'):(en?'Submit answer':'Send svar');
+        html+=`<button class="btn btn-prim btn-full" style="margin-top:14px;max-width:280px;margin-left:auto;margin-right:auto" onclick="window._seqSubmit()">${btnLabel}</button>`;
+      }
+
+      // Undo button (always available while tapping, even when sequence is complete)
+      if((amCreator||amRepeater)&&taps.length>0){
+        html+=`<button class="btn btn-sec" style="margin-top:10px;max-width:280px;margin-left:auto;margin-right:auto;display:block;font-size:12px" onclick="window._seqUndo()">↩ ${en?'Undo':'Angre'}</button>`;
+      }
+
+      // Replay section: show sequence to repeater (non-interactive, always available)
+      if(amRepeater&&state.seq){
+        html+=`<div style="text-align:center;margin-top:16px"><button class="btn btn-sec" style="font-size:12px;display:inline-block" onclick="window._seqShowReplay()">👁 ${en?'Show sequence again':'Vis sekvensen igjen'}</button></div>`;
+      }
+
+      container.innerHTML=html;
+    };
+
+    window._seqTap=(i)=>{
+      if(state.finished)return;
+      if(!amCreator&&!amRepeater)return;
+      if(taps.length>=state.level)return;
+      taps.push(i);
+      drawUI();
+    };
+    window._seqUndo=()=>{
+      taps.pop();
+      drawUI();
+    };
+    window._seqSubmit=()=>{
+      if(taps.length!==state.level)return;
+      if(amCreator)onAction({type:'set_sequence',seq:[...taps]});
+      else if(amRepeater)onAction({type:'attempt',seq:[...taps]});
+      taps=[];
+    };
+    window._seqShowReplay=()=>{
+      if(!state.seq)return;
+      // Visual replay: highlight tiles in sequence with delays
+      const tiles=container.querySelectorAll('[onclick^="window._seqTap"]');
+      let delay=0;
+      state.seq.forEach((idx,step)=>{
+        setTimeout(()=>{
+          const tile=tiles[idx];
+          if(!tile)return;
+          tile.style.background='var(--gd)';tile.style.borderColor='var(--g)';tile.style.color='var(--g)';
+          tile.textContent=''+(step+1);
+          setTimeout(()=>{tile.style.background='var(--surf)';tile.style.borderColor='var(--b)';tile.style.color='var(--dim)';tile.textContent='·';},600);
+        },delay);
+        delay+=800;
+      });
+    };
+
+    drawUI();
+
+    // Auto-show replay once when repeater first sees the phase
+    if(amRepeater&&state.seq){
+      setTimeout(()=>{window._seqShowReplay();},400);
+    }
   },
 
   serialize(state){return state;},
