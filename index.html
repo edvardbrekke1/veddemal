@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VEDDEMÅL v1.3.1 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
+<!-- VEDDEMÅL v1.4.0 | © 2025 Edvard Brekke. Alle rettigheter reservert. -->
 <html lang="no">
 <head>
 <meta charset="UTF-8">
@@ -1253,6 +1253,7 @@ function handleDirect(from,m){
       // Forward to game runner if game screen is open for this bet
       if(A.screen==='game'&&A.params.betId===m.bid&&typeof _gameRemoteAction==='function'){
         _gameRemoteAction(m.action,from,m.state);
+        break; // _gameRemoteAction handles its own render
       }
       schedRender();
       break;
@@ -1410,6 +1411,10 @@ function render(force){
   updateBadges();
   if(chatScreens.includes(A.screen))
     setTimeout(()=>{const m=$('chat-msgs');if(m)m.scrollTop=m.scrollHeight;},60);
+  // Post-render: mount game module into #game-container if on game screen
+  if(A.screen==='game'&&A.params.betId){
+    setTimeout(()=>{_mountGame(A.params.betId);},30);
+  }
   if(_cid){const r=$(_cid);if(r){r.value=_cv;r.focus();}}
 }
 let _renderTimer=null;
@@ -1553,7 +1558,7 @@ function feedCard(b){
         <div style="font-size:11px;color:var(--muted)">${esc(b.creatorName)}${pr?` · ⭐${pr}`:''} · ${ago(b.ts)}</div>
         ${b.payMethod?`<div style="font-size:11px;color:var(--a);margin-top:2px">💳 ${esc(b.payMethod)}</div>`:''}
       </div>
-      <span class="badge ${b.type==='pool'?'b-blue':'b-green'}">${isPool?mbrs.length+' '+t('in_s'):t('type_honor')}</span>
+      <span class="badge ${b.type==='pool'?'b-blue':b.gameType?'b-orange':'b-green'}">${isPool?mbrs.length+' '+t('in_s'):b.gameType?'🎮 '+(GAMES[b.gameType]?(A.lang==='en'?GAMES[b.gameType].nameEn||GAMES[b.gameType].name:GAMES[b.gameType].name):t('type_game')):t('type_honor')}</span>
     </div>
   </div>`;}
 
@@ -1656,11 +1661,12 @@ function pCreate(){
     return`<div class="scr">
     <div class="tbar"><button class="back-btn" onclick="go('create',{step:4})">${t('back')}</button><div class="pg-title">${t('step_conf')}</div></div>
     ${bar}${info}
-    <div class="card c${A.nb.type==='pool'?'p':A.nb.type==='honor'?'h':isPrivate?'l':'j'}" style="margin-bottom:16px">
+    <div class="card c${A.nb.gameType?'j':A.nb.type==='pool'?'p':A.nb.type==='honor'?'h':isPrivate?'l':'j'}" style="margin-bottom:16px">
       <div class="card-desc">${esc(A.nb.desc)}</div>
       <div class="divider"></div>
       ${[
-        [t('conf_type'),A.nb.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],
+        A.nb.gameType?[t('conf_type'),'🎮 '+t('type_game')]:A.nb.type==='honor'?[t('conf_type'),'🤝 '+t('type_honor')]:[t('conf_type'),'👥 '+t('type_pool')],
+        A.nb.gameType?(()=>{const _gm=GAMES[A.nb.gameType];return[A.lang==='en'?'Game':'Spill',(_gm?.icon||'🎮')+' '+esc(A.lang==='en'?_gm?.nameEn||_gm?.name||A.nb.gameType:_gm?.name||A.nb.gameType)];})():null,
         [t('conf_amt'),A.nb.amount+'kr'],
         A.nb.sideA?[t('conf_sideA'),A.nb.sideA]:null,
         A.nb.sideB?[t('conf_sideB'),A.nb.sideB]:null,
@@ -1706,7 +1712,7 @@ window.doPost=()=>{
   if(A.nb.visibility==='private'&&A.inviteSelected.size===0){alert(t('select_min_one'));return;}
   const bet={
     id:'b'+now().toString(36)+Math.random().toString(36).substr(2,4),
-    desc:A.nb.desc,amount:A.nb.amount,type:A.nb.type,
+    desc:A.nb.desc,amount:A.nb.amount,type:A.nb.type==='game'?'honor':A.nb.type,
     category:A.nb.cat||cats()[1],
     sideA:A.nb.sideA,sideB:A.nb.sideB,
     creatorSide:A.nb.creatorSide||null,
@@ -1779,6 +1785,7 @@ window.doJoin=(betId,cId,type)=>{
   }
   const myBet={id:betId,desc:bet?.desc,amount:bet?.amount,type,category:bet?.category,
     sideA:bet?.sideA,sideB:bet?.sideB,payMethod:bet?.payMethod,opponentId:cId,opponentName:bet?.creatorName,
+    gameType:bet?.gameType||undefined,
     status:'pending',isChallenger:true,ts:now(),side:mySide};
   A.myBets.push(myBet);
   if(type==='pool'){
@@ -1874,7 +1881,7 @@ function myCard(b){
       <span style="font-family:'Bebas Neue';font-size:18px;color:${b.status==='done'?(iW?'var(--g)':'var(--r)'):b.status==='await_payment'?(iW?'var(--g)':'var(--a)'):'var(--g)'}">
         ${['done','await_payment'].includes(b.status)?(iW?'+':'-'):''}${b.amount||0}kr
       </span>
-      <span style="font-size:11px;color:var(--muted)">vs ${esc(b.opponentName||t('vs_no_opponent'))} ${b.type==='pool'?'👥':'🤝'}</span>
+      <span style="font-size:11px;color:var(--muted)">vs ${esc(b.opponentName||t('vs_no_opponent'))} ${b.type==='pool'?'👥':b.gameType?'🎮':'🤝'}</span>
     </div>
     ${isDone?`<button class="btn btn-ghost" style="margin-top:8px;padding:8px;font-size:12px;color:var(--r);border-color:var(--rb)" onclick="event.stopPropagation();deleteBet('${b.id}')">${t('remove_hist')}</button>`:''}
   </div>`;}
@@ -1902,11 +1909,12 @@ function pBetDetail(){
   let body='';
 
   // ── FULL INFO ──
-  body+=`<div class="card c${bet.isPrivate?'l':isPool?'p':bet.type==='honor'?'h':'j'}" style="margin-bottom:16px">
+  body+=`<div class="card c${bet.isPrivate?'l':isPool?'p':bet.gameType?'j':bet.type==='honor'?'h':'j'}" style="margin-bottom:16px">
     <div style="font-size:16px;font-weight:600;color:var(--tx);line-height:1.5;margin-bottom:12px">${esc(bet.desc||'—')}</div>
     <div class="divider"></div>
     ${[
-      [t('row_type'),bet.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],
+      bet.gameType?[t('row_type'),'🎮 '+t('type_game')]:[t('row_type'),bet.type==='honor'?'🤝 '+t('type_honor'):'👥 '+t('type_pool')],
+      bet.gameType?(()=>{const _gm=GAMES[bet.gameType];return[A.lang==='en'?'Game':'Spill',(_gm?.icon||'🎮')+' '+esc(A.lang==='en'?_gm?.nameEn||_gm?.name||bet.gameType:_gm?.name||bet.gameType)];})():null,
       [t('stake_lbl'),bet.amount+'kr'],
       [t('row_opponent'),bet.opponentName||'—'],
       bet.sideA&&bet.sideB?[t('your_side'),bet.side?(bet.side==='A'?'🅰 '+bet.sideA:'🅱 '+bet.sideB):(bet.creatorSide?(bet.creatorSide==='A'?'🅰 '+bet.sideA:'🅱 '+bet.sideB):'—')]:null,
@@ -1958,13 +1966,15 @@ function pBetDetail(){
         ${bet.gameScores?`<div style="font-size:12px;color:var(--muted)">${Object.entries(bet.gameScores).map(([id,s])=>`${esc(dispName(id))}: ${s}`).join(' · ')}</div>`:''}
       </div>`;
     }else if(bet.status==='active'){
-      const myTurn=bet.gameTurn===A.myId;
-      body+=`<div class="card card-tap" style="margin-bottom:14px;border-color:${myTurn?'var(--gb)':'var(--b)'}" onclick="go('game',{betId:'${bet.id}'})">
+      const gameStarted=!!bet.gameState;
+      const myTurn=gameStarted&&bet.gameTurn===A.myId;
+      const startLabel=!gameStarted?(bet.creatorId===A.myId?(A.lang==='en'?'Tap to start the game':'Trykk for å starte spillet'):(A.lang==='en'?'Waiting for game to start...':'Venter på at spillet starter...')):null;
+      body+=`<div class="card card-tap" style="margin-bottom:14px;border-color:${myTurn?'var(--gb)':!gameStarted&&bet.creatorId===A.myId?'var(--ab)':'var(--b)'}" onclick="go('game',{betId:'${bet.id}'})">
         <div style="display:flex;align-items:center;gap:10px">
           <div style="font-size:24px">${gIco}</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:700;color:var(--tx)">${esc(gName)}</div>
-            <div style="font-size:12px;color:${myTurn?'var(--g)':'var(--muted)'}">${myTurn?t('game_your_turn'):t('game_their_turn')}</div>
+            <div style="font-size:12px;color:${myTurn?'var(--g)':'var(--muted)'}">${startLabel||((myTurn?t('game_your_turn'):t('game_their_turn')))}</div>
           </div>
           <span style="font-size:16px;color:var(--dim)">→</span>
         </div>
@@ -2775,8 +2785,8 @@ function pGame(){
 }
 window.pickGame=gameType=>{
   if(A.params.fromCreate){
-    // Coming from create flow: pre-select game type, then continue to bet creation step 2
-    A.nb.gameType=gameType;A.nb.type='honor';
+    // Coming from create flow: pre-select game type, use honor lifecycle under the hood
+    A.nb.gameType=gameType;A.nb.type='game';
     go('create',{step:2});
   }else if(A.params.betId){
     // Coming from existing bet: start the game immediately
@@ -2802,6 +2812,174 @@ window.startGame=(bid,gameType)=>{
 window.pauseGame=bid=>{
   _gameRemoteAction=null;
   go('betDetail',{betId:bid});
+};
+// Mount a game module into #game-container after pGame renders
+function _mountGame(bid){
+  const c=$('game-container');if(!c)return;
+  const bet=A.myBets.find(b=>b.id===bid);if(!bet||!bet.gameType)return;
+  const gm=GAMES[bet.gameType];if(!gm)return;
+  // Auto-initialize if game not yet started and I am the creator
+  if(!bet.gameState&&bet.opponentId&&bet.creatorId===A.myId){
+    bet.gameSeed=uid();
+    const players=[{id:A.myId,name:A.myName},{id:bet.opponentId,name:bet.opponentName||'?'}];
+    const initState=gm.createInitialState({players,seed:bet.gameSeed});
+    const initStatus=gm.getStatus(initState);
+    bet.gameState=JSON.stringify(gm.serialize(initState));
+    bet.gameTurn=initStatus.currentTurn;
+    bet.gameFinished=false;bet.gameWinnerId=null;bet.gameScores=null;
+    persist();
+    send(bet.opponentId,{t:'GM',bid,gameType:bet.gameType,state:bet.gameState,seed:bet.gameSeed,turn:bet.gameTurn,finished:false,winnerId:null,scores:null,_mid:uid(),ts:now()});
+    render(true);return; // re-render with initialized state so header updates
+  }
+  // Joiner waiting for creator to start
+  if(!bet.gameState){c.innerHTML=`<div class="info-box" style="text-align:center">${A.lang==='en'?'Waiting for game to start...':'Venter på at spillet starter...'}</div>`;return;}
+  // Restore state
+  let state;
+  try{state=gm.deserialize(JSON.parse(bet.gameState));}catch(e){console.error('[game] deserialize failed',e);return;}
+  const status=gm.getStatus(state);
+  if(status.finished)return; // game already done — pGame shows static header, no need to mount
+  // Action callback: local player completes a move
+  const onAction=(action)=>{
+    const newState=gm.applyAction(state,action,A.myId);
+    if(newState===state)return; // illegal action, no-op
+    state=newState;
+    const st=gm.getStatus(state);
+    bet.gameState=JSON.stringify(gm.serialize(state));
+    bet.gameTurn=st.currentTurn;
+    if(st.finished){bet.gameFinished=true;bet.gameWinnerId=st.winnerId||null;bet.gameScores=st.scores||null;}
+    persist();
+    // Send GM to opponent
+    send(bet.opponentId,{t:'GM',bid,action,state:bet.gameState,turn:bet.gameTurn,finished:!!st.finished,winnerId:st.winnerId||null,scores:st.scores||null,_mid:uid(),ts:now()});
+    // Auto-resolve honor bet on game finish
+    if(st.finished&&bet.type==='honor'&&st.winnerId&&bet.opponentId){
+      bet.myConfirm=st.winnerId;
+      send(bet.opponentId,{t:'HC',bid,wId:st.winnerId});
+      checkHonor(bet);
+    }
+    // Re-render
+    if(st.finished){go('betDetail',{betId:bid});}
+    else{render(true);}
+  };
+  // Remote action handler (called by GM handler when opponent moves)
+  _gameRemoteAction=(action,from,remoteState)=>{
+    try{
+      const applied=gm.applyAction(state,action,from);
+      // Use remote state as fallback if local apply diverges
+      if(remoteState){try{state=gm.deserialize(JSON.parse(remoteState));}catch(e){state=applied;}}
+      else{state=applied;}
+    }catch(e){if(remoteState){try{state=gm.deserialize(JSON.parse(remoteState));}catch(e2){}}}
+    const st=gm.getStatus(state);
+    bet.gameState=JSON.stringify(gm.serialize(state));
+    bet.gameTurn=st.currentTurn;
+    if(st.finished){bet.gameFinished=true;bet.gameWinnerId=st.winnerId||null;bet.gameScores=st.scores||null;}
+    persist();
+    if(st.finished){go('betDetail',{betId:bid});}
+    else{render(true);}
+  };
+  // Render the game
+  gm.render(c,state,A.myId,{onAction});
+}
+
+// ════════════════════════════════════════════════
+// MEMO — first built-in game (9 pairs / 18 tiles)
+// ════════════════════════════════════════════════
+GAMES['memo']={
+  id:'memo',
+  name:'Hukommelse',nameEn:'Memory',
+  icon:'🧠',
+  description:'Finn flest par! 9 par, 18 kort.',
+  descriptionEn:'Find the most pairs! 9 pairs, 18 cards.',
+  minPlayers:2,maxPlayers:2,estimatedMinutes:5,
+
+  createInitialState({players,seed}){
+    const symbols=['🍎','🍊','🍋','🍇','🍓','🍒','🥝','🍑','🫐'];
+    const rng=_prngMul32(_prngSeed(seed));
+    const board=_prngShuffle([...symbols,...symbols],rng).map(s=>({s,m:false}));
+    return{board,p:[{id:players[0].id,name:players[0].name,sc:0},{id:players[1].id,name:players[1].name,sc:0}],turn:players[0].id,last:null};
+  },
+
+  applyAction(state,action,playerId){
+    if(action.type!=='pair')return state;
+    if(playerId!==state.turn)return state;
+    const{a,b}=action;
+    if(a===b||a<0||b<0||a>=state.board.length||b>=state.board.length)return state;
+    if(state.board[a].m||state.board[b].m)return state;
+    const board=state.board.map((t,i)=>i===a||i===b?{...t}:{...t});
+    const isMatch=board[a].s===board[b].s;
+    if(isMatch){board[a].m=true;board[b].m=true;}
+    const p=state.p.map(x=>x.id===playerId&&isMatch?{...x,sc:x.sc+1}:{...x});
+    const nextTurn=isMatch?playerId:(state.p[0].id===playerId?state.p[1].id:state.p[0].id);
+    return{board,p,turn:nextTurn,last:{a,b,match:isMatch,by:playerId}};
+  },
+
+  getLegalActions(state,playerId){
+    if(playerId!==state.turn)return[];
+    const open=state.board.map((t,i)=>t.m?-1:i).filter(i=>i>=0);
+    if(open.length<2)return[];
+    const actions=[];
+    for(let i=0;i<open.length;i++)for(let j=i+1;j<open.length;j++)actions.push({type:'pair',a:open[i],b:open[j]});
+    return actions;
+  },
+
+  getStatus(state){
+    const allMatched=state.board.every(t=>t.m);
+    const scores={};state.p.forEach(x=>{scores[x.id]=x.sc;});
+    if(allMatched){
+      const sorted=[...state.p].sort((a,b)=>b.sc-a.sc);
+      return{finished:true,winnerId:sorted[0].sc>sorted[1].sc?sorted[0].id:null,currentTurn:null,scores};
+    }
+    return{finished:false,winnerId:null,currentTurn:state.turn,scores};
+  },
+
+  render(container,state,myId,{onAction}){
+    const myTurn=state.turn===myId;
+    const me=state.p.find(x=>x.id===myId);
+    const opp=state.p.find(x=>x.id!==myId);
+    let firstPick=null;
+    const drawBoard=()=>{
+      const last=state.last;
+      const showA=last&&!last.match?last.a:-1;
+      const showB=last&&!last.match?last.b:-1;
+      let html=`<div style="display:flex;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:${myTurn?'var(--g)':'var(--muted)'}">${esc(me?.name||'Du')}: ${me?.sc||0}</div>
+        <div style="font-size:14px;font-weight:700;color:${!myTurn?'var(--bl)':'var(--muted)'}">${esc(opp?.name||'?')}: ${opp?.sc||0}</div>
+      </div>`;
+      html+=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">`;
+      state.board.forEach((tile,i)=>{
+        const matched=tile.m;
+        const revealed=matched||i===firstPick||i===showA||i===showB;
+        const isFirst=i===firstPick;
+        const canTap=myTurn&&!matched&&firstPick!==i&&firstPick===null?true:(myTurn&&!matched&&firstPick!==null&&firstPick!==i);
+        html+=`<div onclick="window._memoTap(${i})" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:20px;cursor:${(myTurn&&!matched)?'pointer':'default'};
+          background:${matched?'var(--gd)':revealed?'var(--surf2)':'var(--surf)'};
+          border:2px solid ${isFirst?'var(--g)':matched?'var(--gb)':'var(--b)'};
+          opacity:${matched?'0.5':'1'};
+          user-select:none;-webkit-user-select:none">${revealed?tile.s:'?'}</div>`;
+      });
+      html+=`</div>`;
+      if(last&&!last.match&&(showA>=0||showB>=0)){
+        html+=`<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">${esc(state.p.find(x=>x.id===last.by)?.name||'?')} — ${A.lang==='en'?'no match':'ikke par'}</div>`;
+      }
+      if(last&&last.match){
+        html+=`<div style="font-size:11px;color:var(--g);text-align:center;margin-top:10px">${esc(state.p.find(x=>x.id===last.by)?.name||'?')} — ${A.lang==='en'?'match!':'par! ✓'}</div>`;
+      }
+      container.innerHTML=html;
+    };
+    window._memoTap=(i)=>{
+      if(!myTurn||state.board[i].m)return;
+      if(firstPick===null){
+        firstPick=i;drawBoard();
+      }else if(firstPick!==i){
+        const a=firstPick,b=i;
+        firstPick=null;
+        onAction({type:'pair',a,b});
+      }
+    };
+    drawBoard();
+  },
+
+  serialize(state){return state;},
+  deserialize(data){return data;}
 };
 
 // ════════════════════════════════════════════════
