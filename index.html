@@ -1471,13 +1471,16 @@ window.doSetup=async()=>{
   const nav=$('nav-bar');if(nav)nav.style.display='flex';
   go('feed');
   if(Notification?.permission==='default')Notification.requestPermission();
-  // Auto-friend the person who shared the file
+  // Auto-friend the person who shared the file/link
   if(A._pendingInviter){
     const{id,name}=A._pendingInviter;
+    console.log('[invite] auto-friend from pending inviter:',id,name);
     if(!A.contacts.find(c=>c.id===id)){A.contacts.push({id,name,alias:name});persist();}
     tryConn(id);
     notify('👋 '+t('auto_friend_notify').replace('{name}',name));
     A._pendingInviter=null;
+  }else{
+    console.log('[invite] no pending inviter at setup completion');
   }
   // Show install hint after first setup
   showInstallHint();
@@ -3388,16 +3391,20 @@ async function boot(){
     const invName=document.body.dataset.inviterName;
     if(invId&&invId.startsWith('v'))A._pendingInviter={id:invId,name:invName||invId.substr(0,8)};
   }
-  // Auto-friend via URL hash (e.g. #vXXXXXXXXXXXXXX)
+  // Auto-friend via URL — check query param ?ref=vXXX (reliable on iOS) and hash #vXXX (fallback)
+  const urlParams=new URLSearchParams(window.location.search);
+  const refParam=urlParams.get('ref')||'';
   const hashId=(window.location.hash||'').replace('#','');
-  if(hashId.startsWith('v')&&hashId.length>=8){
-    history.replaceState(null,'',window.location.pathname+window.location.search);
+  const inviteId=(refParam.startsWith('v')&&refParam.length>=8)?refParam:(hashId.startsWith('v')&&hashId.length>=8)?hashId:'';
+  if(inviteId){
+    console.log('[invite] detected invite ID:',inviteId,'source:',refParam?'query-param':'hash');
+    history.replaceState(null,'',window.location.pathname); // clean URL
     if(!ls('vPriv')){
-      // New user — store as pending inviter (file data-inviter takes precedence if set)
-      if(!A._pendingInviter)A._pendingInviter={id:hashId,name:'Venn'};
+      if(!A._pendingInviter)A._pendingInviter={id:inviteId,name:'Venn'};
+      console.log('[invite] new user — stored pending inviter:',inviteId);
     }else if(A.myName){
-      // Existing user — offer to add as contact after boot
-      A._hashInviteId=hashId;
+      A._hashInviteId=inviteId;
+      console.log('[invite] existing user — will offer to add:',inviteId);
     }
   }
   if(A.myName){
@@ -3424,16 +3431,21 @@ async function boot(){
   // Re-sync + update check when app returns from background
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden&&A.myName){
+      console.log('[visibility] app foregrounded — ready=',A.ready,'conns=',A.conns.size);
       // If peer disconnected while in background, reconnect immediately
       if(A.peer&&A.peer.disconnected&&!A.peer.destroyed){
         A.ready=false;
         try{A.peer.reconnect();}catch(e){}
       }
-      schedRender(); // update online indicator immediately on return
+      schedRender();
+      // Wave 1: immediate tryConn (works if signaling is still alive)
       A.contacts.forEach(c=>tryConn(c.id));
       flushQ();
       checkForUpdate();
-      setTimeout(()=>{A.conns.forEach((_,id)=>{deliverRelay(id);syncWithPeer(id);});},1000);
+      // Wave 2: retry after signaling likely reconnected (2s)
+      setTimeout(()=>{A.contacts.forEach(c=>tryConn(c.id));flushQ();},2000);
+      // Wave 3: retry + full sync after signaling reconnected (5s)
+      setTimeout(()=>{A.contacts.forEach(c=>tryConn(c.id));A.conns.forEach((_,id)=>{deliverRelay(id);syncWithPeer(id);});flushQ();schedRender();},5000);
     }
   });
   // Check for updates (silent, non-blocking)
@@ -3471,7 +3483,7 @@ window.shareApp = async () => {
 };
 window.shareLink = async () => {
   document.getElementById('share-modal')?.remove();
-  const url = (UPDATE_URL||location.origin+location.pathname).replace(/\/$/,'')+( A.myId?'/#'+A.myId:'/');
+  const url = (UPDATE_URL||location.origin+location.pathname).replace(/\/$/,'')+(A.myId?'/?ref='+A.myId:'/');
   const shareData = { title:'VEDDEMÅL', text:t('share_link_msg'), url };
   if(navigator.share && navigator.canShare?.(shareData)){
     try{ await navigator.share(shareData); return; }catch(e){ if(e.name==='AbortError') return; }
@@ -3514,13 +3526,18 @@ function showInstallHint(){
   const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
   const el=document.createElement('div');
   el.id='install-banner';
-  el.style.cssText='position:fixed;bottom:80px;left:0;right:0;z-index:998;padding:0 12px;pointer-events:none';
+  el.style.cssText='position:fixed;bottom:100px;left:0;right:0;z-index:998;padding:0 12px;pointer-events:none';
   const dismiss=`ss('vInstDismissed','1');document.getElementById('install-banner')?.remove()`;
+  // Detect in-app browser (iOS WebViews lack Safari-specific features)
+  const isInApp=isIOS&&(!/Safari/.test(navigator.userAgent)||/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent));
   let mainContent;
   if(isIOS){
+    const iosGuide=isInApp
+      ?(A.lang==='en'?'Open this page in Safari first, then tap Share (□↑) → Add to Home Screen':'Åpne denne siden i Safari først, trykk Del (□↑) → Legg til på Hjem-skjerm')
+      :t('install_ios_guide');
     mainContent=`<div style="flex:1;min-width:0">
       <div style="font-size:13px;font-weight:600;color:var(--tx)">${t('install_ios_hint')}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">${t('install_ios_guide')}</div>
+      <div style="font-size:11px;color:${isInApp?'var(--a)':'var(--muted)'};margin-top:2px">${iosGuide}</div>
     </div>`;
   }else if(window._bip){
     mainContent=`<div style="flex:1;min-width:0">
